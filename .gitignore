@@ -1,0 +1,4 @@
+# Godot 4 忽略项
+/.godot/
+/exports/
+*.translation
