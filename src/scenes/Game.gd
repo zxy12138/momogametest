@@ -176,22 +176,24 @@ func _spawn_next_door(next_layer: int) -> void:
 	d.connect("body_entered", cb)
 	$World.add_child(d)
 	# 下一层传送门可见指示
-	var frame := ColorRect.new()
-	frame.size = Vector2(58, 74)
-	frame.position = d.position - frame.size / 2
-	frame.color = Color(1.0, 0.9, 0.5, 0.9)
-	frame.z_index = 4
-	$World.add_child(frame)
-	var portal := ColorRect.new()
-	portal.size = Vector2(54, 70)
-	portal.position = d.position - portal.size / 2
-	portal.color = Color(0.95, 0.8, 0.3, 0.35)
-	portal.z_index = 5
-	$World.add_child(portal)
+	# 下一层传送门可见门框（贴图 T-003 开启动画门，取首帧静态显示）
+	var door_tex := load("res://assets/tiles/T-003_door_frame_open_anim.png") as Texture2D
+	var ds := door_tex.get_size()
+	var dh := 96.0
+	var fw := ds.x / 4.0
+	var dw := dh * fw / ds.y
+	var spr := Sprite2D.new()
+	spr.texture = door_tex
+	spr.hframes = 4
+	spr.frame = 0
+	spr.scale = Vector2(dw / fw, dh / ds.y)
+	spr.position = d.position
+	spr.z_index = 4
+	$World.add_child(spr)
 	var lab := Label.new()
 	lab.text = "↑ 下一层"
-	lab.position = d.position - Vector2(30, 10)
-	lab.add_theme_font_size_override("font_size", 14)
+	lab.position = d.position - Vector2(34, 14)
+	lab.add_theme_font_size_override("font_size", 22)
 	lab.add_theme_color_override("font_color", Color(1.0, 0.95, 0.7))
 	lab.z_index = 6
 	$World.add_child(lab)
@@ -314,7 +316,7 @@ func _build_inn_prompt() -> void:
 
 func _build_dev_label() -> void:
 	_dev_label = Label.new()
-	_dev_label.text = "开发者模式 ON · F2 切换 · M 看全图 · 地图内选层跳关"
+	_dev_label.text = "开发者模式 ON · F12 切换 · M 看全图 · 地图内选层跳关"
 	_dev_label.position = Vector2(20, get_window().get_visible_rect().size.y - 40)
 	_dev_label.add_theme_font_size_override("font_size", 13)
 	_dev_label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.7))

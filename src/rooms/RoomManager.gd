@@ -15,7 +15,8 @@ var _data := {}
 var _layer := 1
 var _entities: Node = null
 var _game: Node = null
-var _floor: ColorRect
+var _floor: TextureRect
+var _prefab := false  # 是否使用美术预制整图作背景（v4.0 试用）
 
 
 func setup(rid: String, data: Dictionary, layer: int, entities: Node, game: Node) -> void:
@@ -33,11 +34,27 @@ func setup(rid: String, data: Dictionary, layer: int, entities: Node, game: Node
 
 
 func _build_floor() -> void:
-	_floor = get_node("Floor")
-	_floor.size = Vector2(W, H)
-	_floor.position = Vector2(-W / 2, -H / 2)
-	var cols := {1: Color(0.10, 0.09, 0.16), 2: Color(0.08, 0.10, 0.13), 3: Color(0.05, 0.03, 0.07)}
-	_floor.color = cols.get(_layer, Color(0.1, 0.09, 0.16))
+	_floor = get_node("Floor") as TextureRect
+	var img: String = _data.get("scene_img", "")
+	if img != "":
+		# 预制整图方案（v4.0 试用）：直接用美术预制的一图一房背景，墙体烘焙在图内；
+		# 碰撞仍由 _build_walls 的无形墙负责，这里只做背景显示。
+		_prefab = true
+		_floor.texture = load(img) as Texture2D
+		_floor.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_floor.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		_floor.size = Vector2(W, H)
+		_floor.position = Vector2(-W / 2, -H / 2)
+		_floor.modulate = Color(1, 1, 1)
+	else:
+		_floor.texture = load("res://assets/tiles/T-000_base_dream_floor_tile_1.png") as Texture2D
+		_floor.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_floor.stretch_mode = TextureRect.STRETCH_TILE
+		_floor.size = Vector2(W, H)
+		_floor.position = Vector2(-W / 2, -H / 2)
+		# 按层轻微染色，强化每层主题（克制，近 1.0 乘法）
+		var tints := {1: Color(0.92, 0.96, 1.08), 2: Color(1.0, 1.0, 1.0), 3: Color(1.08, 0.92, 0.94)}
+		_floor.modulate = tints.get(_layer, Color(1, 1, 1))
 	# 地板永远在最底层：实体用 z_index=int(y) 做 Y 排序，上移时 y<0→z<0，
 	# 若地板 z=0 会把上移的角色/敌人/弹道盖住而「消失」。
 	_floor.z_index = -4000
@@ -53,6 +70,8 @@ func _build_walls() -> void:
 	_add_wall(sb, 0, H / 2 + th / 2, W + 2 * th, th)
 	_add_wall(sb, -W / 2 - th / 2, 0, th, H + 2 * th)
 	_add_wall(sb, W / 2 + th / 2, 0, th, H + 2 * th)
+	if not _prefab:
+		_build_wall_visuals(th)
 
 
 func _add_wall(sb: Node, cx: float, cy: float, w: float, h: float) -> void:
@@ -62,6 +81,53 @@ func _add_wall(sb: Node, cx: float, cy: float, w: float, h: float) -> void:
 	cs.shape = sh
 	cs.position = Vector2(cx, cy)
 	sb.add_child(cs)
+
+
+# 可见墙体贴图：沿四边平铺对应层墙瓦片；仅在 neighbors 存在的边留门洞，其余实墙不可穿。
+func _build_wall_visuals(th: float) -> void:
+	var wall_tex: Texture2D
+	match _layer:
+		1: wall_tex = load("res://assets/tiles/T-021_office_wall_tile_1.png") as Texture2D
+		2: wall_tex = load("res://assets/tiles/T-031_subway_wall_tile_1.png") as Texture2D
+		3: wall_tex = load("res://assets/tiles/T-041_warped_wall_animated.png") as Texture2D
+		_: wall_tex = load("res://assets/tiles/T-001_base_wall_tile_1.png") as Texture2D
+	var G := 64.0
+	var n := mini(_data.get("neighbors", []).size(), 4)
+	# TOP (i=0)
+	if 0 < n:
+		add_child(_wall_seg(wall_tex, -(W / 2 + th + G / 2) / 2, -H / 2 - th / 2, W / 2 + th - G / 2, th))
+		add_child(_wall_seg(wall_tex, (W / 2 + th + G / 2) / 2, -H / 2 - th / 2, W / 2 + th - G / 2, th))
+	else:
+		add_child(_wall_seg(wall_tex, 0, -H / 2 - th / 2, W + 2 * th, th))
+	# BOTTOM (i=1)
+	if 1 < n:
+		add_child(_wall_seg(wall_tex, -(W / 2 + th + G / 2) / 2, H / 2 + th / 2, W / 2 + th - G / 2, th))
+		add_child(_wall_seg(wall_tex, (W / 2 + th + G / 2) / 2, H / 2 + th / 2, W / 2 + th - G / 2, th))
+	else:
+		add_child(_wall_seg(wall_tex, 0, H / 2 + th / 2, W + 2 * th, th))
+	# LEFT (i=2)
+	if 2 < n:
+		add_child(_wall_seg(wall_tex, -W / 2 - th / 2, -(H / 2 + th + G / 2) / 2, th, H / 2 + th - G / 2))
+		add_child(_wall_seg(wall_tex, -W / 2 - th / 2, (H / 2 + th + G / 2) / 2, th, H / 2 + th - G / 2))
+	else:
+		add_child(_wall_seg(wall_tex, -W / 2 - th / 2, 0, th, H + 2 * th))
+	# RIGHT (i=3)
+	if 3 < n:
+		add_child(_wall_seg(wall_tex, W / 2 + th / 2, -(H / 2 + th + G / 2) / 2, th, H / 2 + th - G / 2))
+		add_child(_wall_seg(wall_tex, W / 2 + th / 2, (H / 2 + th + G / 2) / 2, th, H / 2 + th - G / 2))
+	else:
+		add_child(_wall_seg(wall_tex, W / 2 + th / 2, 0, th, H + 2 * th))
+
+
+func _wall_seg(tex: Texture2D, cx: float, cy: float, w: float, h: float) -> TextureRect:
+	var r := TextureRect.new()
+	r.texture = tex
+	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	r.stretch_mode = TextureRect.STRETCH_TILE
+	r.size = Vector2(w, h)
+	r.position = Vector2(cx - w / 2, cy - h / 2)
+	r.z_index = -10
+	return r
 
 
 func _build_doors() -> void:
@@ -86,23 +152,24 @@ func _build_doors() -> void:
 					_game.call("transition_to", nid)
 		d.connect("body_entered", cb)
 		add_child(d)
-		# 可见传送门 + 方向箭头：给玩家清晰的出口指引
-		var frame := ColorRect.new()
-		frame.size = Vector2(56, 70)
-		frame.position = d.position - frame.size / 2
-		frame.color = Color(0.55, 0.9, 1.0, 0.85)
-		frame.z_index = 4
-		add_child(frame)
-		var portal := ColorRect.new()
-		portal.size = Vector2(50, 64)
-		portal.position = d.position - portal.size / 2
-		portal.color = Color(0.25, 0.75, 1.0, 0.32)
-		portal.z_index = 5
-		add_child(portal)
+		# 可见门框（贴图 T-003 开启动画门，取首帧静态显示）+ 方向箭头，给玩家清晰的出口指引
+		var door_tex := load("res://assets/tiles/T-003_door_frame_open_anim.png") as Texture2D
+		var ds := door_tex.get_size()
+		var dh := 96.0
+		var fw := ds.x / 4.0  # T-003 为 4 帧横排动画表，单帧宽 = 总宽/4
+		var dw := dh * fw / ds.y
+		var spr := Sprite2D.new()
+		spr.texture = door_tex
+		spr.hframes = 4
+		spr.frame = 0
+		spr.scale = Vector2(dw / fw, dh / ds.y)
+		spr.position = d.position
+		spr.z_index = 4
+		add_child(spr)
 		var lab := Label.new()
 		lab.text = arrows[i] + " " + _room_label(nid)
-		lab.position = d.position - Vector2(28, 10)
-		lab.add_theme_font_size_override("font_size", 14)
+		lab.position = d.position - Vector2(34, 14)
+		lab.add_theme_font_size_override("font_size", 22)
 		lab.add_theme_color_override("font_color", Color(0.85, 0.95, 1.0))
 		lab.z_index = 6
 		add_child(lab)
@@ -136,14 +203,23 @@ func _build_inn() -> void:
 			_game.call("_on_inn_exit")
 	pad.connect("body_exited", cbx)
 	add_child(pad)
-	# 驿站暖光地面标记
+	# 驿站地面贴图（T-050 休息站内景）+ 暖光标记
+	var inn_tex := load("res://assets/tiles/T-050_dream_rest_stop_interior.png") as Texture2D
+	var isz := inn_tex.get_size()
+	var iscale: float = 130.0 / max(isz.x, isz.y)
+	var decal := Sprite2D.new()
+	decal.texture = inn_tex
+	decal.scale = Vector2(iscale, iscale)
+	decal.position = Vector2(0, 0)
+	decal.z_index = -3000
+	add_child(decal)
 	var m := ColorRect.new()
-	m.size = Vector2(60, 60); m.position = Vector2(-30, -30)
-	m.color = Color(0.95, 0.85, 0.55, 0.5)
+	m.size = Vector2(150, 150); m.position = Vector2(-75, -75)
+	m.color = Color(0.95, 0.85, 0.55, 0.35)
 	add_child(m)
 	var lab := Label.new()
 	lab.text = "驿站"
-	lab.position = Vector2(-20, -54)
+	lab.position = Vector2(-22, -95)
 	lab.add_theme_font_size_override("font_size", 14)
 	lab.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
 	lab.z_index = 6

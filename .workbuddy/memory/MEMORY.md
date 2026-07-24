@@ -41,11 +41,21 @@
   - `MapUI._draw_map` 遍历 `MapData.merged`，`gx/gy∈[0,1]` 映射画布，连线遍历 `links`，按钮文本=合并键+类型（全 VISITED→全显示类型），点击 `transition_to(合并键)`。
 - 验证：无头挂 `_diag_map.gd` autoload（临时入口切 `Game.tscn`），实测 `merged.size()=18`、`f1-r6.links` 含 `f2-r1`、点 `f2-r3` 后 `GameManager.layer_index` 由 1→2，零 `SCRIPT ERROR`。
 
-## 美术一键替换约定
-- 全部美术为同名占位 PNG，路径严格对应 `assets/` 结构（sprites/weapons/fx/ui/tiles/audio）。
-- 替换方式：用同名同尺寸 PNG 覆盖，`assets/GENERATED_PLACEHOLDERS.json` 是完整清单（104 张）。
-- 精灵表必须保持帧数与数据表（`Player.gd` spec、`Enemies.gd` fw/fh、`make_frames` 调用）一致，否则循环错位。
-- `audio/bgm` 与 `audio/sfx` 目录预留，路径尚未接入播放节点（目前静音，避免悬空引用报错）。
+## 美术资产管线（v3.0 最终清单驱动）
+- 权威清单：`DevelopmentRequirements/梦境逐影_美术素材清单_最终版.xlsx`（**v3.0**，6 页：A-/M-/W-/FX-/T-/UI-/CG-/BGM-/SFX- + 尺寸 + 帧数 + 数量单位）。⚠️ 曾误当 v2.0（见 CHANGELOG 2026-07-23 续条纠正）。**Sheet5 音频（BGM-/SFX-）按约定跳过，非图片不生成。**
+- 关键尺寸（v3.0）：角色 / 普通怪 / 精英怪 = **130×250**；Boss = **260×500**（v2.0 误作 32×32 / 80×64）；武器/特效/UI/场景 Tile 尺寸见清单。
+- 命名铁律：`{编号}_{英文名称}.png`，英文取自清单「英文名称」列转 **snake_case**（空格/括号→下划线、全小写）。例 `A-001_miai_idle.png` / `M-017_revolving_door_spin.png` / `T-000_base_dream_floor_tile_1.png`。⚠️ 勿用旧手推名（`mihui`→`miai`、`revolving_spin`→`revolving_door_spin`、`kpi_float`→`kpi_monster_float`）。
+- 单一权威数据源：`tools/v3_assets.py`（`RAW=(code, english_snake, w, h, frames, cat, kind)` + `CODE_EN` + `BOSS_CODES`）。改清单先改这里，再跑生成器。
+- 生成器：`tools/gen_assets.py`（手写 zlib PNG 编码器，无第三方库）。`cat`：player/enemy/boss/wicon/wproj/fx/tile/ui/cg；`kind`：single/sheet/multi。`folder_of`：player→`sprites/player`，boss→`sprites/bosses`，enemy 按编号 `layer1(≤8)/layer2(≤19)/layer3`，wicon→`weapons/icons`，wproj→`weapons/projectiles`，fx→`fx`，tile→`tiles`，ui/cg→`ui`。生成 **220** 个占位 + 写回 `assets/GENERATED_PLACEHOLDERS.json`（`generated` 220 + `note`）。⚠️ cleanup 只删"旧清单有、本次未生成"的文件，`os.remove` 包 `try/except` 兜 safe-delete 守护 EPERM。
+- 代码引用迁移：`tools/migrate_code.py`（幂等，old→new 桩映射，遍历 `src/` 全部 `.gd` 跳过 tools/assets/.git/.workbuddy）。跑完用脚本枚举 `src/` 全部 `res://assets` 引用做"磁盘存在 + 无旧名残留"校验（v3 校验：24 处引用 **0 缺失**、老桩 **0 残留**）。
+- 维度回填要点：`Enemy.gd`/`Player.gd` 的 `fw/fh` 必须 = 精灵表单帧尺寸（怪物 130/250、Boss 260/500），`fi`=idle 帧、`fa`=attack 帧（`Enemy.gd` setup 用 `fi` 切 idle、`fa` 切 attack，二者同 `fw/fh`）。改清单尺寸/帧数时务必同步回填，否则动画切片错位。
+- 替换方式：用**同名同尺寸 PNG**覆盖占位（精灵表帧数须 = 数据表 `fi/fa` 且 = `make_frames` 切片一致）。
+- **场景构建方案 = 预制整图（v4.0）**：用户放弃"通用瓦片拼接"，改为**每一关由美术预制整图**（一图一房 960×540，含墙/地板/家具/灯光全部烘焙）+ **空气墙 InvisibleWall**（纯 `StaticBody2D` + `CollisionShape2D` 零贴图）+ **门动画 Door**（开/关帧切换 + Area2D 触发器联动）。参考样图：`assets/tiles/changjing1.png`（第一层办公室类型，1376×768，工位林立）。工程只需实现 Door 与 InvisibleWall 逻辑，不再需要 `_build_wall_visuals` 等通用瓦片拼墙。
+  - **代码已落地第一步（2026-07-24）**：`RoomManager._build_floor` 现读取 `_data.scene_img` 键——有则用该图作背景（`STRETCH_KEEP_ASPECT_COVERED`，`z_index=-4000`）并跳过瓦片墙体贴图；`LevelData` 第一层 `r2/r3` 已临时挂 `scene_img="res://assets/tiles/changjing1.png"` 作 v4.0 试用（标注 TEST，待正式整图流程接管后删除）。碰撞墙/门逻辑不变。`Game.gd` dev 标签 "F2"→"F12"（与 project.godot 实际绑定一致）。
+  - **角色缩放（2026-07-24）**：玩家 `_sprite.scale` 0.6→**0.28**（缩小一半以上）；敌人 `_sprite.scale` 原 1.0（未设）→**0.45**（保持与玩家原 0.6:1.0≈0.28:0.45 比例协调）；均仅视觉，碰撞半径不变。Boss 暂未动。
+  - 美术清单 Sheet3 已重构（场景整图 S-001~S-018 + 门 D-001~D-003 + 驿站 I-001~I-003 + 道具 P-001~P-003 + 地图节点 N-001~N-010 + 废弃 21 项）；详见 CHANGELOG 2026-07-24（续2/续3）条。
+- 旧 v2.0 占位共 135 张已迁出至项目外 `_trash_v2/`（可逆，共 270 条目含 `.import`）；本会话 safe-delete 守护阈值(50/会话)已耗尽，无法 `os.remove` 批量永久删，需新会话或手动清 `_trash_v2/`。
+- `audio/bgm` 与 `audio/sfx` 目录预留，`LevelData.BGM` 引用 `bgm_1..3.ogg` 缺失→静音，接入真实音频后再补。
 
 ## 玩家（大鹏 / dapeng）
 - 用 Godot 4 开发食梦貘主题 2.5D 8 向动作射击游戏，为虚拟主播「弥绘」庆生。

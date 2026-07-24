@@ -73,7 +73,7 @@ func _do_fire(aim: Vector2, ratio: float) -> void:
 	if is_crit:
 		player.call("shake", 0.12, 3)
 		player.call("play_attack")
-		GameManager.fx("res://assets/fx/fx_crit.png", player.global_position, 48, 48, 5, 0.45)
+		GameManager.fx("res://assets/fx/FX-001_crit_trigger_orange_flash.png", player.global_position, 48, 48, 5, 0.45)
 
 	if w["kind"] == "ranged":
 		_spawn_proj(player.global_position + aim * 16, aim, w, dmg, is_crit)
@@ -103,7 +103,7 @@ func _melee(pos: Vector2, aim: Vector2, w: Dictionary, dmg: int, is_crit: bool) 
 	var arc: float = deg_to_rad(w.get("arc", 90))
 	var center := pos + aim * reach * 0.55
 	# 视觉弧线
-	GameManager.fx("res://assets/fx/fx_shockwave.png", center, 64, 16, 5, 0.18)
+	GameManager.fx("res://assets/fx/FX-015_hammer_slam_shockwave.png", center, 64, 16, 5, 0.18)
 	# 直接结算范围内的敌人
 	for en in get_tree().get_nodes_in_group("enemy"):
 		var e := en as Node2D

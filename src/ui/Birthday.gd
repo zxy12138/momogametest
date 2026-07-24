@@ -1,5 +1,5 @@
 # 《梦境逐影》生日彩蛋（Control 根，最终 Boss 净化后触发）
-# 占位 CG 图（可一键替换 assets/ui/cg_birthday.png）。
+# 占位 CG 图（可一键替换 assets/ui/CG-004_ending_birthday_cg.png）。
 extends Control
 
 func _ready() -> void:
@@ -9,7 +9,7 @@ func _ready() -> void:
 	add_child(bg)
 
 	var cg := TextureRect.new()
-	cg.texture = GameManager.load_tex("res://assets/ui/cg_birthday.png")
+	cg.texture = GameManager.load_tex("res://assets/ui/CG-004_ending_birthday_cg.png")
 	if cg.texture != null:
 		cg.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 		cg.size = Vector2(640, 360)

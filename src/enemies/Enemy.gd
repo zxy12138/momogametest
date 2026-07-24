@@ -46,6 +46,7 @@ func setup(eid: String) -> void:
 	}
 	_sprite.sprite_frames = GameManager.make_frames(spec)
 	_sprite.play("idle")
+	_sprite.scale = Vector2(0.45, 0.45)  # 与玩家同比例缩小（玩家 0.28/原 0.6≈0.467，取 0.45），战斗场景人物比例协调；仅视觉，碰撞半径不变
 	var r := mini(fw, fh) * 0.32
 	get_node("CollisionShape2D").shape.radius = r
 	get_node("Hitbox/CollisionShape2D").shape.radius = r
@@ -129,7 +130,7 @@ func _shoot(target_pos: Vector2) -> void:
 func _pulse(_target: Vector2) -> void:
 	_atk_timer = 0.3
 	var rad: float = _data.get("aoe_radius", 60)
-	GameManager.fx("res://assets/fx/fx_shockwave.png", global_position, 64, 16, 5, 0.4)
+	GameManager.fx("res://assets/fx/FX-015_hammer_slam_shockwave.png", global_position, 64, 16, 5, 0.4)
 	var p := get_tree().get_first_node_in_group("player") as Node2D
 	if p != null and global_position.distance_to(p.global_position) <= rad:
 		GameManager.damage_player(_data.get("proj_dmg", 12))
@@ -228,7 +229,7 @@ func _take_burn(d: int) -> void:
 func _die(is_crit: bool) -> void:
 	_dead = true
 	GameManager.on_kill(xp, is_crit)
-	GameManager.fx("res://assets/fx/fx_killfade.png", global_position, 32, 32, 5, 0.4)
+	GameManager.fx("res://assets/fx/FX-023_kill_dissolve_effect.png", global_position, 32, 32, 5, 0.4)
 	_drop()
 	velocity = Vector2.ZERO
 	var t := get_tree().create_tween()

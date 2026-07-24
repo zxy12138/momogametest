@@ -20,17 +20,18 @@ func _ready() -> void:
 	add_to_group("player")
 	_sprite = get_node("Sprite")
 	var spec := {
-		"idle":   [SPR+"A-001_idle.png", 32, 32, 4, 12],
-		"walk":   [SPR+"A-002_walk.png", 32, 32, 6, 12],
-		"run":    [SPR+"A-003_run.png", 32, 32, 6, 16],
-		"jump":   [SPR+"A-004_jump.png", 32, 32, 3, 12],
-		"hurt":   [SPR+"A-005_hurt.png", 32, 32, 2, 12],
-		"attack": [SPR+"A-007_attack.png", 32, 32, 4, 14],
-		"dead":   [SPR+"A-006_dead.png", 32, 32, 6, 12],
-		"ult":    [SPR+"A-008_ult.png", 32, 32, 8, 14],
-		"true":   [SPR+"A-009_true.png", 32, 32, 4, 12],
+		"idle": [SPR+"A-001_miai_idle.png", 130, 250, 4, 6],
+		"walk": [SPR+"A-002_miai_walk.png", 130, 250, 6, 8],
+		"run": [SPR+"A-003_miai_run.png", 130, 250, 6, 10],
+		"jump": [SPR+"A-004_miai_jump.png", 130, 250, 3, 12],
+		"hurt": [SPR+"A-005_miai_hurt.png", 130, 250, 2, 12],
+		"attack": [SPR+"A-007_miai_attack_windup.png", 130, 250, 4, 14],
+		"dead": [SPR+"A-006_miai_death.png", 130, 250, 5, 12],
+		"ult": [SPR+"A-008_miai_ultimate_skill.png", 130, 250, 8, 14],
+		"true": [SPR+"A-009_miai_true_form_idle.png", 130, 250, 4, 12],
 	}
 	_sprite.sprite_frames = GameManager.make_frames(spec)
+	_sprite.scale = Vector2(0.28, 0.28)  # 缩小一半以上（0.6→0.28，约 53% 缩减）；仅缩视觉精灵，不影响碰撞
 	_sprite.play("idle")
 
 
@@ -134,7 +135,7 @@ func _cast_ult() -> void:
 	_ult_cd = 9999.0   # 每房间一次，进房由 Game 重置
 	_anim = "ult"
 	_sprite.play("ult")
-	GameManager.fx("res://assets/fx/fx_levelup.png", global_position, 64, 64, 8, 0.8)
+	GameManager.fx("res://assets/fx/FX-024_level_up_effect.png", global_position, 64, 64, 8, 0.8)
 	var dmg: int = int(45 * GameManager.attack_mult)
 	for en in get_tree().get_nodes_in_group("enemy"):
 		var e := en as Node2D

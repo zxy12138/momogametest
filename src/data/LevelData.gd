@@ -16,8 +16,9 @@ const LAYERS = {
 		bgm = 1,
 		rooms = {
 			"r1": {type="start", pos=[0.15,0.50], neighbors=["r2","r3"], enemies=[]},
-			"r2": {type="combat", pos=[0.40,0.25], neighbors=["r1","r4","r5"], enemies=[["overtime_ghost",3],["printer",1]]},
-			"r3": {type="combat", pos=[0.40,0.75], neighbors=["r1","r4"], enemies=[["kpi",2],["meeting",2],["phone",1]]},
+			# TEST: scene_img 为 v4.0 预制整图试用键，待美术整图就绪后由正式流程接管并删除此键
+			"r2": {type="combat", pos=[0.40,0.25], neighbors=["r1","r4","r5"], enemies=[["overtime_ghost",3],["printer",1]], scene_img="res://assets/tiles/changjing1.png"},
+			"r3": {type="combat", pos=[0.40,0.75], neighbors=["r1","r4"], enemies=[["kpi",2],["meeting",2],["phone",1]], scene_img="res://assets/tiles/changjing1.png"},
 			"r4": {type="inn", pos=[0.62,0.50], neighbors=["r2","r3","r5"], enemies=[]},
 			"r5": {type="elite", pos=[0.82,0.30], neighbors=["r2","r4","r6"], enemies=[["overtime_ghost",2],["printer",2],["meeting",2]]},
 			"r6": {type="boss", pos=[0.90,0.62], neighbors=["r5"], enemies=[], boss="b_director"},

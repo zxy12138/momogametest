@@ -77,7 +77,7 @@ func _hit_enemy(body: Node) -> void:
 
 
 func _aoe_at(pos: Vector2) -> void:
-	GameManager.fx("res://assets/fx/fx_shockwave.png", pos, 64, 16, 5, 0.4)
+	GameManager.fx("res://assets/fx/FX-015_hammer_slam_shockwave.png", pos, 64, 16, 5, 0.4)
 	var space := get_world_2d().direct_space_state
 	for en in get_tree().get_nodes_in_group("enemy"):
 		var e := en as Node2D
@@ -95,12 +95,12 @@ func _hit_wall() -> void:
 			direction.x = -direction.x
 		else:
 			direction.y = -direction.y
-		GameManager.fx("res://assets/fx/fx_shockwave.png", global_position, 64, 16, 5, 0.25)
+		GameManager.fx("res://assets/fx/FX-015_hammer_slam_shockwave.png", global_position, 64, 16, 5, 0.25)
 	else:
 		_impact(global_position)
 
 
 func _impact(pos: Vector2) -> void:
 	if aoe > 0 or is_crit:
-		GameManager.fx("res://assets/fx/fx_expball.png", pos, 32, 32, 6, 0.4)
+		GameManager.fx("res://assets/fx/FX-010_staff_attack_explosion.png", pos, 32, 32, 6, 0.4)
 	queue_free()

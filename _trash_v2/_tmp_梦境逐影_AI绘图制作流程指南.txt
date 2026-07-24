@@ -1,0 +1,166 @@
+🎨 AI绘图制作流程指南
+《梦境逐影》新手美术生产手册
+──────────────────────────────
+零基础也能独立产出全部像素美术素材
+配套文档：游戏设计文档 + 美术素材清单（最终版）
+一、三句话说清楚这份指南
+不要用 Midjourney / DALL-E 这类通用画图工具做像素素材——它们画出的是「看起来像素风的插画」，不是真正能用的游戏精灵图，后期修起来反而更麻烦。
+直接用专门为游戏像素美术设计的 AI 工具（本文推荐 PixelLab.ai），它能一键生成方向视图和动画，这是新手最大的省力点。
+AI 负责出「初稿」，Aseprite 或免费的 Pixelorama 负责最后 10-20% 的手动精修和整理，两者配合就是目前最简单效果最好的路线。
+💡 以下推荐的工具信息、价格为撰写本指南时（2026年年中）查询到的结果，AI工具更新很快，实际使用前建议到官网确认最新价格和功能。
+二、为什么不能直接用 Midjourney / DALL-E
+这是新手最容易踩的坑，所以单独说清楚。通用 AI 画图工具（Midjourney、DALL-E、即梦、Adobe Firefly 等）是为「插画/海报」设计的，用在游戏像素素材上有三个硬伤：
+问题
+具体表现
+后果
+尺寸不可控
+输出通常是 1024×1024 起步的大图，不是真正的 32×32 / 16×16
+缩小后不是「像素对齐」的，边缘会糊，需要重新手工像素化
+无法保持角色一致
+换个动作、换个角度重新生成，弥绘的脸型/配色经常会变
+同一角色在不同素材里长得不一样，游戏观感割裂
+不会画动画帧
+只能一张一张单独生成静态图
+6帧走路动画=完全不连贯的6张不同角色图，无法直接用
+而 PixelLab、Sprite AI 这类「游戏像素美术专用」AI 工具，是专门针对以上三个问题设计的——直接生成真实低分辨率精灵图、支持用参考图锁定角色风格、甚至能一键生成走路/攻击等完整动画序列。这也是本指南主推它们的原因。
+三、推荐工具组合（按预算分档）
+3.1 核心生成工具：三选一
+工具
+定位
+价格
+最大优势
+适合
+PixelLab.ai
+游戏像素美术专用
+免费40次生成体验；付费约 $12/月起（Pixel Apprentice档，200×200→320×320）
+4/8方向视图一键生成、骨骼动画、风格一致性参考图
+本项目主力推荐，动画和Boss最省力
+Sprite AI
+游戏像素美术专用
+免费15次生成；付费约 $8/月起（Creator档）
+内置像素编辑器+动画器+去背景+调色板迁移，一站式
+预算有限、想要更便宜起步
+SpriteLab
+游戏像素美术专用
+免费起步，按次计费
+「换皮」功能：传一张图，出无限种材质变体，适合怪物变体
+同类怪物想省事做变体时
+💡 新手建议：先用 PixelLab 免费的 40 次生成额度，把「弥绘」和第一层的素材试跑一遍，感受效果满意后再订阅 1-2 个月的付费档位，做完当月密集产出后可以取消订阅，不需要长期订阅。
+3.2 手动精修/整理工具：二选一
+工具
+价格
+特点
+与 Godot 的关系
+Aseprite
+$19.99（一次性买断）
+像素美术编辑器业界标准，动画时间轴、洋葱皮、调色板管理都很成熟
+导出精灵表后可直接在 Godot 里用 AnimatedSprite2D/SpriteFrames 读取
+Pixelorama
+完全免费，开源
+本身就是用 Godot 引擎做的像素编辑器，功能已很接近 Aseprite
+可以直接导出为 Godot 的 TileSet 资源，对 Godot 新手非常友好
+💡 如果完全不想花钱：PixelLab/Sprite AI 免费额度 + Pixelorama（免费）也能走完整个流程，只是生成次数有限，需要精打细算用在最重要的素材上（角色和Boss优先）。
+四、完整制作流程（8个阶段）
+整体思路：先把「弥绘」这个最核心的角色做到满意，把她的风格作为「基准参考图」，之后所有怪物、Boss、UI 都拿这张图去对齐风格，保证整个游戏视觉统一。
+阶段① 确定弥绘视觉基准（最关键的一步，多花时间在这里）
+在 PixelLab 输入弥绘的描述提示词，生成 5-10 张待机姿势的候选图
+从中选出你最满意的一张，作为「基准形象」——后续所有和弥绘相关的素材都会用这张图做参考
+确认：配色（紫色系）、体型比例（Q版）、标志性特征（星星眼睛）是否都到位
+Prompt示例：pixel art character, small chubby tapir creature, standing idle pose, front view, soft purple magical aura around body, star-shaped sparkle in both eyes, chibi proportions, clean black outline, limited pastel purple palette, 32x32 game sprite, transparent background, dreamy fantasy style
+阶段② 用基准图生成弥绘全部动画
+把阶段①选中的图片作为参考图上传，用 PixelLab 的动画功能逐个生成：待机/行走/跑步/跳跃/受击/死亡/攻击前摇/终技
+PixelLab 的动画生成是「一次出一整组帧」，不需要一帧一帧单独画，这是新手最大的省时点
+庆生皮肤（戴派对帽）：直接对基准图做「局部编辑/inpainting」，只修改头顶部分，保留其余风格不变
+阶段③ 武器图标与弹射物
+武器图标只是单张静态小图（16×16），生成难度低，直接批量文生图即可
+升阶版武器：在原版图基础上用「变体/reskin」功能加金色/极光色特效，保持轮廓一致，只换材质配色
+Prompt示例：pixel art weapon icon, magic staff with purple crystal moon on top, wooden handle, glowing aura, 16x16 icon, transparent background, RPG game item
+阶段④ 怪物与Boss（省力技巧：同类怪物用「换皮」）
+每一层先画好 1 只「基础怪」的完整待机+攻击动画，作为该层的风格基准
+同层的其他普通怪，直接用 SpriteLab/PixelLab 的换皮/变体功能，在同一个骨架/轮廓上改造型和配色，比每只都从零生成快很多
+Boss 体型更大、动作阶段更多，建议单独细致生成，多花几次生成挑出最满意的构图
+Prompt示例（Boss）：pixel art boss enemy, giant floating suit torso with multiple ghostly translucent arms, one arm holding smartphone, one holding coffee cup, no legs, ominous purple-red aura, 64x64 sprite, dramatic game boss design, transparent background
+Prompt示例（普通怪）：pixel art enemy sprite, transparent ghostly office worker in suit, hollow glowing eyes, carrying stack of papers, exhausted slouched posture, semi-transparent blue-grey body, 24x24 sprite, transparent background, game asset
+阶段⑤ Tileset 与场景背景
+地板/墙壁类 Tileset 需要「无缝平铺」，AI 生成后大概率边缘对不齐，这是本流程里最需要手动修的部分
+流程：AI 生成一小块 16×16 图案 → 导入 Aseprite/Pixelorama 开启「Tiled Mode（平铺预览）」→ 手动修边缘，让四边能对齐
+远景背景图（不需要平铺，只是一整张静态图）可以直接 AI 生成 320×180 整图，不需要额外拼接
+Prompt示例：pixel art seamless tileable floor texture, cold white and light grey office tiles, 16x16 tile, top-down game tileset, clean grid pattern
+阶段⑥ UI / HUD 元素
+血条框、按钮、图标类小元素生成难度低，直接批量生成即可，注意统一保持紫色主题色系
+像素中文字体：不建议用 AI 生成，直接使用现成的免费开源像素中文字体（如「Pixel Font」类字体网站搜索「像素中文字体 免费商用」），效率更高且更清晰
+阶段⑦ 手动精修与整理（Aseprite / Pixelorama）
+检查每张图是否有杂色/毛边，用取色笔+手绘修一下细节（一般每张只需要 1-2 分钟）
+统一同一分类素材的调色板（比如所有第一层怪物用同一组16-24色），让整体风格更统一
+把动画帧按顺序排好，导出为「精灵表 Sprite Sheet」（一整条横向排列的 PNG）
+阶段⑧ 导入 Godot 4.6.3
+素材导入后，在 Godot 的导入设置里把 Filter 改为「Nearest」，否则像素图会被拉伸模糊
+角色/怪物用 AnimatedSprite2D 节点 + SpriteFrames 资源，把精灵表切好的帧依次拖入并设置对应动画名
+Tileset 用 Godot 4 的 TileSet 资源直接导入（若用 Pixelorama 制作，可直接导出对接，减少手动切图步骤）
+动画帧率统一设置为 12 FPS，符合像素风的标准观感
+五、生产顺序建议（对照素材清单优先级）
+对应《美术素材清单》里的★优先级，建议按以下批次推进，而不是想到哪做到哪：
+批次
+内容
+预计AI生成次数
+说明
+批次1
+弥绘基准图 + 全部10套动画
+约 30-50 次
+最重要，务必先做到满意再往后走
+批次2
+武器图标12个 + 弹射物6个
+约 20-30 次
+静态小图，出图快，可以批量过
+批次3
+第一层怪物5种+Boss（含动画）
+约 60-80 次
+先做完第一层，保证游戏能先跑通
+批次4
+第一层Tileset+UI基础件
+约 20-30 次+手动平铺修图
+跑通最小可玩版本的最后一块拼图
+批次5
+第二层、第三层怪物与场景
+约 150-200 次
+游戏核心玩法验证后再补
+批次6
+剩余UI、CG占位、细节特效
+约 30-40 次
+最后阶段锦上添花
+💡 批次1-4做完，你已经有一个「能玩的第一层」，这时候就可以先导入Godot验证效果，而不是等全部素材做完才测试——这是最重要的新手建议。
+六、新手常见误区
+误区
+正确做法
+想让AI一次性生成一整套6帧动画的分镜图
+先用动画专用工具（PixelLab等）的一键动画功能，而不是靠文字描述硬凑多帧
+每张图都从零开始重新写prompt
+先锁定角色基准图，后续都用「参考图+局部修改」，保持风格统一
+把AI生成的1024×1024大图直接缩小当素材用
+务必用工具生成/转换为真实低分辨率（如32×32），或用像素化处理，否则边缘会糊
+追求一次生成就完美，反复重新生成浪费额度
+接受AI出图有70-80分就行，剩下20-30分用Aseprite手动修，比死磕prompt更省时间
+同层十几只怪物全部单独生成
+善用「换皮/变体」功能，一个骨架出多个造型，大幅减少生成次数和风格割裂
+中文prompt直接输入
+尽量用英文prompt（可先用翻译工具转换），AI画图模型对英文理解普遍更准确
+七、预算与时间参考
+方案
+月度成本（约）
+适合人群
+说明
+零成本方案
+$0
+完全不想花钱，时间充裕
+PixelLab/Sprite AI 免费额度精打细算 + Pixelorama 免费手动补充
+轻量付费方案
+约 $8-12/月（约 60-90 元人民币）
+预算有限，独立开发者常见选择
+Sprite AI Creator 档或 PixelLab Tier 1，做完密集产出月可取消
+效率优先方案
+约 $12/月 + Aseprite $19.99一次性
+希望流程最顺、后期维护省心
+PixelLab Tier 1 + Aseprite 买断，本指南主推路线
+汇率仅供参考（按约7.2人民币/美元估算），请以实际支付页面显示为准。
+以本项目约150-200件素材的体量估算，密集投入的情况下，美术生产阶段大约需要 2-4 周（与文档中GDD的开发时间线一致），其中角色和Boss动画耗时最长，建议优先安排。
+🌙 祝弥绘生日快乐，也祝你顺利做完这个特别的礼物 🌙

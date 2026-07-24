@@ -83,7 +83,7 @@ func _check_phase() -> void:
 		_phase_idx += 1
 		_anim = "attack"
 		_sprite.play("attack")
-		GameManager.fx("res://assets/fx/fx_levelup.png", global_position, 64, 64, 8, 0.8)
+		GameManager.fx("res://assets/fx/FX-024_level_up_effect.png", global_position, 64, 64, 8, 0.8)
 		if _final:
 			GameManager.set_weak(true)
 			# create_timer 返回的是 SceneTreeTimer（RefCounted，非 Node），不可 add_child
@@ -112,17 +112,17 @@ func _do_pattern(p: String, target: Vector2, dir: Vector2) -> void:
 			_spin_a += 0.4
 			for i in 4:
 				var a := _spin_a + i * TAU / 4.0
-				_spawn_proj(global_position, Vector2(cos(a), sin(a)), 10, 240, "res://assets/weapons/projectiles/p_staff.png", false)
+				_spawn_proj(global_position, Vector2(cos(a), sin(a)), 10, 240, "res://assets/weapons/projectiles/W-020_dream_light_bolt.png", false)
 		"charge":
 			behavior = "charge"
 		"slam":
 			behavior = "chase"
-			GameManager.fx("res://assets/fx/fx_shockwave.png", target, 64, 16, 5, 0.5)
+			GameManager.fx("res://assets/fx/FX-015_hammer_slam_shockwave.png", target, 64, 16, 5, 0.5)
 			if target.distance_to(global_position) < 120:
 				GameManager.damage_player(18)
 		"ddl":
 			behavior = "aoe"
-			GameManager.fx("res://assets/fx/fx_shockwave.png", target, 64, 16, 5, 0.5)
+			GameManager.fx("res://assets/fx/FX-015_hammer_slam_shockwave.png", target, 64, 16, 5, 0.5)
 			if target.distance_to(global_position) < 110:
 				GameManager.damage_player(20)
 		"crash", "frenzy":
@@ -133,7 +133,7 @@ func _do_pattern(p: String, target: Vector2, dir: Vector2) -> void:
 func _radial(n: int, spd: float) -> void:
 	for i in n:
 		var a := TAU * float(i) / float(n) + randf_range(-0.1, 0.1)
-		_spawn_proj(global_position, Vector2(cos(a), sin(a)), 10, spd, "res://assets/weapons/projectiles/p_staff.png", false)
+		_spawn_proj(global_position, Vector2(cos(a), sin(a)), 10, spd, "res://assets/weapons/projectiles/W-020_dream_light_bolt.png", false)
 
 
 func _spawn_minion(pos: Vector2) -> void:
@@ -149,7 +149,7 @@ func _spawn_minion(pos: Vector2) -> void:
 func _die(_is_crit: bool) -> void:
 	_dead = true
 	GameManager.set_weak(false)
-	GameManager.fx("res://assets/fx/fx_levelup.png", global_position, 64, 64, 8, 1.0)
+	GameManager.fx("res://assets/fx/FX-024_level_up_effect.png", global_position, 64, 64, 8, 1.0)
 	# 掉落梦晶
 	var sc := get_tree().current_scene
 	if sc != null:

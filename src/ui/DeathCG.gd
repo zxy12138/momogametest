@@ -1,5 +1,5 @@
 # 《梦境逐影》死亡演出 CG（Control 根）
-# 占位 CG 图（可一键替换 assets/ui/cg_death_a.png）；跳过 -> 重试 / 回主菜单。
+# 占位 CG 图（可一键替换 assets/ui/CG-001_death_cg_layer1_frame.png）；跳过 -> 重试 / 回主菜单。
 extends Control
 
 func _ready() -> void:
@@ -10,7 +10,7 @@ func _ready() -> void:
 
 	# CG 图（占位，缺图也不崩）
 	var cg := TextureRect.new()
-	cg.texture = GameManager.load_tex("res://assets/ui/cg_death_a.png")
+	cg.texture = GameManager.load_tex("res://assets/ui/CG-001_death_cg_layer1_frame.png")
 	if cg.texture != null:
 		cg.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 		cg.size = Vector2(640, 360)

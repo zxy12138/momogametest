@@ -1,0 +1,256 @@
+
+========== SHEET: 角色素材 (cols=9 rows=56) ==========
+HEADER: 🎮 梦境逐影 v3 · 角色与怪物素材 |  |  |  |  |  |  |  | 
+? :: 像素风 · 社畜梦境主题 · 尺寸已统一为130×250比例（Boss为2倍260×500） |  |  |  |  |  |  |  | 
+? :: 编号 | 素材名称 | 英文名称 | 类型 | 尺寸(px) | 帧数 | 动画说明 | 所属分类 | 完成状态
+A-001 :: A-001 | 弥绘·待机 | Miai Idle | 角色动画 | 130×250 | 4帧 | 上下轻微浮动，耳朵微动 | 主角·弥绘 | □
+A-002 :: A-002 | 弥绘·行走 | Miai Walk | 角色动画 | 130×250 | 6帧 | 四方向行走循环 | 主角·弥绘 | □
+A-003 :: A-003 | 弥绘·跑步 | Miai Run | 角色动画 | 130×250 | 6帧 | 速度更快，身体前倾 | 主角·弥绘 | □
+A-004 :: A-004 | 弥绘·跳跃 | Miai Jump | 角色动画 | 130×250 | 3帧 | 起跳/飞行/落地 | 主角·弥绘 | □
+A-005 :: A-005 | 弥绘·受击 | Miai Hurt | 角色动画 | 130×250 | 2帧 | 闪白+后仰 | 主角·弥绘 | □
+A-006 :: A-006 | 弥绘·死亡 | Miai Death | 角色动画 | 130×250 | 5帧 | 倒地，星星散开 | 主角·弥绘 | □
+A-007 :: A-007 | 弥绘·攻击前摇 | Miai Attack Windup | 角色动画 | 130×250 | 4帧 | 举起武器动作 | 主角·弥绘 | □
+A-008 :: A-008 | 弥绘·终极技能 | Miai Ultimate Skill | 角色动画 | 130×250 | 8帧 | 全身光晕扩散，张嘴吞噬 | 主角·弥绘 | □
+A-009 :: A-009 | 弥绘·Lv26真形待机 | Miai True Form Idle | 角色动画 | 130×250 | 4帧 | 散发星光光晕版待机 | 主角·弥绘 | □
+A-010 :: A-010 | 弥绘·庆生外观(皮肤) | Miai Birthday Skin | 角色动画 | 130×250 | 替换 | 戴派对帽，法杖换蛋糕造型 | 主角·弥绘 | □
+A-011 :: A-011 | 弥绘持法杖姿势叠加层 | Miai Staff Pose Overlay | 角色动画 | 130×250 | 叠加层 | 与行走叠加使用 | 武器姿态 | □
+A-012 :: A-012 | 弥绘持剑姿势叠加层 | Miai Sword Pose Overlay | 角色动画 | 130×250 | 叠加层 | 近战持剑叠加 | 武器姿态 | □
+A-013 :: A-013 | 弥绘持镰刀姿势叠加层 | Miai Scythe Pose Overlay | 角色动画 | 130×250 | 叠加层 | 近战持镰叠加 | 武器姿态 | □
+? ::   👾 第一层怪物 · 午夜办公室 |  |  |  |  |  |  |  | 
+M-001 :: M-001 | 加班幽灵·行走 | Overtime Ghost Walk | 敌人动画 | 130×250 | 4帧 | 西装透明人形，抱文件 | 第一层·普通 | □
+M-002 :: M-002 | 加班幽灵·投掷 | Overtime Ghost Throw | 敌人动画 | 130×250 | 3帧 | 投出文件动作 | 第一层·普通 | □
+M-003 :: M-003 | KPI怪·浮游 | KPI Monster Float | 敌人动画 | 130×250 | 3帧 | 红色数字团旋转漂浮 | 第一层·普通 | □
+M-004 :: M-004 | KPI怪·爆炸 | KPI Monster Explode | 敌人动画 | 130×250 | 5帧 | 数字爆炸扩散 | 第一层·普通 | □
+M-005 :: M-005 | 卡纸打印机·行走 | Jammed Printer Walk | 敌人动画 | 130×250 | 4帧 | 长腿打印机走路 | 第一层·普通 | □
+M-006 :: M-006 | 卡纸打印机·喷纸 | Jammed Printer Spray | 敌人动画 | 130×250 | 3帧 | 纸张喷出横扫 | 第一层·普通 | □
+M-007 :: M-007 | 会议幽魂·PPT飘动 | Meeting Ghost Float | 敌人动画 | 130×250 | 3帧 | 漂浮PPT页面，内容乱码 | 第一层·普通 | □
+M-008 :: M-008 | 电话噩梦·声波 | Phone Nightmare Wave | 敌人动画 | 130×250 | 4帧 | 手机形怪，震动波纹 | 第一层·普通 | □
+M-009 :: M-009 | 项目总监·无影手·待机 | Director Boss Idle | Boss动画 | 260×500 | 4帧 | 巨大西装上身+多手浮动 | 第一层·Boss | □
+M-010 :: M-010 | 项目总监·咖啡横扫 | Director Boss Coffee Sweep | Boss动画 | 260×500 | 5帧 | 一只手拿咖啡杯横扫 | 第一层·Boss | □
+M-011 :: M-011 | 项目总监·PPT阶段 | Director Boss PPT Phase | Boss动画 | 260×500 | 4帧 | 平板弹出PPT界面 | 第一层·Boss | □
+M-012 :: M-012 | 项目总监·狂暴旋转 | Director Boss Rage Spin | Boss动画 | 260×500 | 4帧 | 所有手展开高速旋转 | 第一层·Boss | □
+M-013 :: M-013 | 项目总监·死亡 | Director Boss Death | Boss动画 | 260×500 | 6帧 | 西装散落，手消失 | 第一层·Boss | □
+? ::   👾 第二层怪物 · 无尽通勤路 |  |  |  |  |  |  |  | 
+M-014 :: M-014 | 通勤幽灵·行走 | Commuter Ghost Walk | 敌人动画 | 130×250 | 4帧 | 灰色人形抓吊环，集体前进 | 第二层·普通 | □
+M-015 :: M-015 | 逆行扶梯·移动 | Reverse Escalator Move | 敌人动画 | 130×250 | 3帧 | 扶梯段向玩家推进 | 第二层·普通 | □
+M-016 :: M-016 | 堵路外卖员·冲刺 | Delivery Rider Dash | 敌人动画 | 130×250 | 4帧 | 电瓶车高速冲刺 | 第二层·普通 | □
+M-017 :: M-017 | 旋转门陷阱·旋转 | Revolving Door Spin | 敌人动画 | 130×250 | 4帧 | 旋转门高速旋转 | 第二层·普通 | □
+M-018 :: M-018 | 快递箱·行走 | Parcel Box Walk | 敌人动画 | 130×250 | 4帧 | 大包裹盒腿走路 | 第二层·普通 | □
+M-019 :: M-019 | 快递箱·砸地 | Parcel Box Slam | 敌人动画 | 130×250 | 5帧 | 跳起砸地爆炸 | 第二层·普通 | □
+M-020 :: M-020 | 通勤魔王·列车待机 | Commute Demon Train Idle | Boss动画 | 260×500 | 4帧 | 地铁车厢走路，前端人脸 | 第二层·Boss | □
+M-021 :: M-021 | 通勤魔王·车门咬击 | Commute Demon Door Bite | Boss动画 | 260×500 | 5帧 | 车门张开弹出动作 | 第二层·Boss | □
+M-022 :: M-022 | 通勤魔王·脱轨跳跃 | Commute Demon Derail Jump | Boss动画 | 260×500 | 5帧 | 车厢脱轨跳跃砸地 | 第二层·Boss | □
+M-023 :: M-023 | 通勤魔王·分裂两节 | Commute Demon Split | Boss动画 | 260×500 | 3帧 | 车厢分裂为两节独立 | 第二层·Boss | □
+M-024 :: M-024 | 通勤魔王·高速旋转 | Commute Demon Spin | Boss动画 | 260×500 | 4帧 | 两节合并旋转 | 第二层·Boss | □
+M-025 :: M-025 | 通勤魔王·死亡 | Commute Demon Death | Boss动画 | 260×500 | 8帧 | 车厢解体，螺丝散落 | 第二层·Boss | □
+? ::   👾 第三层怪物 · 深夜崩溃核心 |  |  |  |  |  |  |  | 
+M-026 :: M-026 | 未读消息群·弹幕 | Unread Messages Swarm | 敌人动画 | 130×250 | 2帧 | 消息气泡群，高密度飞行 | 第三层·普通 | □
+M-027 :: M-027 | 逾期任务板·追击 | Overdue Task Board Chase | 敌人动画 | 130×250 | 3帧 | 巨大看板腿追玩家 | 第三层·普通 | □
+M-028 :: M-028 | 被否定方案·乱飞 | Rejected Proposal Flutter | 敌人动画 | 130×250 | 3帧 | 废纸团飞行 | 第三层·普通 | □
+M-029 :: M-029 | 焦虑心跳·脉冲 | Anxiety Heartbeat Pulse | 敌人动画 | 130×250 | 4帧 | 心形怪物脉冲扩散 | 第三层·普通 | □
+M-030 :: M-030 | 精英·996实体·高速 | Elite 996 Entity Dash | 敌人动画 | 260×500 | 6帧 | 极速移动攻击，分身残影 | 第三层·精英 | □
+M-031 :: M-031 | 无名恐惧·人形阶段1 | Nameless Fear Phase1 | Boss动画 | 260×500 | 4帧 | 工位坐着的普通剪影 | 第三层·Boss | □
+M-032 :: M-032 | 无名恐惧·扭曲阶段2 | Nameless Fear Phase2 | Boss动画 | 260×500 | 5帧 | 开始长出多余的手臂 | 第三层·Boss | □
+M-033 :: M-033 | 无名恐惧·崩溃阶段3 | Nameless Fear Phase3 | Boss动画 | 260×500 | 5帧 | 多眼睛，几何扭曲变形 | 第三层·Boss | □
+M-034 :: M-034 | 无名恐惧·高速人形阶段4 | Nameless Fear Phase4 | Boss动画 | 260×500 | 6帧 | 纯黑人形，高速攻击残影 | 第三层·Boss | □
+M-035 :: M-035 | 无名恐惧·疲惫之眼暴露 | Nameless Fear Eye Open | Boss动画 | 260×500 | 3帧 | 中心眼睛张开，弱点窗口 | 第三层·Boss | □
+M-036 :: M-036 | 无名恐惧·死亡消散 | Nameless Fear Death | Boss动画 | 260×500 | 10帧 | 剪影变普通人形，缓缓消散 | 第三层·Boss | □
+
+========== SHEET: 武器与特效 (cols=9 rows=39) ==========
+HEADER: 🗡️ 武器 · 弹射物 · 暴击特效素材 |  |  |  |  |  |  |  | 
+? :: 此表尺寸未变动（图标/特效非角色主体，保持原设计规格） |  |  |  |  |  |  |  | 
+? :: 编号 | 素材名称 | 英文名称 | 类型 | 尺寸(px) | 帧数 | 说明 | 所属 | 完成状态
+W-001 :: W-001 | 梦幻法杖·图标 | Dream Staff Icon | 武器图标 | 16×16 | 1 | 紫色法杖+月亮水晶 | 初始武器 | □
+W-002 :: W-002 | 星芒短剑·图标 | Starlight Sword Icon | 武器图标 | 16×16 | 1 | 星光短剑，银蓝色 | 初始武器 | □
+W-003 :: W-003 | 噩梦镰刀·图标 | Nightmare Scythe Icon | 武器图标 | 16×16 | 1 | 黑紫镰刀带阴影 | 初始武器 | □
+W-004 :: W-004 | 月轮飞镖·图标 | Moon Wheel Dart Icon | 武器图标 | 16×16 | 1 | 月牙形飞镖 | 换武器池 | □
+W-005 :: W-005 | 梦泡法球·图标 | Dream Bubble Orb Icon | 武器图标 | 16×16 | 1 | 气泡状法球 | 换武器池 | □
+W-006 :: W-006 | 星穿长枪·图标 | Star Piercer Spear Icon | 武器图标 | 16×16 | 1 | 细长星光长枪 | 换武器池 | □
+W-007 :: W-007 | 噩梦骨锤·图标 | Nightmare Bone Hammer Icon | 武器图标 | 16×16 | 1 | 黑骨重锤 | 换武器池 | □
+W-008 :: W-008 | 幻影双刃·图标 | Phantom Dual Blades Icon | 武器图标 | 16×16 | 1 | 双刃半透明 | 换武器池 | □
+W-009 :: W-009 | 梦境弓·图标 | Dream Bow Icon | 武器图标 | 16×16 | 1 | 紫色弓+发光弦 | 换武器池 | □
+W-010 :: W-010 | 星海法杖·图标(升阶) | Starsea Staff Icon (Upgraded) | 武器图标 | 16×16 | 1 | 加金色光圈 | 升阶武器 | □
+W-011 :: W-011 | 极光圣剑·图标(升阶) | Aurora Holy Sword Icon (Upgraded) | 武器图标 | 16×16 | 1 | 剑身变极光色 | 升阶武器 | □
+W-012 :: W-012 | 深渊大镰·图标(升阶) | Abyss Great Scythe Icon (Upgraded) | 武器图标 | 16×16 | 1 | 扩大，冰蓝色 | 升阶武器 | □
+W-020 :: W-020 | 梦幻光弹 | Dream Light Bolt | 弹射物 | 8×8 | 2 | 圆形紫色光球 | 梦幻法杖 | □
+W-021 :: W-021 | 三叉星弹(升阶) | Trident Star Bolt (Upgraded) | 弹射物 | 8×8 | 2 | 三叉分裂光弹 | 星海法杖 | □
+W-022 :: W-022 | 月轮飞镖弹 | Moon Wheel Dart Projectile | 弹射物 | 12×12 | 2 | 旋转月牙 | 月轮飞镖 | □
+W-023 :: W-023 | 梦泡爆炸物 | Dream Bubble Bomb | 弹射物 | 16×16 | 2 | 大气泡缓慢飞行 | 梦泡法球 | □
+W-024 :: W-024 | 弓箭矢(普通) | Arrow (Normal) | 弹射物 | 10×4 | 1 | 细箭矢 | 梦境弓 | □
+W-025 :: W-025 | 弓箭矢(满蓄力) | Arrow (Full Charge) | 弹射物 | 12×6 | 2 | 发光加粗 | 梦境弓蓄力 | □
+FX-001 :: FX-001 | 暴击触发·橙色爆光 | Crit Trigger Orange Flash | 特效 | 48×48 | 5帧 | 暴击时橙色光爆，区别于普通攻击 | 暴击系统 | □
+FX-002 :: FX-002 | 暴击数字·橙色大字 | Crit Damage Number Orange | UI特效 | 可变 | 动态 | 数字弹出放大再缩小消失 | 暴击系统 | □
+FX-003 :: FX-003 | 屏幕边缘震动帧 | Screen Edge Shake Frame | 特效 | 320×180 | 2帧 | 暴击时屏幕角落橙色闪光 | 暴击系统 | □
+FX-010 :: FX-010 | 法杖攻击爆炸 | Staff Attack Explosion | 特效 | 32×32 | 6帧 | 光弹命中爆炸 | 法杖 | □
+FX-011 :: FX-011 | 短剑连击残影 | Sword Combo Afterimage | 特效 | 32×32 | 3帧 | 剑痕残影 | 短剑 | □
+FX-012 :: FX-012 | 镰刀挥砍弧线 | Scythe Slash Arc | 特效 | 48×32 | 4帧 | 弧形挥砍光效 | 镰刀 | □
+FX-013 :: FX-013 | 梦泡爆炸 | Dream Bubble Explosion | 特效 | 48×48 | 8帧 | 圆形扩散爆炸 | 梦泡法球 | □
+FX-014 :: FX-014 | 冰冻效果 | Freeze Effect | 特效 | 32×32 | 3帧 | 冰晶包裹怪物 | 深渊大镰 | □
+FX-015 :: FX-015 | 重锤砸地冲击波 | Hammer Slam Shockwave | 特效 | 64×16 | 5帧 | 横向冲击波 | 噩梦骨锤 | □
+FX-016 :: FX-016 | 终极技能光晕 | Ultimate Skill Glow | 特效 | 128×128 | 10帧 | 大范围吞噬光效 | 终极技能 | □
+FX-020 :: FX-020 | 受击闪白 | Hit Flash White | 特效 | 与角色同尺寸 | 2帧 | 角色闪白 | 通用 | □
+FX-021 :: FX-021 | 经验球 | Exp Orb | 特效 | 8×8 | 3帧 | 旋转小球，紫色 | 通用 | □
+FX-022 :: FX-022 | 梦晶(货币) | Dream Crystal (Currency) | 特效 | 8×8 | 3帧 | 闪光水晶碎片 | 通用 | □
+FX-023 :: FX-023 | 击杀消散 | Kill Dissolve Effect | 特效 | 32×32 | 5帧 | 怪物死亡消散粒子 | 通用 | □
+FX-024 :: FX-024 | 等级提升特效 | Level Up Effect | 特效 | 64×64 | 8帧 | 角色周围星光爆发 | 通用 | □
+FX-025 :: FX-025 | 词条馈赠弹出 | Trait Reward Popup | 特效 | 48×48 | 4帧 | 星光从地面升起 | 词条系统 | □
+FX-026 :: FX-026 | 房间怪物重生特效 | Room Respawn Effect | 特效 | 32×32 | 4帧 | 怪物重新浮现的深紫色雾气 | 刷新机制 | □
+
+========== SHEET: 场景Tileset (cols=9 rows=43) ==========
+HEADER: 🗺️ 场景 · 社畜梦境 · Tileset素材 |  |  |  |  |  |  |  | 
+? :: 此表尺寸未变动（Tile需保持正方形才能网格对齐拼接，不适用130×250比例） |  |  |  |  |  |  |  | 
+? :: 编号 | 素材名称 | 英文名称 | 类型 | 图块尺寸 | 数量 | 色调风格 | 所属层 | 完成状态
+T-000 :: T-000 | 通用地板·梦境基础 | Base Dream Floor Tile | Tileset | 16×16 | 8块 | 灰紫渐变 | 全层通用 | □
+T-001 :: T-001 | 通用墙壁 | Base Wall Tile | Tileset | 16×16 | 8块 | 灰紫暗调 | 全层通用 | □
+T-002 :: T-002 | 门框(未开启) | Door Frame (Closed) | Tileset | 32×48 | 1套 | 金属质感，电子门 | 全层通用 | □
+T-003 :: T-003 | 门框(开启动画) | Door Frame (Open Anim) | Tileset | 32×48 | 4帧 | 滑开消散 | 全层通用 | □
+T-004 :: T-004 | 梦境传送阵 | Dream Teleport Circle | 道具/特效 | 48×16 | 4帧 | 旋转光圈在地板 | 全层通用 | □
+T-005 :: T-005 | 宝箱·关闭 | Treasure Chest (Closed) | 道具 | 16×16 | 1帧 | 文件夹造型宝箱（社畜风） | 全层通用 | □
+T-006 :: T-006 | 宝箱·开启动画 | Treasure Chest (Open Anim) | 道具 | 16×16 | 5帧 | 文件夹翻开散出星光 | 全层通用 | □
+T-007 :: T-007 | 地图节点·战斗房间 | Map Node Combat Room | 地图UI | 24×24 | 1帧 | 剑图标 | 地图UI | □
+T-008 :: T-008 | 地图节点·精英房间 | Map Node Elite Room | 地图UI | 24×24 | 1帧 | 骷髅图标 | 地图UI | □
+T-009 :: T-009 | 地图节点·驿站 | Map Node Rest Stop | 地图UI | 24×24 | 1帧 | 茶杯图标 | 地图UI | □
+T-010 :: T-010 | 地图节点·神秘房间 | Map Node Mystery Room | 地图UI | 24×24 | 1帧 | 问号图标 | 地图UI | □
+T-011 :: T-011 | 地图节点·Boss房间 | Map Node Boss Room | 地图UI | 24×24 | 1帧 | 皇冠图标 | 地图UI | □
+T-012 :: T-012 | 地图节点·已访问(暗色) | Map Node Visited Dim | 地图UI | 24×24 | 1帧 | 各类型图标的灰色版 | 地图UI | □
+T-013 :: T-013 | 地图节点·锁定(灰轮廓) | Map Node Locked Outline | 地图UI | 24×24 | 1帧 | 锁图标+灰色轮廓 | 地图UI | □
+T-014 :: T-014 | 地图节点·Lv21感知轮廓 | Map Node Sensed Outline | 地图UI | 24×24 | 1帧 | 半透明显示类型但仍锁定 | 地图UI | □
+T-015 :: T-015 | 地图·当前位置标记 | Map Current Position Marker | 地图UI | 16×16 | 3帧 | 弥绘头像小图标闪烁 | 地图UI | □
+T-016 :: T-016 | 地图·房间连线 | Map Room Connector Line | 地图UI | 像素线段 | N/A | 虚线路径，已访问段高亮 | 地图UI | □
+T-020 :: T-020 | 办公室地板·瓷砖 | Office Floor Tile | Tileset | 16×16 | 8块 | 冷白+浅灰，瓷砖纹 | 第一层 | □
+T-021 :: T-021 | 办公室墙壁 | Office Wall Tile | Tileset | 16×16 | 8块 | 灰白墙面+深色踢脚线 | 第一层 | □
+T-022 :: T-022 | 荧光灯·闪烁装饰 | Flickering Fluorescent Light | 背景 | 32×8 | 3帧 | 天花板荧光灯闪烁 | 第一层 | □
+T-023 :: T-023 | 工位桌堆文件装饰 | Cubicle Desk Clutter | 背景装饰 | 32×24 | 3种 | 散乱文件/键盘/屏幕 | 第一层 | □
+T-024 :: T-024 | 卡纸打印机装饰物 | Printer Prop Decor | 背景装饰 | 24×24 | 1种 | 背景中的打印机 | 第一层 | □
+T-025 :: T-025 | 第一层远景背景 | Layer1 Background Far | 背景 | 320×180 | 1张 | 凌晨写字楼，黑色窗外，荧光灯长廊 | 第一层 | □
+T-026 :: T-026 | 红色警告灯闪烁 | Red Warning Light Blink | 背景装饰 | 8×8 | 2帧 | 周期闪红 | 第一层 | □
+T-030 :: T-030 | 地铁站地板·月台 | Subway Platform Floor | Tileset | 16×16 | 8块 | 深灰+黄色安全线 | 第二层 | □
+T-031 :: T-031 | 地铁站墙壁 | Subway Wall Tile | Tileset | 16×16 | 8块 | 冷灰大理石+广告牌 | 第二层 | □
+T-032 :: T-032 | 轨道装饰 | Rail Track Tile | Tileset | 16×8 | 4块 | 地铁轨道平铺 | 第二层 | □
+T-033 :: T-033 | 路灯装饰(街道段) | Street Lamp Decor | 背景装饰 | 8×32 | 2帧 | 橙黄路灯，轻微光晕 | 第二层 | □
+T-034 :: T-034 | 旋转门装饰 | Revolving Door Decor | 背景装饰 | 32×48 | 1种 | 背景旋转门 | 第二层 | □
+T-035 :: T-035 | 第二层远景背景 | Layer2 Background Far | 背景 | 320×180 | 1张 | 无限延伸的地铁站/夜晚街道交替 | 第二层 | □
+T-036 :: T-036 | 霓虹绿指示牌 | Neon Green Sign | 背景装饰 | 32×12 | 1帧 | 写着「出口→」但指向墙壁 | 第二层 | □
+T-040 :: T-040 | 深渊几何地板 | Abyss Geometric Floor | Tileset | 16×16 | 8块 | 纯黑+深紫几何纹 | 第三层 | □
+T-041 :: T-041 | 扭曲墙壁(会动) | Warped Wall (Animated) | Tileset | 16×16 | 4帧 | 红色纹路蠕动 | 第三层 | □
+T-042 :: T-042 | 投影消息墙 | Projected Message Wall | 背景装饰 | 64×48 | 动态 | 墙上滚动「未读999+」投影 | 第三层 | □
+T-043 :: T-043 | DDL倒计时牌 | Deadline Countdown Sign | 背景装饰 | 48×24 | 动态 | 倒计时数字 | 第三层 | □
+T-044 :: T-044 | 第三层背景粒子 | Layer3 Background Particles | 背景 | 320×180 | 动态 | 红色+紫色粒子，纯黑底 | 第三层 | □
+T-050 :: T-050 | 梦境驿站·内景 | Dream Rest Stop Interior | 场景 | 320×180 | 1张 | 24小时便利店风，暖光，安全感 | 驿站 | □
+T-051 :: T-051 | 便利店柜台 | Convenience Store Counter | 场景道具 | 48×32 | 1帧 | 便利店收银台(驿站商店) | 驿站 | □
+T-052 :: T-052 | 回复点·热水杯 | Heal Point Hot Cup | 场景道具/动画 | 16×24 | 4帧 | 冒热气的杯子，点击回血 | 驿站 | □
+
+========== SHEET: UI与HUD (cols=9 rows=47) ==========
+HEADER: 🖥️ UI · HUD · 地图 · 死亡CG流程 素材 |  |  |  |  |  |  |  | 
+? :: 此表尺寸未变动（UI受HUD布局/屏幕比例限制，不适用130×250比例） |  |  |  |  |  |  |  | 
+? :: 编号 | 素材名称 | 英文名称 | 类型 | 尺寸(px) | 帧数 | 说明 | 所属界面 | 完成状态
+UI-001 :: UI-001 | 血条·边框 | HP Bar Frame | UI | 128×12 | 1 | 像素风血条框 | 战斗HUD | □
+UI-002 :: UI-002 | 血条·填充 | HP Bar Fill | UI | 124×8 | 1 | 渐变红→粉 | 战斗HUD | □
+UI-003 :: UI-003 | 经验条·边框 | Exp Bar Frame | UI | 128×8 | 1 | 紫色经验条框 | 战斗HUD | □
+UI-004 :: UI-004 | 经验条·填充 | Exp Bar Fill | UI | 124×5 | 1 | 紫色填充 | 战斗HUD | □
+UI-005 :: UI-005 | 暴击率显示图标 | Crit Rate Icon | UI | 16×16 | 1 | 橙色闪电图标+百分比文字 | 战斗HUD·暴击 | □
+UI-006 :: UI-006 | 暴击率数值字体 | Crit Rate Number Font | 像素字体 | 7×9/字 | N/A | 橙色 0-100% 数字字体 | 战斗HUD·暴击 | □
+UI-007 :: UI-007 | 等级徽章 | Level Badge | UI | 24×24 | 1 | Lv.数字框，每5级换色 | 战斗HUD | □
+UI-008 :: UI-008 | 技能冷却图标框 | Skill CD Icon Frame | UI | 24×24 | 1 | 圆角图标框 | 战斗HUD | □
+UI-009 :: UI-009 | 技能冷却遮罩 | Skill CD Mask | UI | 24×24 | 动态 | 顺时针遮罩 | 战斗HUD | □
+UI-010 :: UI-010 | 梦晶计数图标 | Dream Crystal Counter Icon | UI | 12×12 | 1 | 小水晶图标 | 战斗HUD | □
+UI-011 :: UI-011 | 弥绘头像框(HUD左上) | Miai Portrait Frame | UI | 32×32 | 1 | 弥绘头像+圆框 | 战斗HUD | □
+UI-020 :: UI-020 | 主菜单·标题Logo | Main Menu Title Logo | UI | 180×48 | 1 | 梦境逐影像素字体Logo | 主菜单 | □
+UI-021 :: UI-021 | 主菜单·背景 | Main Menu Background | UI | 320×180 | 动态 | 星空+貘剪影缓慢移动 | 主菜单 | □
+UI-022 :: UI-022 | 按钮·普通 | Button Normal | UI | 80×18 | 1 | 圆角像素按钮框 | 通用UI | □
+UI-023 :: UI-023 | 按钮·悬停 | Button Hover | UI | 80×18 | 1 | 发光版本 | 通用UI | □
+UI-024 :: UI-024 | 按钮·点击 | Button Pressed | UI | 80×18 | 1 | 下压版本 | 通用UI | □
+UI-030 :: UI-030 | 网状地图·全屏背景 | Map Screen Background | UI | 320×180 | 1 | 深紫半透明梦境感背景 | 地图界面 | □
+UI-031 :: UI-031 | 地图·层标题文字 | Map Layer Title Text | UI | 120×20 | 1 | 「第一层·午夜办公室」等文字框 | 地图界面 | □
+UI-032 :: UI-032 | 地图·传送确认弹窗 | Map Teleport Confirm Popup | UI | 120×60 | 1 | 「传送至此处？」+确认/取消按钮 | 地图界面 | □
+UI-033 :: UI-033 | 地图·图例说明框 | Map Legend Box | UI | 80×100 | 1 | 右下角图例，各节点类型说明 | 地图界面 | □
+UI-040 :: UI-040 | 武器选择·背景 | Weapon Select Background | UI | 320×180 | 1 | 梦境入口感，三选项台 | 武器选择 | □
+UI-041 :: UI-041 | 武器卡片·背景框 | Weapon Card Frame | UI | 64×80 | 1 | 卡片背景 | 武器选择 | □
+UI-042 :: UI-042 | 武器卡片·选中高光 | Weapon Card Selected Glow | UI | 64×80 | 3帧 | 边框发光闪烁 | 武器选择 | □
+UI-050 :: UI-050 | 死亡·全屏黑色渐变遮罩 | Death Fade Overlay | UI | 320×180 | 动态 | 透明→黑色 Tween | 死亡流程 | □
+UI-051 :: UI-051 | 死亡CG·跳过提示文字 | Death CG Skip Prompt | UI | 80×14 | 2帧 | 「按任意键跳过」右下角闪烁 | 死亡流程 | □
+UI-052 :: UI-052 | 重来提示界面·背景 | Retry Screen Background | UI | 320×180 | 1 | 暗紫色梦境感背景 | 死亡流程 | □
+UI-053 :: UI-053 | 重来提示·标题文字 | Retry Title Text | UI | 200×30 | 1 | 「噩梦还没有消散……」像素字 | 死亡流程 | □
+UI-054 :: UI-054 | 重来提示·副标题文字 | Retry Subtitle Text | UI | 200×20 | 1 | 「但弥绘不会就此放弃」 | 死亡流程 | □
+UI-055 :: UI-055 | 重来按钮·再次潜入 | Retry Button Dive Again | UI | 100×22 | 3帧 | 主按钮，高亮发光 | 死亡流程 | □
+UI-056 :: UI-056 | 重来按钮·返回主菜单 | Retry Button Main Menu | UI | 100×22 | 1 | 次按钮，低调灰色 | 死亡流程 | □
+UI-057 :: UI-057 | 重来提示·保留内容小字 | Retry Kept Items Note | UI | 180×30 | 1 | 「已保留：等级·传送点」 | 死亡流程 | □
+UI-058 :: UI-058 | 重来提示·重置内容小字 | Retry Reset Items Note | UI | 180×30 | 1 | 「已重置：词条·梦晶」 | 死亡流程 | □
+CG-001 :: CG-001 | 死亡CG-A框架(第一层) | Death CG Layer1 Frame | CG占位 | 320×180 | 1 | 弥绘趴在破碎积木，自制插图 | CG·自制 | □
+CG-002 :: CG-002 | 死亡CG-B框架(第二层) | Death CG Layer2 Frame | CG占位 | 320×180 | 1 | 弥绘站在通勤路迷失，自制插图 | CG·自制 | □
+CG-003 :: CG-003 | 死亡CG-C框架(第三层) | Death CG Layer3 Frame | CG占位 | 320×180 | 1 | 弥绘跌落崩溃核心边缘，自制 | CG·自制 | □
+CG-004 :: CG-004 | 通关生日彩蛋CG | Ending Birthday CG | CG占位 | 320×180 | 1 | 便利店外的星空，弥绘笑脸，自制 | CG·自制 | □
+CG-005 :: CG-005 | 通关生日文字动画 | Ending Birthday Text Anim | UI/CG | 320×60 | 动态 | 逐字出现「弥绘，生日快乐！」 | 生日彩蛋 | □
+UI-070 :: UI-070 | 词条选择·背景 | Trait Select Background | UI | 320×180 | 1 | 半透明梦境弹窗 | 词条系统 | □
+UI-071 :: UI-071 | 词条卡片·普通框 | Trait Card Common Frame | UI | 80×100 | 1 | 普通词条 | 词条系统 | □
+UI-072 :: UI-072 | 词条卡片·稀有框 | Trait Card Rare Frame | UI | 80×100 | 1 | 金色发光框 | 词条系统 | □
+UI-080 :: UI-080 | 战斗伤害数字·白色(普通) | Damage Number White | 像素字体 | 6×8 | N/A | 普通伤害数字，白色 | 战斗HUD | □
+UI-081 :: UI-081 | 战斗伤害数字·橙色(暴击) | Damage Number Orange Crit | 像素字体 | 8×10 | N/A | 暴击专属橙色大字，字号更大 | 暴击系统 | □
+UI-082 :: UI-082 | 通用像素字体(中文支持) | Pixel Font (CJK Support) | 像素字体 | 12×12起 | N/A | 建议用免费开源中文像素字体 | 通用UI | □
+
+========== SHEET: 音频清单 (cols=9 rows=35) ==========
+HEADER: 🎵 音效 · BGM · 音频素材清单（社畜梦境版） |  |  |  |  |  |  |  | 
+? :: 编号 | 音频名称 | 英文名称 | 类型 | 时长 | 格式 | 风格说明 | 所属场景 | 完成状态
+BGM-001 :: BGM-001 | 主菜单主题 | Main Menu Theme | BGM | 2-3min循环 | OGG | 梦幻感，钢琴+轻鼓 | 主菜单 | □
+BGM-002 :: BGM-002 | 第一层·午夜办公室 | Layer1 Midnight Office | BGM | 2min循环 | OGG | 日光灯嗡嗡声底，焦虑感电子乐 | 第一层 | □
+BGM-003 :: BGM-003 | 第二层·无尽通勤路 | Layer2 Endless Commute | BGM | 2min循环 | OGG | 地铁/地铁门声采样+电子节拍 | 第二层 | □
+BGM-004 :: BGM-004 | 第三层·深夜崩溃核心 | Layer3 Breakdown Core | BGM | 2min循环 | OGG | 重低音+失真，压抑到极致 | 第三层 | □
+BGM-005 :: BGM-005 | 小Boss战·职场压力 | Mini Boss Workplace Pressure | BGM | 1.5min循环 | OGG | 紧迫电子+扭曲钢琴音 | Boss战 | □
+BGM-006 :: BGM-006 | 最终Boss战·完全崩溃 | Final Boss Total Collapse | BGM | 3min循环 | OGG | 史诗感+失真噪音混合 | 最终Boss | □
+BGM-007 :: BGM-007 | 驿站·便利店之夜 | Rest Stop Convenience Night | BGM | 1.5min循环 | OGG | 放松的便利店BGM感，安全 | 驿站 | □
+BGM-008 :: BGM-008 | 通关·生日庆典 | Ending Birthday Celebration | BGM | 1min | OGG | 欢快生日感+主题变奏 | 生日彩蛋 | □
+BGM-009 :: BGM-009 | 死亡·噩梦未散 | Death Nightmare Lingers | BGM | 30秒 | OGG | 短暂沉静，不过于沉重，有回响 | 死亡流程 | □
+SFX-001 :: SFX-001 | 弥绘·跳跃 | Miai Jump SFX | 音效 | 0.2s | WAV | 轻快弹跳 | 玩家 | □
+SFX-002 :: SFX-002 | 弥绘·受击 | Miai Hurt SFX | 音效 | 0.3s | WAV | 梦幻受伤声 | 玩家 | □
+SFX-003 :: SFX-003 | 弥绘·死亡 | Miai Death SFX | 音效 | 1s | WAV | 星星消散+叹息 | 玩家 | □
+SFX-010 :: SFX-010 | 暴击触发音效 | Crit Trigger SFX | 音效 | 0.3s | WAV | 橙色爆裂感，清脆冲击+短促余音 | 暴击系统 | □
+SFX-011 :: SFX-011 | 暴击数字弹出声 | Crit Number Pop SFX | 音效 | 0.1s | WAV | 短促的「叮」，区别普通伤害 | 暴击系统 | □
+SFX-020 :: SFX-020 | 法杖攻击·发射 | Staff Attack Fire SFX | 音效 | 0.2s | WAV | 魔法弹射出感 | 武器·法杖 | □
+SFX-021 :: SFX-021 | 法杖攻击·命中 | Staff Attack Hit SFX | 音效 | 0.2s | WAV | 光弹爆炸 | 武器·法杖 | □
+SFX-022 :: SFX-022 | 短剑·挥砍 | Sword Slash SFX | 音效 | 0.2s | WAV | 利器切割 | 武器·剑 | □
+SFX-023 :: SFX-023 | 镰刀·挥砍 | Scythe Slash SFX | 音效 | 0.3s | WAV | 沉重挥砍 | 武器·镰刀 | □
+SFX-024 :: SFX-024 | 终极技能·触发 | Ultimate Skill SFX | 音效 | 1.5s | WAV | 深沉吞噬感+回响 | 终极技能 | □
+SFX-030 :: SFX-030 | 怪物受击·通用 | Monster Hit SFX | 音效 | 0.1s | WAV | 短促受击 | 怪物 | □
+SFX-031 :: SFX-031 | 怪物死亡·消散 | Monster Death SFX | 音效 | 0.5s | WAV | 噩梦消散，星光声 | 怪物 | □
+SFX-032 :: SFX-032 | Boss出场 | Boss Entrance SFX | 音效 | 1s | WAV | 低沉压迫感 | Boss | □
+SFX-033 :: SFX-033 | 房间怪物刷新音 | Room Respawn SFX | 音效 | 0.5s | WAV | 幽灵再现感，低沉嗡嗡 | 刷新机制 | □
+SFX-034 :: SFX-034 | 地图·打开/关闭 | Map Open Close SFX | 音效 | 0.2s | WAV | 翻页/展开感 | 地图UI | □
+SFX-035 :: SFX-035 | 地图·点击传送 | Map Teleport Click SFX | 音效 | 0.8s | WAV | 旋转传送能量感 | 地图UI | □
+SFX-036 :: SFX-036 | 等级提升 | Level Up SFX | 音效 | 1s | WAV | 欢快上升音调+星光声 | 系统 | □
+SFX-037 :: SFX-037 | 武器更换 | Weapon Swap SFX | 音效 | 0.5s | WAV | 能量切换感 | 系统 | □
+SFX-038 :: SFX-038 | 死亡CG·开始播放 | Death CG Start SFX | 音效 | 0.3s | WAV | 画面淡黑时的低沉过渡声 | 死亡流程 | □
+SFX-039 :: SFX-039 | 按钮·再次潜入点击 | Retry Button Click SFX | 音效 | 0.4s | WAV | 比普通点击更有力 | 死亡流程 | □
+SFX-040 :: SFX-040 | UI点击·通用 | UI Click SFX | 音效 | 0.1s | WAV | 清脆点击 | UI | □
+SFX-041 :: SFX-041 | 词条获得 | Trait Acquired SFX | 音效 | 0.6s | WAV | 神秘感+惊喜感 | 词条系统 | □
+
+========== SHEET: 总览进度 (cols=7 rows=34) ==========
+HEADER: 📊 素材总览 · 优先级追踪（v3.0） |  |  |  |  |  | 
+? :: 类别 | 英文类别 | 总数 | 优先级 | 是否新增/变更 | 关键说明 | 完成状态
+? :: 主角弥绘动画（含真形/庆生） | Player Miai Animations | 10套 | ★★★★★ | 尺寸已更新为130×250 | 游戏启动首要完成 | □
+? :: 武器姿态叠加层 | Weapon Pose Overlays | 3套 | ★★★★★ | 尺寸已更新为130×250 | 与主角动画绑定 | □
+? :: 武器图标（全9种+升阶3种） | Weapon Icons (9+3 Upgraded) | 12个 | ★★★★★ | 原有 | 开始选武器时需要 | □
+? :: 弹射物 | Projectiles | 6种 | ★★★★★ | 原有 | 与武器同步 | □
+? :: 暴击专属特效（橙色爆光/数字） | Crit FX (Flash/Number) | 3种 | ★★★★★ | 原有 | 核心系统，早期实现 | □
+? :: 第一层怪物·午夜办公室（含Boss） | Layer1 Monsters & Boss | 13套 | ★★★★★ | 尺寸已更新，Boss为260×500 | 第一层通关必需 | □
+? :: 第二层怪物·无尽通勤路（含Boss） | Layer2 Monsters & Boss | 12套 | ★★★★☆ | 尺寸已更新，Boss为260×500 | 第二层解锁后 | □
+? :: 第三层怪物·深夜崩溃核心（含Boss） | Layer3 Monsters & Boss | 11套 | ★★★☆☆ | 尺寸已更新，Boss为260×500 | 最终Boss最后制作 | □
+? :: 网状地图节点图标（5种+状态变化） | Map Node Icons | 10种 | ★★★★★ | 原有 | 地图系统核心 | □
+? :: 地图UI界面（传送弹窗/图例等） | Map UI (Popup/Legend) | 4件 | ★★★★★ | 原有 | 与地图节点配套 | □
+? :: 房间怪物刷新特效 | Room Respawn FX | 1种 | ★★★★☆ | 原有 | 体现魂类机制 | □
+? :: 刷新音效 | Respawn SFX | 1个 | ★★★★☆ | 原有 | 刷新时音效反馈 | □
+? :: 死亡CG（自制，3张死亡+1生日） | Death CG (3+1) | 4张 | ★★★★☆ | 原有·自制项 | 内容自制，流程UI先做 | □
+? :: 死亡流程UI（遮罩/提示/重来界面） | Death Flow UI | 9件 | ★★★★★ | 原有 | 死亡体验核心 | □
+? :: 死亡/重来相关音效 | Death/Retry SFX | 3个 | ★★★★☆ | 原有 | 死亡氛围 | □
+? :: 场景Tileset·第一层（社畜办公室） | Layer1 Tileset (Office) | 7套 | ★★★★★ | 尺寸未变（需保持网格对齐） | 首通必需 | □
+? :: 场景Tileset·第二层（通勤路） | Layer2 Tileset (Commute) | 7套 | ★★★★☆ | 尺寸未变（需保持网格对齐） | 第二层才用 | □
+? :: 场景Tileset·第三层（崩溃核心） | Layer3 Tileset (Breakdown) | 5套 | ★★★☆☆ | 尺寸未变（需保持网格对齐） | 最后制作 | □
+? :: 驿站·便利店内景 | Rest Stop Interior | 3套 | ★★★★☆ | 原有 | 安全区素材 | □
+? :: 通用道具（门/宝箱/传送阵） | Common Props | 6套 | ★★★★★ | 原有 | 基础玩法必需 | □
+? :: 战斗HUD（含暴击率显示） | Combat HUD | 11件 | ★★★★★ | 原有 | 游戏开始就需要 | □
+? :: 主菜单/按钮/通用UI | Main Menu & Common UI | 6件 | ★★★★☆ | 原有 | 可用占位临时代替 | □
+? :: 武器选择界面 | Weapon Select UI | 3件 | ★★★★★ | 原有 | 开场选武器就需要 | □
+? :: 词条系统UI | Trait System UI | 3件 | ★★★★☆ | 原有 | 核心系统配套 | □
+? :: 暴击伤害橙色字体 | Crit Damage Font | 1套 | ★★★★★ | 原有 | 区分普通/暴击伤害 | □
+? :: BGM（9首） | BGM (9 Tracks) | 9首 | ★★★★☆ | 原有 | 可先用免费素材占位 | □
+? :: SFX音效（32个） | SFX (32 Sounds) | 32个 | ★★★★☆ | 原有 | 可用免费素材占位 | □
+? :: 🆕 v3更新：角色/怪物/Boss尺寸统一为130×250（Boss/精英为260×500，正好2倍），全表新增「英文名称」列，方便AI绘图prompt与文件命名使用。Tileset与UI因技术限制（网格对齐/屏幕布局）尺寸保持不变。 |  |  |  |  |  | 

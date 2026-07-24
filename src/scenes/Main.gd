@@ -10,7 +10,7 @@ func _ready() -> void:
 
 	# 标题图（占位，可一键替换 assets/ui/ui_title.png）
 	var title := TextureRect.new()
-	title.texture = GameManager.load_tex("res://assets/ui/ui_title.png")
+	title.texture = GameManager.load_tex("res://assets/ui/UI-020_main_menu_title_logo.png")
 	if title.texture != null:
 		title.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 		title.size = Vector2(420, 130)

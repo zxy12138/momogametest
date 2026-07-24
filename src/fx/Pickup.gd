@@ -8,9 +8,9 @@ var value := 10
 func _ready() -> void:
 	var sp := get_node("Sprite")
 	if kind == "xp":
-		sp.texture = GameManager.load_tex("res://assets/fx/fx_xp.png")
+		sp.texture = GameManager.load_tex("res://assets/fx/FX-021_exp_orb.png")
 	else:
-		sp.texture = GameManager.load_tex("res://assets/fx/fx_crystal.png")
+		sp.texture = GameManager.load_tex("res://assets/fx/FX-022_dream_crystal_currency.png")
 	connect("body_entered", _on_body_entered)
 	add_to_group("pickup")
 	# 轻微漂浮动画
