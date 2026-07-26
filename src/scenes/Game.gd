@@ -1,4 +1,5 @@
 # 游戏主玩法场景：房间切换 / 传送 / 驿站 / 词条 / 死亡 / 生日彩蛋
+@tool
 extends Node2D
 
 const ROOM = preload("res://src/rooms/Room.tscn")
@@ -19,13 +20,24 @@ var _pause_overlay: Control = null
 var _dev_label: Label = null
 var _inn_prompt: Label = null
 var _ui_layer: CanvasLayer = null
+# Fade 必须挂在 CanvasLayer（屏幕空间）下，否则会被相机 zoom+跟随推到屏幕外，
+# 只在角落露出黑块（之前每次切场景右下角的黑屏即此）。
+@onready var _fade_rect: ColorRect = $Fade/Rect
 
 
 func _ready() -> void:
-	$Fade.size = get_viewport_rect().size
-	$Fade.modulate.a = 1.0
+	# 进入可玩场景的唯一切入点：无论如何都要解锁输入，
+	# 否则任何把 input_locked 设成 true 的路径（ESC 暂停/死亡/生日）在回到 Game 时都会卡死玩家。
+	GameManager.input_locked = false
+	# 编辑器预览：在场景编辑器里直接 build 一个示例世界（地板/墙/门/敌人/Boss 可见），
+	# 不跑任何游戏逻辑（输入/淡入/信号/计时器）。运行期走下方真实逻辑。
+	if Engine.is_editor_hint():
+		_editor_build_preview()
+		return
+	_fade_rect.size = get_window().get_visible_rect().size
+	_fade_rect.modulate.a = 1.0
 	var t := get_tree().create_tween()
-	t.tween_property($Fade, "modulate:a", 0.0, 0.6)
+	t.tween_property(_fade_rect, "modulate:a", 0.0, 0.6)
 	MapData.load_layer(GameManager.layer_index)
 	_restore_map_progress()
 	GameManager.connect("leveled_up", _on_level_up)
@@ -39,6 +51,39 @@ func _ready() -> void:
 	_build_inn_prompt()
 	_build_dev_label()
 	transition_to("r1", true)
+
+
+# 编辑器预览：在场景编辑器里 build 一个示例世界，方便直接看到房间/墙/门/敌人/Boss。
+# 预览节点由 @tool 在编辑器运行时动态 add_child，请勿在预览存在时 Ctrl+S 保存 Game.tscn，
+# 以免把预览节点写进场景文件；关闭场景重开即可自动清理。运行期不会走这里。
+func _editor_build_preview() -> void:
+	if get_node_or_null("World/Room") != null:
+		return
+	MapData.load_layer(1)
+	var room := ROOM.instantiate() as Node2D
+	$World.add_child(room)
+	room.call("setup", "r1", MapData.room("r1"), 1, $World, self)
+	# 顺手放两个敌人 + 一个 Boss，方便在编辑器里核对精灵与朝向
+	var e1 := ENEMY.instantiate() as Node2D
+	e1.call("setup", "overtime_ghost")
+	e1.global_position = Vector2(-180, -40)
+	room.add_child(e1)
+	var e2 := ENEMY.instantiate() as Node2D
+	e2.call("setup", "printer")
+	e2.global_position = Vector2(160, 60)
+	room.add_child(e2)
+	var b := load("res://src/enemies/Boss.tscn").instantiate() as Node2D
+	b.call("setup", "b_director")
+	b.global_position = Vector2(0, -120)
+	room.add_child(b)
+	var p := get_node_or_null("World/Player")
+	if p != null:
+		p.global_position = Vector2(0, 0)
+		# 预览时把相机锚点改居中（原 anchor_mode=1 固定左上会让房间偏到角落），
+		# 仅改 live 节点、不写入场景，关闭重开即恢复。
+		var cam := p.get_node_or_null("Camera")
+		if cam != null:
+			cam.anchor_mode = 0
 
 
 # 续关：把已探明/已通房间状态还原到 MapData（load_layer 会重置 states）
@@ -93,15 +138,15 @@ func transition_to(rid: String, instant: bool = false) -> void:
 	if instant:
 		_swap(rid)
 		var t := get_tree().create_tween()
-		t.tween_property($Fade, "modulate:a", 0.0, 0.5)
+		t.tween_property(_fade_rect, "modulate:a", 0.0, 0.5)
 		t.tween_callback(func(): _transitioning = false)
 	else:
 		var t := get_tree().create_tween()
-		t.tween_property($Fade, "modulate:a", 1.0, 0.25)
+		t.tween_property(_fade_rect, "modulate:a", 1.0, 0.25)
 		t.tween_callback(func():
 			_swap(rid)
 			var t2 := get_tree().create_tween()
-			t2.tween_property($Fade, "modulate:a", 0.0, 0.35)
+			t2.tween_property(_fade_rect, "modulate:a", 0.0, 0.35)
 			t2.tween_callback(func(): _transitioning = false)
 		)
 
@@ -365,7 +410,7 @@ func _on_level_up(_lvl: int) -> void:
 func on_player_died() -> void:
 	GameManager.input_locked = true
 	var t := get_tree().create_tween()
-	t.tween_property($Fade, "modulate:a", 1.0, 0.6)
+	t.tween_property(_fade_rect, "modulate:a", 1.0, 0.6)
 	t.tween_callback(func():
 		get_tree().change_scene_to_file(DEATHCG.resource_path)
 	)
@@ -376,7 +421,7 @@ func _birthday() -> void:
 	SaveManager.save_game()
 	GameManager.input_locked = true
 	var t := get_tree().create_tween()
-	t.tween_property($Fade, "modulate:a", 1.0, 0.8)
+	t.tween_property(_fade_rect, "modulate:a", 1.0, 0.8)
 	t.tween_callback(func():
 		get_tree().change_scene_to_file(BIRTHDAY.resource_path)
 	)
@@ -458,6 +503,7 @@ func _restart_game() -> void:
 		_pause_overlay.queue_free()
 	_pause_overlay = null
 	GameManager.reset_run(GameManager.weapon_id)
+	GameManager.input_locked = false   # 双保险：重开必须解锁输入
 	get_tree().change_scene_to_file("res://src/scenes/Game.tscn")
 
 func _return_menu() -> void:
@@ -466,6 +512,7 @@ func _return_menu() -> void:
 	if is_instance_valid(_pause_overlay):
 		_pause_overlay.queue_free()
 	_pause_overlay = null
+	GameManager.input_locked = false   # 双保险：返回主菜单后也解锁输入
 	get_tree().change_scene_to_file("res://src/scenes/Main.tscn")
 
 func _toggle_dev() -> void:

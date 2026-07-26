@@ -1,4 +1,7 @@
+@tool
 # 弥绘（玩家）：8 向移动 + 鼠标瞄准 + 攻击 + 暴击(经 Weapon) + 梦食 + 终极技能 + 升级成长
+# @tool：让 _ready() 在编辑器里也运行，从而把 sprite_frames 构建出来，2D 视图可直接预览角色动画。
+# 游戏逻辑（输入/武器/终极）一律用 Engine.is_editor_hint() 挡在编辑器外，避免编辑器里刷怪/发射。
 extends CharacterBody2D
 class_name Player
 
@@ -19,14 +22,19 @@ var _sprite: AnimatedSprite2D
 func _ready() -> void:
 	add_to_group("player")
 	_sprite = get_node("Sprite")
+	# 合并图 A-001_all.png：1024x1024，8x8 格，每格 128x128，每行 8 帧。
+	# 行映射：0=下走 1=右走 2=上走 3=左跑 4=待机 5=死亡 6/7 空。
 	var spec := {
-		"idle": [SPR+"A-001_miai_idle.png", 130, 250, 4, 6],
-		"walk": [SPR+"A-002_miai_walk.png", 130, 250, 6, 8],
-		"run": [SPR+"A-003_miai_run.png", 130, 250, 6, 10],
+		"idle": [SPR+"A-001_all.png", 128, 128, 8, 5, 4],
+		"walk_down": [SPR+"A-001_all.png", 128, 128, 8, 6, 0],
+		"walk_right": [SPR+"A-001_all.png", 128, 128, 8, 6, 1],
+		"walk_up": [SPR+"A-001_all.png", 128, 128, 8, 6, 2],
+		"run_left": [SPR+"A-001_all.png", 128, 128, 8, 8, 3],
+		"dead": [SPR+"A-001_all.png", 128, 128, 8, 8, 5],
+		# 以下动作未纳入合并图，沿用独立文件
 		"jump": [SPR+"A-004_miai_jump.png", 130, 250, 3, 12],
 		"hurt": [SPR+"A-005_miai_hurt.png", 130, 250, 2, 12],
 		"attack": [SPR+"A-007_miai_attack_windup.png", 130, 250, 4, 14],
-		"dead": [SPR+"A-006_miai_death.png", 130, 250, 5, 12],
 		"ult": [SPR+"A-008_miai_ultimate_skill.png", 130, 250, 8, 14],
 		"true": [SPR+"A-009_miai_true_form_idle.png", 130, 250, 4, 12],
 	}
@@ -36,6 +44,8 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
 	if _dead:
 		z_index = int(global_position.y)
 		return
@@ -61,7 +71,6 @@ func _physics_process(delta: float) -> void:
 		_aim = Vector2.RIGHT if _sprite.flip_h else Vector2.LEFT
 	else:
 		_aim = _aim.normalized()
-	_sprite.flip_h = _aim.x < 0
 
 	# 攻击
 	var firing := Input.is_action_pressed("attack")
@@ -87,16 +96,27 @@ func _input_dir() -> Vector2:
 func _anim_update(delta: float) -> void:
 	if _atk_timer > 0:
 		_atk_timer -= delta
-	var next := "idle"
+	if _dead:
+		return
+	var next := ""
+	var moving := velocity.length() > 12.0
 	if _atk_timer > 0:
 		next = "attack"
-	elif velocity.length() > 12:
-		next = "walk"
+	elif _dash_t > 0:
+		next = "run_left"
+	elif moving and abs(velocity.x) >= abs(velocity.y):
+		next = "walk_right"
+		_sprite.flip_h = velocity.x < 0        # 右走行镜像为左向
+	elif moving:
+		next = "walk_down" if velocity.y > 0 else "walk_up"
+		_sprite.flip_h = _aim.x < 0            # 上下行走按瞄准保持左右朝向
 	elif GameManager.level >= 26:
 		next = "true"
+		_sprite.flip_h = _aim.x < 0
 	else:
 		next = "idle"
-	if next != _anim:
+		_sprite.flip_h = _aim.x < 0            # 静止时朝向鼠标
+	if next != "" and next != _anim:
 		_anim = next
 		if _sprite.sprite_frames.has_animation(next):
 			_sprite.play(next)

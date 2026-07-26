@@ -1,4 +1,5 @@
 # 敌人（通用）：行为 chase / shooter / charger / aoe；支持减速/冰冻/灼烧/麻痹/击退。
+@tool
 extends CharacterBody2D
 class_name Enemy
 
@@ -60,7 +61,16 @@ func is_boss() -> bool:
 	return false
 
 
+# 编辑器预览：独立打开 Enemy.tscn 时构建一个示例敌人精灵（idle 动画可见）。
+# 被 Game/RoomManager 在编辑器里实例化时，setup() 已在 add_child 前调用，_eid 非空，此处跳过，避免重复 build。
+func _ready() -> void:
+	if Engine.is_editor_hint() and _eid == "":
+		setup("overtime_ghost")
+
+
 func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
 	z_index = int(global_position.y)
 	if _dead:
 		return

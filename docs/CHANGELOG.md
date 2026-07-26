@@ -218,3 +218,131 @@ v3.0 把角色/怪物贴图从占位的小尺寸改为 **130×250**（Boss 260×
 - **仅 v4.0 第一步**：本次只跑通"加载预制整图背景"。门动画（Door 开/关帧切换）与空气墙（InvisibleWall 独立节点）**尚未实现**，当前仍用 RoomManager 旧碰撞墙 + `T-003` 门框贴图。待用户整图资产（S-001~S-018）就绪后，按 v4.0 补齐 Door/InvisibleWall 并重写场景加载。
 - **临时 TEST 键**：`LevelData` 的 `scene_img` 为试用钩子，正式流程应改为按房型从美术清单 S-* 读取；r2/r3 现共用同一张 changjing1，观感上两房相同属正常现象（试用阶段）。
 - **敌人碰撞未随视觉缩小**：视觉 0.45 但碰撞半径仍按 `fw/fh` 原值，等同"判定框略大于缩后精灵"，对玩家偏友好，可接受；正式调参时若需更贴合可另行缩放碰撞。
+
+---
+
+# 改动 · 2026-07-26 · 玩家精灵图改用合并图 A-001_all.png（按行分动作 + 四向方向逻辑）
+
+## 背景
+- 原 `Player.gd` 的 `spec` 把每个动作拆成独立 PNG（`A-001_miai_idle` / `A-002_miai_walk` / `A-003_miai_run` / `A-006_miai_death` …），由 `GameManager.make_frames` 逐图横向取帧。
+- 现美术合并为单张 `A-001_all.png`：**1024×1024、8×8 格、每格 128×128、每行 8 帧、全填满**。行映射（自上而下）：
+  - 行0 = 下走(walk_down) / 行1 = 左走(walk_left) / 行2 = 上走(walk_up) / 行3 = 左跑(run_left) / 行4 = 待机(idle) / 行5 = 死亡(dead) / 行6、行7 空。
+- ⚠️ **与项目原约定冲突**：角色帧长期是 **130×250**，但这张合并图物理上是 **128×128**（1024 高放不下 8 行 250 高），原约定对合并图失效。代码按文件实测值接入（128×128、8 帧/行）。
+
+## 根因 / 修复
+- **`GameManager.gd` `make_frames`**：原为「仅第 0 行横向取帧」`Rect2(i*fw, 0, fw, fh)`。新增**行号参数**（spec 第 6 元素，默认 0），取帧改为 `Rect2(i*fw, row*fh, fw, fh)`；敌人/Boss 调用不传行号 → 行为不变（兼容）。
+- **`Player.gd` `spec`**：
+  - 合并图行接入 6 个：`idle`(行4) / `walk_down`(行0) / `walk_left`(行1) / `walk_up`(行2) / `run_left`(行3) / `dead`(行5)，均 `[A-001_all.png, 128,128, 8, fps, 行号]`。
+  - **未纳入合并图的 5 个动作保留独立文件**：`jump`(A-004) / `hurt`(A-005) / `attack`(A-007) / `ult`(A-008) / `true`(A-009)（130×250 旧尺寸，行号默认 0）。
+- **`Player.gd` `_anim_update` 重写（方向逻辑）**：原单一 `walk` + 靠瞄准 `flip_h`；现按移动向量四向选动作——水平主导用 `walk_left` 且 `flip_h = velocity.x>0`（左行镜像为右向），上下主导用 `walk_down`/`walk_up`，冲刺(`_dash_t>0`)用 `run_left`；静止/上下行走按瞄准保持左右朝向。移除 `_physics_process` 里原「按瞄准设 `flip_h`」那一行，避免与方向逻辑冲突。
+- **`assets/sprites/player/A-001_all.png.import`**：新建，照现有 player 图设置（lossless `compress/mode=0`、`mipmaps/generate=false`），省略 `uid` 由引擎首次打开自动生成。
+
+## 已知风险 / 待确认
+- **角色明显变小**：`scale=0.28` 原按 250 高调，现帧高 128 → 同缩放下角色约变为原来的 ~51%。如观感需保持，应将 `_sprite.scale` 提到约 `0.55`，但这是美术尺寸决策，未擅改，留待你/美术定。
+- **合并图(128×128)与独立动作(130×250)高度不一致**：保留的 `attack`/`ult`/`jump`/`hurt`/`true` 仍是 250 高，而 `idle`/`walk`/`run`/`dead` 变 128 高；同一 sprite 的 `scale` 统一，故切到攻击/终极时人物会瞬间变高约 2 倍。根因是两类素材分辨率不同，彻底解决需把剩余动作也并入合并图（或统一重导出为同尺寸）。本次按「保留独立文件」决定落子，未强行缩放。
+- **攻击/终极仅 1 帧可见**：`ult`/`attack` 仍走原逻辑（无播放时长锁），`_anim_update` 次帧即被 idle/walk 覆盖——属改动前既有行为，本次未动。
+- **`v3_assets.py` 美术清单未改**：合并图为新增资产 `A-001_all`，原 `A-001~A-009` 独立项仍作独立动作源保留（仅 idle/walk/run/dead 实际改读合并图）。`DevelopmentRequirements/*.xlsx` 为二进制，未手写改动；如需在清单里登记合并图请告知。
+
+## 验证
+- 本机无 Godot 可执行文件（沙箱下载 release CDN 被掐），未跑无头实机。已做代码级核对：3 处改动落在文件；`make_frames` 行号默认 0 兼容敌人/Boss；`walk/run` 旧名无别处硬编码；PNG 网格实测 8×8、每行 8 帧与映射一致。
+- 请在本机 Godot 打开工程确认：① 进战斗房角色 idle/移动/冲刺/死亡动画正确；② 右向移动是左行镜像（非穿模）；③ 角色尺寸是否需调 `scale`。
+
+---
+
+# 修正 · 2026-07-26（补）· 玩家合并图方向名 + 动画降速
+
+## 1. 第二行实为「向右 walk」
+- 原按 `A-001_all.png` 行映射把**行1**接成 `walk_left`（左走）。用户核图后确认行1实际是**向右 walk**。
+- `Player.gd`：`spec` 中 `walk_left` → **`walk_right`**（仍指行1）；`_anim_update` 水平移动改用 `walk_right`，镜像规则反转——`_sprite.flip_h = velocity.x < 0`（右走精灵默认朝右，左移时翻成左向）。
+- 注释同步：`行映射：0=下走 1=右走 2=上走 3=左跑 4=待机 5=死亡`。
+- 行3（`run_left` 左跑）用户未要求改，维持原样。
+
+## 2. 动画整体降速（用户反馈「太快」）
+- 合并图 8 帧/行 + 帧率偏高导致观感偏快。统一下调帧率约 25–33%：
+  - `idle` 6 → **5**
+  - `walk_down`/`walk_right`/`walk_up` 8 → **6**
+  - `run_left` 10 → **8**
+  - `dead` 12 → **8**
+- 说明：独立图时代的 walk/run/dead 帧率本就是 8/10/12，合并图每行动画帧数从 6 增至 8，故整体偏快；本次在文件实测值基础上直接降 fps，肉眼可见变慢。若仍偏快可继续下调（walk 建议下限 ~4）。
+
+## 验证
+- `grep walk_left` 全仓无残留；Python 复刻 `make_frames` 取帧矩形，6 个动画所有帧均在 1024×1024 内（OK）；方向逻辑自检：右移→walk_right 不翻、左移→walk_right 翻转（True）。
+- 本机仍无 Godot 二进制，未跑无头实机；请本机确认右移为「朝右」原图（非镜像穿模）、降速幅度是否合适。
+
+---
+
+# 改动 · 2026-07-26（补）· 让所有场景在编辑器里可见（@tool 编辑器预览）
+
+## 背景
+- 用户诉求：在场景编辑器里直接看到「所有东西」（房间/墙/门/敌人/Boss/玩家），而不是只能 F5 运行后看。
+- 根因：原架构是数据驱动 + 运行时生成。`.tscn` 仅放骨架（`Game.tscn` 只有 World/Player/HUD/MapUI/Fade），房间/墙/门/敌人/Boss 全是 `RoomManager.setup()` 与 `Game._ready→transition_to→_swap` 在运行时 `add_child` 进去的；玩家精灵帧也在 `_ready` 里 `make_frames` 构建。全仓当时只有 Player 是 `@tool`，所以编辑器里近乎全空。
+
+## 修复（@tool 编辑器预览）
+- **`Game.gd`**：加 `@tool`。`_ready()` 内 `if Engine.is_editor_hint(): _editor_build_preview(); return`，在编辑器里直接 build 一个示例世界（地板/墙/门/敌人/Boss 全显示），跳过 UI/淡入/信号/计时器等游戏逻辑。运行期逻辑完全不变。
+  - 新增 `_editor_build_preview()`：`MapData.load_layer(1)` → 实例化 `Room` 并 `setup("r1", …)` → 手动放 2 个敌人(`overtime_ghost`/`printer`)+ 1 个 Boss(`b_director`)，并把玩家相机锚点临时改居中(`anchor_mode=0`)，使房间整屏可见。
+- **`RoomManager.gd`**：加 `@tool`。`setup()` 在编辑器可运行；新增 `_ready()` 仅当 `is_editor_hint() and _rid=="" and get_parent()==null`（即独立打开 Room.tscn）时 build 一个示例战斗房，被 Game 嵌套实例化时不自动 build（避免重复生成）。
+- **`Enemy.gd`**：加 `@tool`；`_physics_process` 首行 `if Engine.is_editor_hint(): return`；`_ready()` 仅在编辑器且未 setup 时 `setup("overtime_ghost")` 预览（被 Game 实例化时 setup 已在 add_child 前调用，`_eid` 非空 → 跳过，无重复）。
+- **`Boss.gd`**：加 `@tool`；`_physics_process` 首行守卫；覆盖 `_ready()` 用 `setup("b_director")` 预览（避免误走敌人 setup）。
+
+## 已知注意点（如实告知）
+- **Ctrl+S 污染风险**：预览节点是 `@tool` 在编辑器运行时 `add_child` 的，标准 @tool 模式下不会写进 `.tscn`；但请勿在预览存在时保存 Game.tscn。若误保存导致场景被污染，删除场景中凭空出现的 `Room` 节点即可。关闭场景重开即自动清理。
+- **相机**：玩家相机 `anchor_mode` 原为 `1`(固定左上)，会导致房间偏到角落；预览里已临时改居中，仅影响 live 节点、不写入场景。
+- HUD/MapUI 是 CanvasLayer（UI 覆盖层），非 `@tool`，编辑器里仍为空——属正常（它们是运行时 UI，不属「世界内容」）。
+- 本机仍无 Godot 二进制，未跑无头实机；已做代码级核查：`@tool`/`is_editor_hint` 守卫齐全、位置正确、无重复 build、节点名(Sprite/CollisionShape2D/Hitbox/Floor)与 setup 引用一致、`LevelData.r1` 含 neighbors 且 `MapData.room(r2/r3)` 存在（门/标签不取空）。
+
+## 验证（请在编辑器确认）
+- 打开 `Game.tscn`：应看到房间地板/四面墙/上下门 + 玩家 + 2 敌人 + 1 Boss 在 2D 视图里。
+- 单独打开 `Room.tscn` / `Enemy.tscn` / `Boss.tscn`：应各自显示示例内容。
+- 运行 F5：行为与改动前完全一致（编辑器分支已早退，不影响运行期）。
+
+---
+
+# 改动 · 2026-07-26（补）· 拾取物磁吸：经验 2 秒后自动飞向玩家
+
+## 需求
+- 敌人/Boss 掉落的「经验球」在落地 2 秒后，自动飞向玩家并被拾取（磁吸式拾取），不必走上去碰。
+
+## 实现（仅改 `src/fx/Pickup.gd`）
+- 新增 `@export var homing_delay = 2.0` / `homing_speed = 420.0`（可在检查器调），`const PICKUP_RADIUS = 14`。
+- `_ready()`：保留原落地轻微漂浮 tween；新增 `get_tree().create_timer(homing_delay).timeout.connect(_start_homing)`。
+- `_start_homing()`：杀掉漂浮 tween，置 `_homing=true`，用 `get_tree().get_first_node_in_group("player") as Node2D` 取玩家（**不向下 `get_parent`**，符合组件向上通信规范）。
+- `_process(delta)`：磁吸态下 `global_position.move_toward(player.global_position, homing_speed*delta)`，天然减速、不越界；进入 `PICKUP_RADIUS` 即 `_collect()`。
+- 保留原 `body_entered` 碰撞拾取（玩家可提前走上去捡）；统一收口到 `_collect()`，并在其中安全断开定时器、杀 tween、`queue_free()`。
+- 类型全部显式：`kind: String` / `value: int` / `_player: Node2D` / `_homing_timer: SceneTreeTimer`，无 `Variant`、无 untyped `var`。
+
+## 验证（本机无 Godot，代码级核查）
+- `GameManager.add_xp(amount: int)` / `add_crystals(n: int)` 均收 `int`，`value: int` 匹配。
+- 旧字符串 `connect("body_entered", ...)` 已换 Godot 4 `body_entered.connect(...)`。
+- 定时器断开用 `is_connected("timeout", _start_homing)` 守卫，避免重复/已失效连接报错；提前踩拾取也能安全清掉定时器与 tween。
+- `Enemy._drop` / `Boss`(5 颗梦晶) 均先 `set(kind/value)` 再 `add_child` → `_ready` 读到正确值，兼容。
+- 注：磁吸对**所有** Pickup（含 Boss 梦晶）生效，非仅经验球；若只想经验球磁吸、梦晶保持碰触，告诉我即可改成按 `kind` 判断。
+
+---
+
+# 改动 · 2026-07-27 · 新游戏开头动画（ESC 可跳过 + 右上角提示）
+
+## 需求
+- 新游戏后加载一段开头动画 `assets/Anime/A_001.mp4`；可按 ESC 跳过；右上角显示「按 ESC 跳过」提示。
+
+## 关键决策：mp4 → ogv 转码
+- Godot 4 桌面端 `VideoStreamPlayer` **默认不能可靠解码 H.264/mp4**（无内置解码器，专利限制）；原生稳定支持的是 **Theora `.ogv`**。
+- 用 imageio-ffmpeg 静态二进制把 `A_001.mp4` 转码为 `assets/Anime/A_001.ogv`（libtheora -q:v 5 + libvorbis -q:a 4，约 15 秒，26MB）。原 `A_001.mp4` 保留未删。
+- `Intro.tscn` 引用 `.ogv`。若你的 Godot 构建确认能播 mp4，把 `Intro.tscn` 第 4 行 `ext_resource` 路径改回 `A_001.mp4` 即可。
+
+## 实现
+- 新增 `src/scenes/Intro.tscn`（Control 根）：
+  - `VideoPlayer`(VideoStreamPlayer)：全屏铺满（anchors FULL_RECT），`stream=A_001.ogv`，`autoplay=true`，`stretch_mode=2`(EXPAND 覆盖铺满、不变形)，`mouse_filter=2`(忽略)避免吞输入。
+  - `SkipHint`(Label)：锚点右上（PRESET_TOP_RIGHT），`text="按 ESC 跳过"`，`horizontal_alignment=2`(右对齐)；字号 22 / 白色在 `Intro.gd._ready` 用 `add_theme_*_override` 运行时设置（避免依赖 .tscn 序列化属性名）。
+- 新增 `src/scenes/Intro.gd`（extends Control）：
+  - `_ready()`：确认 stream 后 `play()`，连接 `finished` 信号；设提示样式。
+  - `_unhandled_input(event)`：`event.is_action_pressed("ui_cancel")`(ESC) → `_skip()`。
+  - 播放完 `finished` 或 `_skip()` → `_advance()`（`_finished` 防重入）→ `change_scene_to_file(WeaponSelect.tscn)`。
+- `src/scenes/Main.gd` `_new_game()`：目标从 `WeaponSelect.tscn` 改为 `Intro.tscn`（「新游戏 -> 开头动画 -> 选武器」）。`继续` 路径不变（不走 intro）。
+- 暂停菜单的「重新开始」仍直接进 `Game.tscn`，**不**重播 intro（避免每次死亡重开都看一遍）。
+
+## 验证（本机无 Godot，代码级核查）
+- 类型：所有变量显式类型，无 untyped var / Variant；无 `get_parent()` 反模式。
+- ESC 映射：`ui_cancel` 与项目既有暂停 ESC 写法一致，已在运行时验证可用。
+- 路径衔接：`Main._new_game→Intro`、`Intro→WeaponSelect` 均存在；`持续`路径未受影响。
+- 健壮性：若 ogv 未被引擎导入（`stream==null`），`_video.play()` 跳过且 `finished` 不触发，但 ESC 仍可 `_skip()` 并切场景，不会卡死。
+- 请在编辑器确认：`Intro.tscn` 应显示视频首帧 + 右上角白字提示；F5 跑主菜单点「新游戏」→ 播动画 → 按 ESC 立即进选武器 / 不按则播完自动进。

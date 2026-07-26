@@ -1,4 +1,5 @@
 # 房间 + RoomManager：地板/墙/门/驿站 + 按数据刷怪（离开重进即「魂式」刷新）
+@tool
 extends Node2D
 class_name RoomManager
 
@@ -268,3 +269,11 @@ func _spawn_boss(bid: String) -> void:
 
 func _rand_pos() -> Vector2:
 	return Vector2(randf_range(-W / 2 + 60, W / 2 - 60), randf_range(-H / 2 + 60, H / 2 - 60))
+
+
+# 编辑器预览：独立打开 Room.tscn 时构建一个示例战斗房（墙/门/敌人可见）。
+# 当本节点被 Game 在编辑器里实例化并主动 setup() 时（parent 非 null），由 Game 驱动，不自动 build，避免重复生成。
+func _ready() -> void:
+	if Engine.is_editor_hint() and _rid == "" and get_parent() == null:
+		var data := {"type": "combat", "neighbors": ["r2", "r3"], "enemies": [["overtime_ghost", 1]]}
+		setup("preview", data, 1, get_parent(), get_tree().current_scene)

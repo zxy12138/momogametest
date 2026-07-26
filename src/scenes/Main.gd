@@ -48,7 +48,8 @@ func _ready() -> void:
 	add_child(eb)
 
 func _new_game() -> void:
-	get_tree().change_scene_to_file("res://src/scenes/WeaponSelect.tscn")
+	# 新游戏 -> 先播开头动画，播完/跳过后进入选武器。
+	get_tree().change_scene_to_file("res://src/scenes/Intro.tscn")
 
 func _continue() -> void:
 	var data := SaveManager.load_game()

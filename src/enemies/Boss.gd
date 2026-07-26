@@ -1,5 +1,6 @@
 # Boss（继承 Enemy）：多阶段 + 弱点窗口（最终 Boss）+ 击败触发房间净化
 # 用脚本路径继承而非 class_name，避免无头模式下全局 class 注册表未登记 "Enemy" 导致解析失败。
+@tool
 extends "res://src/enemies/Enemy.gd"
 class_name Boss
 
@@ -48,7 +49,16 @@ func is_boss() -> bool:
 	return true
 
 
+# 编辑器预览：独立打开 Boss.tscn 时构建示例 Boss 精灵（idle 动画可见）。
+# 覆盖 Enemy 的同名预览，确保走 Boss 的 setup 而非敌人 setup。
+func _ready() -> void:
+	if Engine.is_editor_hint() and _eid == "":
+		setup("b_director")
+
+
 func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
 	z_index = int(global_position.y)
 	if _dead:
 		return

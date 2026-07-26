@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 GameManager="*res://src/autoload/GameManager.gd"
 SaveManager="*res://src/autoload/SaveManager.gd"
 MapData="*res://src/autoload/MapData.gd"
+RestartTest="*res://_restart_test.gd"
 
 [display]
 

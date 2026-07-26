@@ -59,6 +59,7 @@ func reset_run(wid: String) -> void:
 	visited = {}
 	weak_window = false
 	birthday = false
+	input_locked = false   # 新一局必须解锁输入，否则重开后玩家被卡死（ESC→重新开始 即此坑）
 	compute_stats()
 	hp = max_hp
 	emit_signal("stats_changed")
@@ -251,7 +252,8 @@ func load_tex(path: String) -> Texture2D:
 	return load(path) as Texture2D
 
 
-# spec: {动画名: [路径, 单帧宽, 单帧高, 帧数, fps]}
+# spec: {动画名: [路径, 单帧宽, 单帧高, 帧数, fps, 行号=0]}
+# 行号用于合并精灵图：第 row 行从 y=row*fh 起横向取 fr 帧。
 func make_frames(spec: Dictionary) -> SpriteFrames:
 	var sf := SpriteFrames.new()
 	for anim in spec.keys():
@@ -259,6 +261,7 @@ func make_frames(spec: Dictionary) -> SpriteFrames:
 		var path: String = a[0]
 		var fw: int = a[1]; var fh: int = a[2]; var fr: int = a[3]
 		var fps: float = a[4] if a.size() > 4 else 12.0
+		var row: int = a[5] if a.size() > 5 else 0
 		sf.add_animation(anim)
 		sf.set_animation_speed(anim, fps)
 		sf.set_animation_loop(anim, anim != "dead")
@@ -267,7 +270,7 @@ func make_frames(spec: Dictionary) -> SpriteFrames:
 			for i in fr:
 				var at := AtlasTexture.new()
 				at.atlas = tex
-				at.region = Rect2(i * fw, 0, fw, fh)
+				at.region = Rect2(i * fw, row * fh, fw, fh)
 				sf.add_frame(anim, at)
 		else:
 			# 兜底：1x1 洋红块，保证不崩
