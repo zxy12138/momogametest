@@ -6,6 +6,10 @@ const ROOM = preload("res://src/rooms/Room.tscn")
 const ENEMY = preload("res://src/enemies/Enemy.tscn")
 const DEATHCG = preload("res://src/ui/DeathCG.tscn")
 const BIRTHDAY = preload("res://src/ui/Birthday.tscn")
+# 预加载地面武器脚本。注意：headless 下全局 class_name 缓存不会重新扫描，
+# 因此这里用 preload 拿脚本引用来 new()，类型统一按 Node2D 处理（成员走 call/get/set），
+# 避免解析期依赖全局类型「WeaponPickup」导致 Parse Error。
+const WeaponPickupScript := preload("res://src/weapons/WeaponPickup.gd")
 
 var _room: Node = null
 var _transitioning := false
@@ -20,6 +24,17 @@ var _pause_overlay: Control = null
 var _dev_label: Label = null
 var _inn_prompt: Label = null
 var _ui_layer: CanvasLayer = null
+
+# ============ 开场序列 / 场景内武器拾取 ============
+var _prologue_active := false
+var _prologue_bubble: Control = null
+var _prologue_end_timer: SceneTreeTimer = null
+var _near_pickup: Node2D = null
+var _pickups: Array[Node2D] = []
+var _pickup_panel: Panel = null
+var _pickup_label: Label = null
+const _PICKUP_RADIUS := 64.0
+
 # Fade 必须挂在 CanvasLayer（屏幕空间）下，否则会被相机 zoom+跟随推到屏幕外，
 # 只在角落露出黑块（之前每次切场景右下角的黑屏即此）。
 @onready var _fade_rect: ColorRect = $Fade/Rect
@@ -50,7 +65,15 @@ func _ready() -> void:
 	_build_toast()
 	_build_inn_prompt()
 	_build_dev_label()
+	_build_pickup_prompt()
 	transition_to("r1", true)
+
+	# 新游戏：先强制播放开场序列（醒来独白 + 镜头拉近），结束后才生成可选武器。
+	# 「继续」/「死亡重开」不会置 prologue_pending，因此直接进正常玩法。
+	if GameManager.prologue_pending:
+		GameManager.prologue_pending = false
+		GameManager.reset_run("")   # 新游戏开局：先无武器，拾取后才装备
+		_play_prologue()
 
 
 # 编辑器预览：在场景编辑器里 build 一个示例世界，方便直接看到房间/墙/门/敌人/Boss。
@@ -162,6 +185,10 @@ func _swap(rid: String) -> void:
 	if _room != null:
 		_room.queue_free()
 		_room = null
+	# 房间切换时清空场景内武器拾取物（它们随房间销毁，数组引用需同步清掉）
+	_pickups.clear()
+	_near_pickup = null
+	_update_pickup_prompt("")
 	_inn_near = false
 	show_inn_prompt(false)
 	MapData.enter_room(rid)
@@ -177,6 +204,10 @@ func _swap(rid: String) -> void:
 	else:
 		p.global_position = Vector2(0, 0)
 	p.reset_ult()
+	# 起始房（r1）：若不是由开场序列负责生成武器（开场序列结束才摆出可选武器），
+	# 则在此直接摆出初始武器——覆盖「重新开始后地面武器消失」的问题。
+	if rid == "r1" and not GameManager.prologue_pending:
+		_spawn_starter_weapons()
 
 
 # 合并地图跨层跳转：直接加载目标层并把该房标为 CURRENT。
@@ -428,7 +459,17 @@ func _birthday() -> void:
 
 
 # ============ 输入 / 暂停 / 开发者模式 ============
+# 开场序列进行中：ESC 在这里优先被 _input 拦截并消费（跳过序列），
+# 因此 _unhandled_input 直接 return，避免误触发暂停菜单。
+func _input(event: InputEvent) -> void:
+	if _prologue_active and event.is_action_pressed("ui_cancel"):
+		_end_prologue()
+		get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if _prologue_active:
+		return
 	if event.is_action_pressed("ui_cancel"):
 		if _inn_open and _inn_panel_ref != null:
 			_close_inn(_inn_panel_ref)
@@ -442,7 +483,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				_open_pause()
 	elif event.is_action_pressed("interact"):
-		if _inn_near and not _inn_open and not _pause_open:
+		if _near_pickup != null and not GameManager.input_locked:
+			_pick_up_weapon(_near_pickup)
+		elif _inn_near and not _inn_open and not _pause_open:
 			open_inn()
 	elif event.is_action_pressed("dev"):
 		_toggle_dev()
@@ -539,6 +582,169 @@ func dev_goto_layer(l: int) -> void:
 	var mu := get_node_or_null("MapUI")
 	if mu != null and mu.has_method("redraw"):
 		mu.redraw()
+
+# ============ 开场序列（醒来独白 + 镜头拉近） ============
+func _play_prologue() -> void:
+	_prologue_active = true
+	GameManager.input_locked = true
+	var cam := _player_camera()
+	if cam != null:
+		# 相机本就是 DRAG_CENTER 跟随玩家（见 Player.tscn），放大即自然形成
+		# 以玩家为中心的脸部特写，无需改 anchor_mode（改回 FIXED_TOP_LEFT 会让角色钉死在屏幕左上角）。
+		var tw := get_tree().create_tween()
+		tw.tween_property(cam, "zoom", Vector2(3.4, 3.4), 0.8)
+	# 0.5s 后头顶冒出对话框；序列总时长 3.4s 后自动结束（或按 ESC 跳过）
+	get_tree().create_timer(0.5).timeout.connect(_show_prologue_dialogue)
+	_prologue_end_timer = get_tree().create_timer(3.4)
+	_prologue_end_timer.timeout.connect(_end_prologue)
+
+
+func _show_prologue_dialogue() -> void:
+	if not _prologue_active:
+		return
+	var p: Node2D = $World/Player
+	var box := Control.new()
+	box.name = "PrologueBubble"
+	# 世界空间、挂在玩家头上；会随镜头拉近一起放大，形成特写感
+	box.position = Vector2(-66, -92)
+	p.add_child(box)
+	var bg := ColorRect.new()
+	bg.color = Color(0.07, 0.05, 0.14, 0.92)
+	bg.size = Vector2(132, 50)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(bg)
+	var lab := Label.new()
+	lab.text = "我醒来了，这是在哪……"
+	lab.position = Vector2(6, 6)
+	lab.size = Vector2(120, 40)
+	lab.add_theme_font_size_override("font_size", 15)
+	lab.add_theme_color_override("font_color", Color(1, 1, 1))
+	lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(lab)
+	_prologue_bubble = box
+
+
+func _end_prologue() -> void:
+	if not _prologue_active:
+		return
+	_prologue_active = false
+	if is_instance_valid(_prologue_end_timer):
+		if _prologue_end_timer.is_connected("timeout", _end_prologue):
+			_prologue_end_timer.timeout.disconnect(_end_prologue)
+		_prologue_end_timer = null
+	var cam := _player_camera()
+	if cam != null:
+		var tw := get_tree().create_tween()
+		tw.tween_property(cam, "zoom", Vector2(2, 2), 0.6)
+	if is_instance_valid(_prologue_bubble):
+		_prologue_bubble.queue_free()
+		_prologue_bubble = null
+	GameManager.input_locked = false
+	_spawn_starter_weapons()
+
+
+func _player_camera() -> Camera2D:
+	var p: Node2D = $World/Player
+	return p.get_node_or_null("Camera") as Camera2D
+
+
+# ============ 场景内武器拾取 / 交换 ============
+func _physics_process(_delta: float) -> void:
+	if _prologue_active or GameManager.input_locked or _room == null:
+		if _near_pickup != null:
+			_near_pickup = null
+			_update_pickup_prompt("")
+		return
+	var p: Node2D = $World/Player
+	var best: Node2D = null
+	var best_d: float = INF
+	for pk in _pickups:
+		if not is_instance_valid(pk) or not bool(pk.call("can_interact")):
+			continue
+		var d: float = p.global_position.distance_to(pk.global_position)
+		if d < _PICKUP_RADIUS and d < best_d:
+			best_d = d
+			best = pk
+	_near_pickup = best
+	if best != null:
+		_update_pickup_prompt(String(best.call("prompt_text")))
+	else:
+		_update_pickup_prompt("")
+
+
+func _build_pickup_prompt() -> void:
+	_pickup_panel = Panel.new()
+	_pickup_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var w := 220.0
+	var h := 34.0
+	_pickup_panel.position = get_window().get_visible_rect().size / 2 - Vector2(w / 2.0, 150.0)
+	_pickup_panel.size = Vector2(w, h)
+	_pickup_label = Label.new()
+	_pickup_label.position = Vector2(10, 6)
+	_pickup_label.add_theme_font_size_override("font_size", 15)
+	_pickup_label.add_theme_color_override("font_color", Color(1, 1, 1))
+	_pickup_panel.add_child(_pickup_label)
+	_pickup_panel.visible = false
+	_ui_layer.add_child(_pickup_panel)
+
+
+func _update_pickup_prompt(text: String) -> void:
+	if _pickup_panel == null:
+		return
+	if text == "":
+		_pickup_panel.visible = false
+	else:
+		_pickup_label.text = "[F] " + text
+		_pickup_panel.visible = true
+
+
+# 开场结束后 / 进入起始房时，在房间里摆出初始武器供选择。
+# 已装备的那把不再摆地上（避免重复）；其余照常出现，保证「其余武器始终可换」。
+func _spawn_starter_weapons() -> void:
+	if _room == null:
+		return
+	var p: Node2D = $World/Player
+	var starters: Array = Weapons.STARTERS
+	var offsets := [Vector2(-90.0, 26.0), Vector2(0.0, 46.0), Vector2(90.0, 26.0)]
+	for i in starters.size():
+		var wid: String = starters[i]
+		if wid == GameManager.weapon_id:
+			continue
+		var pk := _make_weapon_pickup(wid, p.global_position + offsets[i])
+		_room.add_child(pk)
+		_pickups.append(pk)
+
+
+func _make_weapon_pickup(wid: String, pos: Vector2) -> Node2D:
+	var pk: Node2D = WeaponPickupScript.new()
+	pk.set("weapon_id", wid)
+	pk.global_position = pos
+	return pk
+
+
+# 按 F 拾取/交换武器：若已持有武器，则旧武器掉到脚下（短暂免疫，避免瞬间又换回）。
+func _pick_up_weapon(pk: Node2D) -> void:
+	if not is_instance_valid(pk):
+		return
+	var wid: String = String(pk.get("weapon_id"))
+	if GameManager.weapon_id == wid:
+		return
+	if GameManager.weapon_id != "":
+		var drop := _make_weapon_pickup(GameManager.weapon_id, $World/Player.global_position + Vector2(0.0, 28.0))
+		drop.call("just_dropped")
+		if _room != null:
+			_room.add_child(drop)
+		else:
+			$World.add_child(drop)
+		_pickups.append(drop)
+	GameManager.weapon_id = wid
+	GameManager.emit_signal("stats_changed")
+	var w: Dictionary = Weapons.get_weapon(wid)
+	if w != null:
+		toast("装备：" + w["name"])
+	_pickups.erase(pk)
+	pk.queue_free()
+
 
 # ============ 小工具 ============
 func _label(text: String, pos: Vector2, size: int) -> Label:

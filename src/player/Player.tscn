@@ -19,7 +19,7 @@ position = Vector2(0, -4)
 
 [node name="Camera" type="Camera2D" parent="."]
 position_smoothing_enabled = false
-anchor_mode = 1
+anchor_mode = 0
 zoom = Vector2(2, 2)
 
 [node name="Weapon" type="Node2D" parent="."]

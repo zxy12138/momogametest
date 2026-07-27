@@ -15,7 +15,7 @@ var _held_id : String = ""
 func process(delta: float, aim: Vector2, firing: bool) -> void:
 	_cd -= delta
 	var w := GameManager.get_weapon()
-	if w == null:
+	if w == null or w.is_empty():
 		return
 	# 手持武器视觉：武器切换时重建贴图，每帧更新朝向/翻转
 	if _held_id != w.get("name", ""):
@@ -50,6 +50,7 @@ func _make_held(w: Dictionary) -> void:
 		return
 	_spr.texture = tex
 	_spr.position = Vector2(12, -2)
+	_spr.scale = Vector2(0.5, 0.5)   # 手持武器按图标原生尺寸会过大，缩到合适大小
 	_spr.z_index = 8
 	add_child(_spr)
 
@@ -64,6 +65,8 @@ func _update_held(aim: Vector2) -> void:
 
 func _do_fire(aim: Vector2, ratio: float) -> void:
 	var w := GameManager.get_weapon()
+	if w == null or w.is_empty():
+		return
 	var player := get_parent() as Node2D
 	var is_crit: bool = GameManager.roll_crit() or w.get("always_crit", false)
 	var dmg: int = int(w["dmg"] * GameManager.attack_mult * ratio)

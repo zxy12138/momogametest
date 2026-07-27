@@ -48,7 +48,9 @@ func _ready() -> void:
 	add_child(eb)
 
 func _new_game() -> void:
-	# 新游戏 -> 先播开头动画，播完/跳过后进入选武器。
+	# 新游戏 -> 先播开头动画，播完/跳过后进入主玩法场景。
+	# 置 prologue_pending：进入 Game 后会强制先播「醒来」开场序列，结束才摆出武器。
+	GameManager.prologue_pending = true
 	get_tree().change_scene_to_file("res://src/scenes/Intro.tscn")
 
 func _continue() -> void:

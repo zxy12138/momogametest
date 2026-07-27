@@ -10,6 +10,8 @@
 - **严格模式把"变量类型从 Variant 推断"当硬错误**：`var x := variant_call()` 必须显式标类型（`:int/:float/:bool/:Array/:Dictionary`），否则整脚本解析失败、`class_name` 不注册，拖垮下游 `Could not find type X`。
 - **循环 `class_name` 强转连锁崩溃**：跨类引用一律用引擎基类 `as Node2D/Area2D/Node` + `.call()/.set()` 打破循环；仅保留 `Boss extends Enemy`。
 - **无头模式 `extends Enemy`（按类名）找不到基类**：改用 `extends "res://src/enemies/Enemy.gd"`；并把 `const BOSS = preload(...)` 改运行期 `load()` 解除启动期加载链。
+- **Theora 视频必须用 `.ogv` 扩展名**：`.ogg`/`.Ogg`/`.oga` 一律被 Godot 当 **OggVorbis 音频** 导入，`VideoStreamPlayer.stream` 拿到音频流而非 `VideoStream` → 视频不显示/显示不全。任何要被 `VideoStreamPlayer` 播放的视频素材必须命名为 `.ogv`（如 `A_001.ogv`）。开头动画 `A_001.Ogg`(1080p) 因此坑不显示，改名 `A_001.ogv` 后修复。
+- **Theora 帧尺寸必须 16 对齐 + 导出后必验解码错误**：① 高 1080 非 16 倍数，libtheora 会 pad 到 1088；若播放器/导入器不 crop pad 区 → 垂直错位花屏。编码输出务必 `scale=W:1072`（或 1440/1088，均 16 对齐）。② AI/工具导出的 `.ogv` 绝不可只看 `ffprobe` 的 `codec_name` 就当完好——要用 `ffmpeg -v error -i x.ogv -f null -` 数解码报错行。开头动画曾因某 1080p 导出 theora 流损坏（解码 120 帧报 564 行 `unpack_block_qpis` 错误、730/905 帧 dup）而花屏，换用干净 `A_001.mp4` 重编码 `scale=1920:1072` 后 0 错误修复。
 - **Autoload 不能用 `Engine.get_singleton("Name")` 取**：直接写全局名 `GameManager`。
 - **`CanvasLayer` 非 CanvasItem**：子节点取屏幕尺寸用 `get_window().get_visible_rect().size`，别用 `get_viewport_rect()`。**任何动态 UI/遮罩必须挂 CanvasLayer（屏幕空间）**，否则被相机 zoom+跟随推到屏幕外（现象：面板看不见、按钮没反应、淡入淡出只在角落露黑块）。
 - `snappedf` 已合并进 `snapped(value, step)`。
@@ -26,6 +28,7 @@
 - 编辑重复定义函数坑：替换前先 Read 确认目标函数唯一，避免整段塞入造成 `Parse Error: Function X ...`。
 - **编辑器看不到场景/精灵 = 运行时生成 + 非 @tool**：本作场景（房间/墙/门/敌/Boss）全在代码 `_ready`/`_build_floor` 里 `add_child`，`.tscn` 仅骨架；且全仓原无 `@tool` 脚本，故 `_ready` 不跑、精灵帧为空→编辑器空白。要让某节点在编辑器可见：给其脚本加 `@tool`，并**所有游戏逻辑用 `Engine.is_editor_hint()` 挡在编辑器外**（否则编辑器里会刷怪/发射/读运行期状态）。已对 `Player.gd` 加 `@tool`（仅 `_ready` 构建 sprite_frames + 播 idle；`_physics_process` 顶部 `if Engine.is_editor_hint(): return`）。代价：世界/房间仍只在运行时生成，需 `@tool` RoomManager/Enemy 才能编辑器预览（更侵入，按需再做）。
 - **`GameManager.input_locked` 是输入总闸**（`Player._physics_process` 一见到 true 就 `velocity=0; return`，不能动也不能打）。凡是把它设 true 的路径（ESC 暂停 `_open_pause`、死亡 `on_player_died`、生日 `_birthday`、驿站、地图、词条）回到可玩 `Game` 场景时都必须归位。**最稳的修法在 `Game._ready` 开头 `GameManager.input_locked = false`**（覆盖 ESC→重开 / 死亡→重试 / 死亡→回菜单→新游戏 / 生日→回游戏）；`reset_run` 也要归位。切勿只在某条路径补，否则兄弟路径照样卡死。
+- **整体 `Write` 重写 `.tscn` 必须保留根节点 `script = ExtResource("...")`**：Godot 不会因有同名 `ext_resource` 就自动给根节点挂脚本。漏写则整脚本静默未挂载——但 `autoplay`/`text`/`z_index` 等写死在 `.tscn` 的属性照常生效，画面看起来一切正常，唯独 `_ready`/`_input`/`_process` 全不执行（如 ESC 跳过失效、信号没连）。诊断法：无头注入按键后查 `current_scene.has_method("方法名")`，若为 false 即脚本没挂上。改 `.tscn` 后本机若仍异常，右键文件「重新导入」。
 
 ## 无头测试注意
 - headless 下 `E` 级错误非致命（只中断当前方法），只看退出码 0 会**漏检** bug。正确验证：进战斗房跑动画逻辑后 grep 日志 `Invalid access`/`SCRIPT ERROR`。
@@ -55,5 +58,16 @@
 - 让编辑器可见的套路：给 `Game`/`RoomManager`/`Enemy`/`Boss` 加 `@tool`，在 `_ready` 用 `Engine.is_editor_hint()` 走「预览 build」分支（只建视觉、跳过输入/物理/计时器/信号），运行期逻辑不变。
 - 防重复 build 的关键：`Game._ready` 编辑器分支 `return` 早退；`RoomManager._ready` 仅当 `is_editor_hint() and _rid=="" and get_parent()==null`（独立打开 Room.tscn）才自动 build，被 Game 嵌套时不自动 build；`Enemy/Boss` 因 `setup()` 在 `add_child` 前调用、`_eid` 已非空，`_ready` 预览靠 `_eid==""` 跳过。
 - `Enemy/Boss` 的 `_physics_process` 首行必须 `if Engine.is_editor_hint(): return`，否则 `@tool` 下编辑器里会跑 AI/弹幕。
-- 玩家相机 `Camera2D.anchor_mode=1`(固定左上)会让房间偏角；预览里临时改 `0`(居中)仅改 live 节点、不写场景。
+- 玩家相机 `Camera2D` 永远用 `anchor_mode=0`（DRAG_CENTER，常规跟随）。场景里任何 `1`（FIXED_TOP_LEFT）都会把角色钉死在屏幕左上角，且 zoom 在世界里漂。开篇特写也是 `0` 不变（zoom 大自然以角色为中心），不要改 anchor_mode，**任何时候不要还原成 FIXED_TOP_LEFT**。
 - 注意：预览节点是 `@tool` 运行时 `add_child`，标准模式下不写进 `.tscn`；但提醒用户**不要在预览存在时 Ctrl+S 保存 Game.tscn**，误保存则删掉凭空出现的 `Room` 节点即可。
+
+## 场景内武器拾取 / 开场序列（2026-07-27 加，2026-07-27 修）
+- 新游戏流程：`Main._new_game` 置 `GameManager.prologue_pending=true` → `Intro`(NEXT_SCENE=Game.tscn) → `Game._ready` 见 flag 则 `reset_run("")`+播开场序列。开场序列=锁输入→**相机 anchor_mode 本就 0(DRAG_CENTER)，只放大 zoom 2→3.4**→头顶 Control 对话框→3.4s 或 **ESC 跳过**(`_input` 消费 ui_cancel)→zoom 回 2/生成 3 把起始武器(`Weapons.STARTERS`)。「继续」「死亡重开」不置 flag→不重播序列。
+- **起始武器 spawn 时机**（避免「重开后地面武器消失」）：开新游戏时仅由 `_end_prologue` spawn（因为 `_swap` 阶段 `prologue_pending=true` 被跳过）；重开/续关等非序列路径：`Game._swap` 末尾若 `rid=="r1" and not GameManager.prologue_pending` 则 `_spawn_starter_weapons()`。`_spawn_starter_weapons` 同时 `if wid == GameManager.weapon_id: continue` 跳过已装备的。
+- 地面武器 `src/weapons/WeaponPickup.gd`(Node2D)：`weapon_id` 导出+图标 Sprite(`scale=(0.8,0.8)`)+上下浮动；`just_dropped()`(0.6s 免疫防交换瞬间换回)、`can_interact()`、`prompt_text()`。拾取/交换在 `Game._pick_up_weapon`：F 拾起，已持武器则旧武器掉脚下(免疫)，`GameManager.weapon_id` 切换即生效(Weapon.gd 自动重建手持贴图, 持枪 `scale=(0.5,0.5)`)。邻近检测在 `Game._physics_process`(64px)，屏幕底部 `[F] 拾取 XX` 提示框挂 `_ui_layer`。
+- `F`=`interact`(physical_keycode 70) 直接复用；武器交换后旧武器落地的 0.6s 免疫是防「拾起即掉、掉了又捡」死循环的关键。
+
+## 两个已修连带坑（务必遵守）
+- **`GameManager.get_weapon() -> Dictionary` 在无武器(`weapon_id=""`)时返回 null 会运行时报 "Trying to return Nil from Dictionary"**：改为空 `{}` 返回；`Weapon.gd`/`HUD.gd` 用 `w.is_empty()` 判无武器（不要只判 `w == null`）。所有经 `get_weapon()` 拿 Dictionary 的地方都要先 `is_empty()`。
+- **headless 不复扫 `global_script_class_cache.cfg`**：新建 `class_name Xxx` 后在 `Game.gd` 等**别用全局类型 `Xxx`**（解析期 "Could not find type Xxx"）。正确姿势：`const XxxScript := preload("res://.../Xxx.gd")`，实例存为 `Node2D`/`Node`，成员走 `call()/get()/set()`。编辑器里正常（缓存会在打开时重建），仅无头/CI 卡这点。
+- **零依赖武器图标生成**：`tools/gen_weapon_icons.py` 用 PIL + `C:/Users/dapeng/.workbuddy/binaries/python/envs/default`（managed venv，预先 `pip install Pillow`）直接重绘 staff/sword/scythe 96×96 RGBA（4× 超采样 + LANCZOS），覆盖 `assets/weapons/icons/W-00{1,2,3}_*.png`，命名沿用 `Weapons.DATA` 不动代码。复跑：`python tools/gen_weapon_icons.py`。

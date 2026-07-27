@@ -37,6 +37,11 @@ var birthday := false
 var input_locked := false   # 驿站/地图/死亡界面时锁输入
 var dev_mode := false        # 开发者模式：地图全显示+任意跳关（F2 切换）
 
+# 新游戏开场序列（醒来独白 + 镜头拉近）触发开关。
+# 由 Main._new_game 置 true，经 Intro 一路带到 Game._ready，播放后清零。
+# 「继续」/「死亡重开」不设置，因此不会重播开场。
+var prologue_pending := false
+
 const START_WEAPON := "staff"
 
 
@@ -159,7 +164,10 @@ func damage_player(amount: float) -> void:
 
 # ============ 武器 ============
 func get_weapon() -> Dictionary:
-	return Weapons.get_weapon(weapon_id)
+	var w = Weapons.get_weapon(weapon_id)
+	if w == null:
+		return {}
+	return w
 
 
 func swap_weapon(new_id: String) -> bool:

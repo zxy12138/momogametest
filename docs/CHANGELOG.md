@@ -346,3 +346,105 @@ v3.0 把角色/怪物贴图从占位的小尺寸改为 **130×250**（Boss 260×
 - 路径衔接：`Main._new_game→Intro`、`Intro→WeaponSelect` 均存在；`持续`路径未受影响。
 - 健壮性：若 ogv 未被引擎导入（`stream==null`），`_video.play()` 跳过且 `finished` 不触发，但 ESC 仍可 `_skip()` 并切场景，不会卡死。
 - 请在编辑器确认：`Intro.tscn` 应显示视频首帧 + 右上角白字提示；F5 跑主菜单点「新游戏」→ 播动画 → 按 ESC 立即进选武器 / 不按则播完自动进。
+
+---
+
+# 改动 · 2026-07-27（补2）· 开头动画视频修复：改用 1080p 整图 + 扩展名 .ogv 修正
+
+## 需求
+- 开头动画「显示不全」。用户重新生成了 1080p 文件 `assets/Anime/A_001.Ogg`，要求用它修复并写入修改文档。
+
+## 根因
+- **扩展名陷阱（主因）**：`A_001.Ogg` 的扩展名 `.Ogg`（大写 O）在 Godot 4 中被 `OggVorbis` **音频**导入器识别，而非 `VideoStreamTheoraImporter`。`VideoStreamPlayer.stream` 需要 `VideoStream` 资源，喂入音频流 → 视频不渲染 / 显示不全。Theora 视频**必须带 `.ogv` 扩展名**才会被当作视频导入。
+- **分辨率**：旧 `A_001.ogv` 为 theora 2560×1440（1440p），虽 16:9 可铺满，但用户意图是换 1080p 整图。
+
+## 修复
+- 将新文件 `A_001.Ogg`（ffprobe 实测 theora **1920×1080**）改名为 `A_001.ogv`，覆盖旧的 1440p 版本；原 1440p 备份为 `A_001_1440p_old.ogv`（连同 `.uid`/`.import` 一并迁移，避免孤立导入残留）。
+- `Intro.tscn` 本就引用 `res://assets/Anime/A_001.ogv`，**无需改路径**。新视频精确匹配视口 1920×1080，`VideoStreamPlayer.stretch_mode=2`(COVER) 下铺满无裁切、无黑边。
+
+## 验证
+- ffprobe 复测改名后的 `A_001.ogv` = theora 1920×1080（内容完整、未损坏）。
+- Godot 4.7.1 `--headless` 临时将 `main_scene` 指向 `Intro.tscn` + `_chk` autoload 加载场景：日志 `CHK_INTRO_OK stream=res://assets/Anime/A_001.ogv`，EXIT=0，零 `SCRIPT ERROR`；证明新 `.ogv` 被正确识别为 `VideoStream` 资源（若仍是 `.Ogg` 音频导入则 `stream` 为 null/AudioStream，验证会失败）。
+- 验证后已还原 `project.godot`（main_scene 回到 `Main.tscn`）并删除 `_chk.gd`。
+
+## 已知风险与缓解
+- 首次在编辑器打开工程时，Godot 会对新 `A_001.ogv` 重新导入（自动触发，生成新 `.uid`/`.import`）。若打开后动画空白，在文件系统面板右键 `A_001.ogv` → 重新导入 即可。
+- 旧 1440p 文件保留为 `A_001_1440p_old.ogv` 备份（未删除，确认新片无误后可手动清理）。
+- **通用提醒（Godot 导入坑）**：任何 Theora 视频素材放进工程都必须以 `.ogv` 结尾；`.ogg`/`.Ogg`/`.oga` 一律按音频导入，绝不能被 `VideoStreamPlayer` 使用。
+
+---
+
+# 改动 · 2026-07-27（补3）· 开头动画铺满全屏 + 提示置顶
+
+## 需求
+- 开头动画只在**左上角一小块**显示，没有全屏；要求右上角「按 ESC 跳过」提示**置顶显示在视频画面前方**。
+
+## 根因
+- `Intro` 根节点是默认 `Control`，默认只占左上角一小块（Godot 中 Control 根节点不会自动铺满视口）。子节点 `VideoStreamPlayer` 用「填满父节点」锚点，结果只填满那小块 → 视频贴在左上角。
+- 提示层级：原 `SkipHint` 虽在 `VideoPlayer` 之后（树序在后），但未显式设 `z_index`，存在被视频盖住的风险。
+
+## 修复（`src/scenes/Intro.tscn`）
+- 根节点 `Intro`：设 `layout_mode = 3`（FULL_RECT，强制铺满父视口），`anchors_preset = 15` + `anchor_right/bottom = 1.0`，`mouse_filter = 2`（忽略鼠标，ESC 走 `_unhandled_input`）。
+- `VideoPlayer`：保留 `layout_mode=1` + 全锚点 + `stretch_mode=2`(COVER)，显式加 `z_index = 0`。
+- `SkipHint`：保留右上角锚点，显式加 `z_index = 1`（高于视频 0）→ 稳定置顶在视频画面前方；字号/颜色仍由 `Intro.gd` 运行时设置。
+
+## 验证
+- Godot 4.7.1 `--headless` 临时 `main_scene=Intro.tscn` + `_chk` 加载：日志 `CHK_VP global_pos=(0,0) stream_ok=true`、`CHK_VP_z=0 hint_z=1`；视频流加载正常、提示层级高于视频。铺满性因无头窗口为 64×64 退化窗口无法像素级确认，但节点尺寸已随视口全尺寸展开（非旧的小块）。
+- 验证后还原 `project.godot` 并删除 `_chk.gd`。
+
+## 已知风险与缓解
+- 真实 1920×1080 窗口下根节点 FULL_RECT 应使视频铺满；请在本机 F5 主菜单点「新游戏」目测：① 视频是否全屏无左上角黑块；② 右上角白字「按 ESC 跳过」是否在视频上方可见。若仍偏角，检查 `window/stretch` 设置（当前未设 stretch_mode，视口 1920×1080）。
+
+# 改动 · 2026-07-27（补4）· 修复「ESC 跳过开场视频失效」
+
+## 需求
+- 用户反馈：在补3（铺满全屏）之后，按下 ESC 键**无法跳过开头视频**。
+
+## 根因（关键！）
+- `src/scenes/Intro.tscn` 的**根节点 `Intro` 漏挂脚本**：在补3 用 `Write` 整体重写 `.tscn` 时，只写了 `[ext_resource type="Script" ... id="1"]`，却**漏掉了根节点上的 `script = ExtResource("1")` 这一行**。
+- 后果：视频靠节点 `autoplay=true`、`SkipHint` 文字/`z_index` 都写死在 `.tscn` 里 → **画面、提示一切正常显示**；但 `Intro.gd` 整个没被实例化 → `_ready` / `_input` / `_skip` 全不执行 → ESC 跳过逻辑彻底失效（且视频播完也不会自动进选武器，因为 `finished` 信号没连上）。
+- 诊断过程：无头注入 ESC 事件后发现 `current_scene.has_method("_skip") == false`，确认脚本根本没挂上；同时把 `_unhandled_input` 改为 `_input`（根节点是 Control，`ui_cancel` 这类 UI 动作会在 GUI 阶段被 Control 消费掉，`_unhandled_input` 收不到；`_input` 在最前置阶段必定触发，更稳）。
+
+## 修复
+- `src/scenes/Intro.tscn`：根节点 `Intro` 补回 `script = ExtResource("1")`。
+- `src/scenes/Intro.gd`：输入处理由 `func _unhandled_input(event)` 改为 `func _input(event)`（捕获 ESC / `ui_cancel` 更可靠），逻辑不变（`_skip()` → `change_scene_to_file(WeaponSelect)`）。
+
+## 验证
+- Godot 4.7.1 `--headless` 临时 `main_scene=Intro.tscn` + `_chk`：
+  - `CHK_HAS_SKIP=true`（脚本已挂上）；
+  - 直接调用 `_skip()` → 场景切到 `WeaponSelect`（`CHK_DIRECT_OK`）；
+  - 注入 ESC `InputEventKey(keycode=KEY_ESCAPE, pressed=true)` → 场景切到 `WeaponSelect`（`CHK_ESC_OK`）。
+- 退出码 0，零 `SCRIPT ERROR`。验证后还原 `project.godot`、删除 `_chk.gd`。
+- 注：本机 F5 实测前，若之前编辑器缓存过旧 `.tscn`，建议在文件系统面板对 `Intro.tscn` 右键「重新导入」一次，确保脚本挂载生效。
+
+## 经验
+- **整体 `Write` 重写场景 `.tscn` 时必须保留根节点的 `script = ExtResource(...)`**。Godot 不会因有同名 `ext_resource` 就自动给根节点挂脚本，漏写则整脚本静默失效（画面却照常，极难察觉）。
+
+# 改动 · 2026-07-27（补5）· 修复「开头动画画面花屏」
+
+## 现象
+- 引擎里播放开头动画：功能正常（能播放、ESC 可跳过、播完自动进选武器），但**画面花屏**（彩色错乱块/撕裂）。非布局问题（全屏+提示置顶已在补3 修好）。
+
+## 根因（ffprobe/ffmpeg 实测确认，非推断）
+- 用户"重新生成的 1080p 文件" = `assets/Anime/A_001.Ogg`（改名 `A_001.ogv`）的 **theora 流本身损坏**：
+  - ffmpeg 解码前 120 帧报 **564 行** `error in unpack_block_qpis` / `unpack_vectors` 错误；
+  - 解码 905 输出帧中 **730 帧是 dup 重复帧**（解码失败丢帧、用前一帧填补）→ 绝大多数帧解码失败。
+  - Godot 用 libtheora 解码此损坏流，吐出的是乱码块 → 花屏；功能正常只是因为解码器容错未崩溃。
+- 对照证据：
+  - 旧 `A_001_1440p_old.ogv` 解码 **0 错误**（干净，但分辨率 1440p 且当时扩展名错未显示）；
+  - 目录内 `A_001.mp4`（**H.264 / 2560×1440 / yuv420p / 24fps / 15.0s / 带 AAC 音轨**）解码 **0 错误** —— 才是干净原始源。
+
+## 修复
+- 从干净 `A_001.mp4` 重新编码为 Godot 友好的 theora，关键两点：
+  1. **用干净源**（不再从损坏 ogv 转，那只会传播损坏）；
+  2. **高度对齐 16 的倍数**：`scale=1920:1072`（裁上下各 4px）→ 1920×1072 = 16×67×120，frame=pic 一致、无 padding/offset，根除"Theora 帧尺寸非 16 对齐 → 解码错位花屏"隐患。
+- 编码参数：`libtheora -q:v 7 -g 1`（全关键帧）`-r 30 -pix_fmt yuv420p -an`（暂去音频，避免引入未知音轨行为）。
+- 覆盖 `assets/Anime/A_001.ogv`（61MB）。损坏源备份为 `A_001_1080p_src_before_align.ogv`。
+
+## 验证
+- ffmpeg 重新解码新 `A_001.ogv` 前 200 帧：**0 错误**；参数 theora / 1920×1072 / yuv420p。
+- 注：无头模式无 GPU 渲染，无法在此确认"不花屏"的视觉效果；需本机 F5 → 主菜单「新游戏」目测。
+
+## 风险 / 下一步
+- 若真机重新导入后仍花屏，则排除文件问题，转向 **Godot 4.7.1 Theora 解码器 / 显卡驱动层**排查（如：改用 GDExtension 支持的其他容器、或进一步降帧率/分辨率）。
+- `A_001.mp4` 含 AAC 音轨；如开头动画需要配音，后续可加 `-c:a libvorbis` 重新封装进 ogv。

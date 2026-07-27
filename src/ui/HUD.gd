@@ -27,11 +27,11 @@ func _ready() -> void:
 	_crit.add_theme_color_override("font_color", Color(1, 0.6, 0.1))
 	_crys = _text(root, "◆ 0", Vector2(16, 72), 14)
 	_crys.add_theme_color_override("font_color", Color(0.4, 0.85, 1.0))
-	_wep = _text(root, "", Vector2(16, 92), 13)
+	_wep = _text(root, "武器：未装备", Vector2(16, 92), 13)
 	_wep.add_theme_color_override("font_color", Color(0.8, 0.7, 1.0))
 	_ult = _text(root, "", Vector2(16, 110), 13)
 	_ult.add_theme_color_override("font_color", Color(0.6, 1.0, 0.7))
-	_hint = _text(root, "WASD 移动 · 鼠标瞄准 · 左键攻击 · E 终极 · M 地图", Vector2(16, 520), 12)
+	_hint = _text(root, "WASD 移动 · 鼠标瞄准 · 左键攻击 · E 终极 · F 拾取/交互 · M 地图", Vector2(16, 520), 12)
 	_hint.add_theme_color_override("font_color", Color(0.8, 0.8, 0.9))
 
 
@@ -44,8 +44,10 @@ func _process(_d: float) -> void:
 	_crit.text = "暴击 " + str(int(g.crit_rate * 100)) + "%"
 	_crys.text = "◆ " + str(g.dream_crystals)
 	var w: Dictionary = g.get_weapon()
-	if w != null:
+	if w != null and not w.is_empty():
 		_wep.text = "武器：" + w["name"] + ("（已升阶）" if g.upgraded_done else "")
+	else:
+		_wep.text = "武器：未装备"
 	var p := get_tree().get_first_node_in_group("player") as Node2D
 	if p != null and p.has_method("ult_ready"):
 		_ult.text = "终极·噩梦吞噬：" + ("就绪 [E]" if p.call("ult_ready") else "冷却中")
