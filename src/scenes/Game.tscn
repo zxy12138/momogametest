@@ -1,26 +1,26 @@
-[gd_scene load_steps=6 format=3 uid="uid://game0001"]
+[gd_scene format=3 uid="uid://game0001"]
 
-[ext_resource type="Script" path="res://src/scenes/Game.gd" id="1"]
-[ext_resource type="Script" path="res://src/ui/HUD.gd" id="2"]
-[ext_resource type="Script" path="res://src/ui/MapUI.gd" id="3"]
-[ext_resource type="PackedScene" path="res://src/player/Player.tscn" id="4"]
+[ext_resource type="Script" uid="uid://d3oytdfvyjvdf" path="res://src/scenes/Game.gd" id="1"]
+[ext_resource type="Script" uid="uid://dfu8o2f7le41b" path="res://src/ui/HUD.gd" id="2"]
+[ext_resource type="Script" uid="uid://cymi0a7mc7xwx" path="res://src/ui/MapUI.gd" id="3"]
+[ext_resource type="PackedScene" uid="uid://player001" path="res://src/player/Player.tscn" id="4"]
 
-[node name="Game" type="Node2D"]
+[node name="Game" type="Node2D" unique_id=882266963]
 script = ExtResource("1")
 
-[node name="World" type="Node2D" parent="."]
+[node name="World" type="Node2D" parent="." unique_id=622296826]
 
-[node name="Player" parent="World" instance=ExtResource("4")]
+[node name="Player" parent="World" unique_id=1166320082 instance=ExtResource("4")]
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=767459373]
 script = ExtResource("2")
 
-[node name="MapUI" type="CanvasLayer" parent="."]
+[node name="MapUI" type="CanvasLayer" parent="." unique_id=1303035060]
 script = ExtResource("3")
 
-[node name="Fade" type="CanvasLayer" parent="."]
+[node name="Fade" type="CanvasLayer" parent="." unique_id=461553894]
 layer = 20
 
-[node name="Rect" type="ColorRect" parent="Fade"]
-color = Color(0, 0, 0, 1)
+[node name="Rect" type="ColorRect" parent="Fade" unique_id=1394520569]
 mouse_filter = 2
+color = Color(0, 0, 0, 1)

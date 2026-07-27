@@ -25,6 +25,11 @@ var _dev_label: Label = null
 var _inn_prompt: Label = null
 var _ui_layer: CanvasLayer = null
 
+# 相机：本 Godot 版本 Camera2D.current / make_current() 均不可靠（不接管视口），
+# 故改用确定性方案——Game.gd 每帧直接写 get_viewport().canvas_transform，数学上保证玩家居中。
+# Camera2D 节点已设为 enabled=false，仅作占位（Player.shake 仍 tween 其 offset，但视觉由手动 transform 决定）。
+var _cam_zoom: float = 1.0  # 视角倍数：1.0=不放大（去掉开场拉近后的基础值）；想放大改这里即可
+
 # ============ 开场序列 / 场景内武器拾取 ============
 var _prologue_active := false
 var _prologue_bubble: Control = null
@@ -43,7 +48,9 @@ const _PICKUP_RADIUS := 64.0
 func _ready() -> void:
 	# 进入可玩场景的唯一切入点：无论如何都要解锁输入，
 	# 否则任何把 input_locked 设成 true 的路径（ESC 暂停/死亡/生日）在回到 Game 时都会卡死玩家。
-	GameManager.input_locked = false
+	_set_gm_locked(false)
+	# 相机由 _update_camera() 每帧手动驱动 viewport.canvas_transform（见 _physics_process），
+	# 不依赖 Camera2D.current/make_current()（本 Godot 版本不可靠）。
 	# 编辑器预览：在场景编辑器里直接 build 一个示例世界（地板/墙/门/敌人/Boss 可见），
 	# 不跑任何游戏逻辑（输入/淡入/信号/计时器）。运行期走下方真实逻辑。
 	if Engine.is_editor_hint():
@@ -104,10 +111,42 @@ func _editor_build_preview() -> void:
 		p.global_position = Vector2(0, 0)
 		# 预览时把相机锚点改居中（原 anchor_mode=1 固定左上会让房间偏到角落），
 		# 仅改 live 节点、不写入场景，关闭重开即恢复。
-		var cam := p.get_node_or_null("Camera")
-		if cam != null:
+		var cam := p.get_node_or_null("Camera") as Camera2D
+		if is_instance_valid(cam):
+			# 编辑器预览关闭相机自动渲染，改由 _focus_editor_viewport 手动聚焦（避免与自动当前相机冲突）。
+			cam.enabled = false
 			cam.anchor_mode = 0
+		# 编辑器 2D 视口默认不跟随 @tool 动态生成的 Camera2D，且不开启相机预览时
+		# 世界原点(0,0)会显示在最左上角，导致角色/房间看起来全在左上角。
+		# 主动把 2D 视图对准玩家（房间中心），打开 Game.tscn 即可直接看到角色居中。
+		_focus_editor_viewport(p.global_position)
 
+
+# 编辑器专用：把 2D 视口直接对准指定世界坐标（居中显示）。
+# 注意：不能用 get_node("/root/EditorInterface") 取编辑器接口——该路径在 Godot 4 下取不到，
+# 会静默失效，导致预览始终停在左上角。改用 Engine.get_singleton("EditorInterface") 才能拿到。
+# EditorInterface 不是 GDScript 通用已知类型，且严格模式下对 Object 直调其方法会报“方法不存在”，
+# 因此统一走 ei.call("get_editor_viewport_2d") 动态调用，返回 Variant 再 as SubViewport。
+func _focus_editor_viewport(focus: Vector2) -> void:
+	var ei: Object = Engine.get_singleton("EditorInterface")
+	if ei == null:
+		return
+	var vp: SubViewport = ei.call("get_editor_viewport_2d") as SubViewport
+	if vp == null:
+		return
+	var z := 0.6
+	var sz := Vector2(vp.size.x, vp.size.y)
+	if sz.x <= 0.0:
+		sz = Vector2(1280.0, 720.0)
+	var center := sz * 0.5
+	# 正确顺序：先平移到 center - focus*z（屏幕空间），再缩放 z。
+	# 注意 .scaled().translated() 会把平移也乘上 z（错）；必须 .translated().scaled()。
+	var tr := Transform2D().translated(center - focus * z).scaled(Vector2(z, z))
+	vp.set_canvas_transform(tr)
+
+
+# 相机逻辑全部交由 _update_camera() 每帧手动写 viewport.canvas_transform（玩家居中跟随）。
+# 受击抖动由 Player.shake() tween 相机 offset（Camera2D 已 disabled，视觉微抖可忽略；如需抖动可改 _update_camera 加偏移）。
 
 # 续关：把已探明/已通房间状态还原到 MapData（load_layer 会重置 states）
 func _restore_map_progress() -> void:
@@ -301,7 +340,7 @@ func open_inn() -> void:
 	if _inn_open:
 		return
 	_inn_open = true
-	GameManager.input_locked = true
+	_set_gm_locked(true)
 	_inn_panel_ref = _inn_panel()
 	_ui_layer.add_child(_inn_panel_ref)
 	show_inn_prompt(false)
@@ -363,7 +402,7 @@ func _inn_swap(panel: Control) -> void:
 
 func _close_inn(panel: Control) -> void:
 	_inn_open = false
-	GameManager.input_locked = false
+	_set_gm_locked(false)
 	panel.queue_free()
 	_inn_panel_ref = null
 
@@ -404,7 +443,7 @@ func _build_dev_label() -> void:
 
 # ============ 词条（升级时三选一） ============
 func _on_level_up(_lvl: int) -> void:
-	GameManager.input_locked = true
+	_set_gm_locked(true)
 	var c := Control.new()
 	c.name = "AffixPanel"
 	c.position = get_window().get_visible_rect().size / 2 - Vector2(170, 110)
@@ -425,13 +464,13 @@ func _on_level_up(_lvl: int) -> void:
 		var b := _button(name + " — " + desc[name], Vector2(20, y), Vector2(300, 26))
 		b.connect("pressed", func():
 			GameManager.add_affix(name)
-			GameManager.input_locked = false
+			_set_gm_locked(false)
 			c.queue_free())
 		c.add_child(b)
 		y += 32
 	var skip := _button("跳过", Vector2(20, y), Vector2(300, 24))
 	skip.connect("pressed", func():
-		GameManager.input_locked = false
+		_set_gm_locked(false)
 		c.queue_free())
 	c.add_child(skip)
 	_ui_layer.add_child(c)
@@ -439,7 +478,7 @@ func _on_level_up(_lvl: int) -> void:
 
 # ============ 死亡 / 生日 ============
 func on_player_died() -> void:
-	GameManager.input_locked = true
+	_set_gm_locked(true)
 	var t := get_tree().create_tween()
 	t.tween_property(_fade_rect, "modulate:a", 1.0, 0.6)
 	t.tween_callback(func():
@@ -450,7 +489,7 @@ func on_player_died() -> void:
 func _birthday() -> void:
 	GameManager.birthday = true
 	SaveManager.save_game()
-	GameManager.input_locked = true
+	_set_gm_locked(true)
 	var t := get_tree().create_tween()
 	t.tween_property(_fade_rect, "modulate:a", 1.0, 0.8)
 	t.tween_callback(func():
@@ -483,7 +522,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				_open_pause()
 	elif event.is_action_pressed("interact"):
-		if _near_pickup != null and not GameManager.input_locked:
+		if _near_pickup != null and not _is_gm_locked():
 			_pick_up_weapon(_near_pickup)
 		elif _inn_near and not _inn_open and not _pause_open:
 			open_inn()
@@ -503,7 +542,7 @@ func _open_pause() -> void:
 	if _pause_open:
 		return
 	_pause_open = true
-	GameManager.input_locked = true
+	_set_gm_locked(true)
 	_freeze_world(true)
 	var panel := Control.new()
 	panel.name = "PausePanel"
@@ -537,7 +576,7 @@ func _close_pause() -> void:
 	if is_instance_valid(_pause_overlay):
 		_pause_overlay.queue_free()
 	_pause_overlay = null
-	GameManager.input_locked = false
+	_set_gm_locked(false)
 
 func _restart_game() -> void:
 	_pause_open = false
@@ -546,7 +585,7 @@ func _restart_game() -> void:
 		_pause_overlay.queue_free()
 	_pause_overlay = null
 	GameManager.reset_run(GameManager.weapon_id)
-	GameManager.input_locked = false   # 双保险：重开必须解锁输入
+	_set_gm_locked(false)   # 双保险：重开必须解锁输入
 	get_tree().change_scene_to_file("res://src/scenes/Game.tscn")
 
 func _return_menu() -> void:
@@ -555,7 +594,7 @@ func _return_menu() -> void:
 	if is_instance_valid(_pause_overlay):
 		_pause_overlay.queue_free()
 	_pause_overlay = null
-	GameManager.input_locked = false   # 双保险：返回主菜单后也解锁输入
+	_set_gm_locked(false)   # 双保险：返回主菜单后也解锁输入
 	get_tree().change_scene_to_file("res://src/scenes/Main.tscn")
 
 func _toggle_dev() -> void:
@@ -583,17 +622,12 @@ func dev_goto_layer(l: int) -> void:
 	if mu != null and mu.has_method("redraw"):
 		mu.redraw()
 
-# ============ 开场序列（醒来独白 + 镜头拉近） ============
+# ============ 开场序列（醒来独白，居中跟随，无放大） ============
 func _play_prologue() -> void:
 	_prologue_active = true
-	GameManager.input_locked = true
-	var cam := _player_camera()
-	if cam != null:
-		# 相机本就是 DRAG_CENTER 跟随玩家（见 Player.tscn），放大即自然形成
-		# 以玩家为中心的脸部特写，无需改 anchor_mode（改回 FIXED_TOP_LEFT 会让角色钉死在屏幕左上角）。
-		var tw := get_tree().create_tween()
-		tw.tween_property(cam, "zoom", Vector2(3.4, 3.4), 0.8)
-	# 0.5s 后头顶冒出对话框；序列总时长 3.4s 后自动结束（或按 ESC 跳过）
+	_set_gm_locked(true)
+	# 开场不再拉近放大（保留居中与对话框）。相机由 _update_camera 每帧居中跟随玩家。
+	# 0.5s 后弹出对话框（屏幕空间，固定可读）；序列总时长 3.4s 后自动结束（或按 ESC 跳过）
 	get_tree().create_timer(0.5).timeout.connect(_show_prologue_dialogue)
 	_prologue_end_timer = get_tree().create_timer(3.4)
 	_prologue_end_timer.timeout.connect(_end_prologue)
@@ -602,24 +636,28 @@ func _play_prologue() -> void:
 func _show_prologue_dialogue() -> void:
 	if not _prologue_active:
 		return
-	var p: Node2D = $World/Player
+	# 对话框挂在屏幕空间 UI 层（CanvasLayer），不随相机 3.4 倍放大而变形/偏移，
+	# 始终居中可读。这是项目既定 UI 规范（HUD/提示/转场都走 _ui_layer）。
 	var box := Control.new()
 	box.name = "PrologueBubble"
-	# 世界空间、挂在玩家头上；会随镜头拉近一起放大，形成特写感
-	box.position = Vector2(-66, -92)
-	p.add_child(box)
+	_ui_layer.add_child(box)
+	var vsize := get_window().get_visible_rect().size
+	var bw := 520.0
+	var bh := 64.0
+	box.position = Vector2((vsize.x - bw) / 2.0, vsize.y - bh - 60.0)
 	var bg := ColorRect.new()
 	bg.color = Color(0.07, 0.05, 0.14, 0.92)
-	bg.size = Vector2(132, 50)
+	bg.size = Vector2(bw, bh)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(bg)
 	var lab := Label.new()
 	lab.text = "我醒来了，这是在哪……"
-	lab.position = Vector2(6, 6)
-	lab.size = Vector2(120, 40)
-	lab.add_theme_font_size_override("font_size", 15)
+	lab.position = Vector2(16, 10)
+	lab.size = Vector2(bw - 32.0, bh - 20.0)
+	lab.add_theme_font_size_override("font_size", 20)
 	lab.add_theme_color_override("font_color", Color(1, 1, 1))
 	lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	box.add_child(lab)
 	_prologue_bubble = box
 
@@ -632,14 +670,11 @@ func _end_prologue() -> void:
 		if _prologue_end_timer.is_connected("timeout", _end_prologue):
 			_prologue_end_timer.timeout.disconnect(_end_prologue)
 		_prologue_end_timer = null
-	var cam := _player_camera()
-	if cam != null:
-		var tw := get_tree().create_tween()
-		tw.tween_property(cam, "zoom", Vector2(2, 2), 0.6)
+	# 序列/对话结束：移除对话框，解锁输入，生成起始武器。相机继续由 _update_camera 居中跟随。
 	if is_instance_valid(_prologue_bubble):
 		_prologue_bubble.queue_free()
 		_prologue_bubble = null
-	GameManager.input_locked = false
+	_set_gm_locked(false)
 	_spawn_starter_weapons()
 
 
@@ -648,9 +683,42 @@ func _player_camera() -> Camera2D:
 	return p.get_node_or_null("Camera") as Camera2D
 
 
+# 手动相机：每帧把玩家对准屏幕正中。不依赖 Camera2D.current / make_current()（本版本不可靠）。
+# canvas_transform 映射：screen = z * world + t。令玩家落屏幕中心：
+#   z * player_pos + t = center  →  t = center - z * player_pos
+# 与 stretch_mode=canvas_items 兼容（Camera2D 内部也是这么写的）。
+func _update_camera() -> void:
+	if Engine.is_editor_hint():
+		return
+	var p: Node2D = $World/Player
+	if p == null:
+		return
+	var vp := get_viewport()
+	var center := vp.get_visible_rect().size * 0.5
+	var z := _cam_zoom
+	vp.canvas_transform = Transform2D(z, center - z * p.global_position)
+
+
+func _set_gm_locked(v: bool) -> void:
+	# 防御：GameManager 运行期若未正常初始化（input_locked 不存在），写该属性会报错并中断当前函数。
+	# 安全跳过写入；待缓存修复、GameManager 正常后此函数即正常落值。
+	if GameManager != null and "input_locked" in GameManager:
+		GameManager.input_locked = v
+
+
+func _is_gm_locked() -> bool:
+	# 防御：GameManager 运行期若未正常初始化（input_locked 不存在），直接读取会每帧刷屏。
+	# 安全返回 false（不锁输入），保证游戏可运行、便于排查。
+	if GameManager == null or not ("input_locked" in GameManager):
+		return false
+	return GameManager.input_locked
+
+
 # ============ 场景内武器拾取 / 交换 ============
 func _physics_process(_delta: float) -> void:
-	if _prologue_active or GameManager.input_locked or _room == null:
+	if not Engine.is_editor_hint():
+		_update_camera()   # 每帧居中：即便开场/锁输入期间也保证玩家在屏幕正中
+	if _prologue_active or _is_gm_locked() or _room == null:
 		if _near_pickup != null:
 			_near_pickup = null
 			_update_pickup_prompt("")

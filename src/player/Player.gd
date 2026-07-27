@@ -20,6 +20,9 @@ var _sprite: AnimatedSprite2D
 
 
 func _ready() -> void:
+	# 相机改由 Game.gd 每帧直接驱动 viewport.canvas_transform（见 _update_camera），
+	# 不再依赖 Camera2D.current / make_current()（本 Godot 版本 make_current 不接管视口）。
+	# Camera2D 节点已在 .tscn 设为 enabled=false，避免与手动 transform 冲突。
 	add_to_group("player")
 	_sprite = get_node("Sprite")
 	# 合并图 A-001_all.png：1024x1024，8x8 格，每格 128x128，每行 8 帧。
@@ -38,9 +41,11 @@ func _ready() -> void:
 		"ult": [SPR+"A-008_miai_ultimate_skill.png", 130, 250, 8, 14],
 		"true": [SPR+"A-009_miai_true_form_idle.png", 130, 250, 4, 12],
 	}
-	_sprite.sprite_frames = GameManager.make_frames(spec)
+	if GameManager != null and "make_frames" in GameManager:
+		_sprite.sprite_frames = GameManager.make_frames(spec)
 	_sprite.scale = Vector2(0.28, 0.28)  # 缩小一半以上（0.6→0.28，约 53% 缩减）；仅缩视觉精灵，不影响碰撞
-	_sprite.play("idle")
+	if _sprite.sprite_frames != null:
+		_sprite.play("idle")
 
 
 func _physics_process(delta: float) -> void:
@@ -49,7 +54,7 @@ func _physics_process(delta: float) -> void:
 	if _dead:
 		z_index = int(global_position.y)
 		return
-	if GameManager.input_locked:
+	if _is_gm_locked():
 		velocity = Vector2.ZERO
 		move_and_slide()
 		return
@@ -120,6 +125,14 @@ func _anim_update(delta: float) -> void:
 		_anim = next
 		if _sprite.sprite_frames.has_animation(next):
 			_sprite.play(next)
+
+
+func _is_gm_locked() -> bool:
+	# 防御：GameManager 运行期若因缓存/加载问题未正常初始化（input_locked 不存在），直接读取会每帧刷屏。
+	# 安全返回 false（不锁输入），保证游戏可运行、便于排查。
+	if GameManager == null or not ("input_locked" in GameManager):
+		return false
+	return GameManager.input_locked
 
 
 func play_attack() -> void:

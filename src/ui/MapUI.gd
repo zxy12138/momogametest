@@ -59,24 +59,36 @@ func _build_panel() -> void:
 	_links = Node2D.new()
 	_panel.add_child(_links)
 
+
+func _set_gm_locked(v: bool) -> void:
+	if GameManager != null and "input_locked" in GameManager:
+		GameManager.input_locked = v
+
+
+func _is_gm_locked() -> bool:
+	if GameManager == null or not ("input_locked" in GameManager):
+		return false
+	return GameManager.input_locked
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_map"):
 		if _open:
 			_close()
-		elif not GameManager.input_locked:
+		elif not _is_gm_locked():
 			_open_map()
 
 func _open_map() -> void:
 	if MapData.rooms.is_empty():
 		return
 	_open = true
-	GameManager.input_locked = true
+	_set_gm_locked(true)
 	_draw_map()
 	_panel.visible = true
 
 func _close() -> void:
 	_open = false
-	GameManager.input_locked = false
+	_set_gm_locked(false)
 	_panel.visible = false
 
 # 供外部（Game 的 ESC 返回）查询/关闭地图

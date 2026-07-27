@@ -1,73 +1,48 @@
 # 项目长期记忆 · 《梦境逐影》Godot 4.7.1
 
 ## 架构
-- 入口：`project.godot` → `Main.tscn` → `WeaponSelect.tscn` → `Game.tscn`（主玩法）。
-- Autoload：`GameManager`（全局状态/成长/暴击/存档）、`SaveManager`（`user://save.json`，每层 Boss 自动存）、`MapData`（房间状态机）。
-- 数据驱动：`src/data/` 下 `Weapons/Enemies/LevelData.gd` 全静态，通用 `Enemy`/`Boss`/`Weapon` 读取。
-- 玩家（大鹏/dapeng）：Godot 4 做食梦貘主题 2.5D 8 向动作射击，给虚拟主播「弥绘」庆生。当前阶段=占位素材验证完整玩法，美术后期替换。
+- 入口：`Main.tscn`→`Intro.tscn`→`WeaponSelect.tscn`→`Game.tscn`。`Main._new_game` 置 `prologue_pending` 走 Intro→开场序列。
+- Autoload：`GameManager`(全局状态/成长/暴击/存档)、`SaveManager`(user://save.json, 每层 Boss 自动存)、`MapData`(房间状态机)。
+- 数据驱动：`src/data/` 下 Weapons/Enemies/LevelData.gd 全静态；通用 Enemy/Boss/Weapon 读取。
+- 玩家=食梦貘主题 2.5D 8 向动作射击，给 Vtuber「弥绘」庆生；当前占位素材验证玩法。
 
-## Godot 4.x 关键坑（已踩，务必遵守）
-- **严格模式把"变量类型从 Variant 推断"当硬错误**：`var x := variant_call()` 必须显式标类型（`:int/:float/:bool/:Array/:Dictionary`），否则整脚本解析失败、`class_name` 不注册，拖垮下游 `Could not find type X`。
-- **循环 `class_name` 强转连锁崩溃**：跨类引用一律用引擎基类 `as Node2D/Area2D/Node` + `.call()/.set()` 打破循环；仅保留 `Boss extends Enemy`。
-- **无头模式 `extends Enemy`（按类名）找不到基类**：改用 `extends "res://src/enemies/Enemy.gd"`；并把 `const BOSS = preload(...)` 改运行期 `load()` 解除启动期加载链。
-- **Theora 视频必须用 `.ogv` 扩展名**：`.ogg`/`.Ogg`/`.oga` 一律被 Godot 当 **OggVorbis 音频** 导入，`VideoStreamPlayer.stream` 拿到音频流而非 `VideoStream` → 视频不显示/显示不全。任何要被 `VideoStreamPlayer` 播放的视频素材必须命名为 `.ogv`（如 `A_001.ogv`）。开头动画 `A_001.Ogg`(1080p) 因此坑不显示，改名 `A_001.ogv` 后修复。
-- **Theora 帧尺寸必须 16 对齐 + 导出后必验解码错误**：① 高 1080 非 16 倍数，libtheora 会 pad 到 1088；若播放器/导入器不 crop pad 区 → 垂直错位花屏。编码输出务必 `scale=W:1072`（或 1440/1088，均 16 对齐）。② AI/工具导出的 `.ogv` 绝不可只看 `ffprobe` 的 `codec_name` 就当完好——要用 `ffmpeg -v error -i x.ogv -f null -` 数解码报错行。开头动画曾因某 1080p 导出 theora 流损坏（解码 120 帧报 564 行 `unpack_block_qpis` 错误、730/905 帧 dup）而花屏，换用干净 `A_001.mp4` 重编码 `scale=1920:1072` 后 0 错误修复。
-- **Autoload 不能用 `Engine.get_singleton("Name")` 取**：直接写全局名 `GameManager`。
-- **`CanvasLayer` 非 CanvasItem**：子节点取屏幕尺寸用 `get_window().get_visible_rect().size`，别用 `get_viewport_rect()`。**任何动态 UI/遮罩必须挂 CanvasLayer（屏幕空间）**，否则被相机 zoom+跟随推到屏幕外（现象：面板看不见、按钮没反应、淡入淡出只在角落露黑块）。
-- `snappedf` 已合并进 `snapped(value, step)`。
-- `create_timer()` 返回 `SceneTreeTimer`（RefCounted），不能 `add_child`，用 `get_tree().create_timer(2.5).timeout.connect(cb)`。
-- 字典缺键运行期崩：用 `.get("key", default)` 防御取值（Boss 数据缺 `speed` 键尤其注意）。
-- **`AnimatedSprite2D.frames` → `sprite_frames`**（3→4 改名）；`Sprite2D` 无 `play()`/`sprite_frames`，动画节点须 `AnimatedSprite2D`。
-- **`Camera2D.zoom` 是 `Vector2`**：设 `Vector2(2,2)`，非 `2.0`。
-- **1080p 窗口标准做法**：`viewport_width/height=1920/1080` + `Camera2D.zoom=Vector2(2,2)`，使可见世界仍为 960×540。只拉视口不调相机→画面缩 2 倍。
-- **`Camera2D.z_index` 范围 `[-4096,4096]`**；Y 轴排序地板/背景须设 -4000（在实体 y∈[-250,250] 之下），否则实体被地板盖住「上移消失」。
-- 子节点贴图须在 `add_child` 之前 `set` 好（否则 `_ready` 读空→隐形）。
-- `load_tex` 用 `load()` 而非 `ResourceLoader.exists()+load()`（`exists` 不规范化 `..` 路径）。
-- 敌人弹道贴图统一用 `res://assets/weapons/projectiles/`（勿用 `../weapons/...` 相对 Boss 目录，会多退一级）。
-- 输入键码：`ui_cancel`=ESC 内置；`dev` 动作绑定 **F12=`4194315`**（非 F2）。字母键用 `physical_keycode`。
-- 编辑重复定义函数坑：替换前先 Read 确认目标函数唯一，避免整段塞入造成 `Parse Error: Function X ...`。
-- **编辑器看不到场景/精灵 = 运行时生成 + 非 @tool**：本作场景（房间/墙/门/敌/Boss）全在代码 `_ready`/`_build_floor` 里 `add_child`，`.tscn` 仅骨架；且全仓原无 `@tool` 脚本，故 `_ready` 不跑、精灵帧为空→编辑器空白。要让某节点在编辑器可见：给其脚本加 `@tool`，并**所有游戏逻辑用 `Engine.is_editor_hint()` 挡在编辑器外**（否则编辑器里会刷怪/发射/读运行期状态）。已对 `Player.gd` 加 `@tool`（仅 `_ready` 构建 sprite_frames + 播 idle；`_physics_process` 顶部 `if Engine.is_editor_hint(): return`）。代价：世界/房间仍只在运行时生成，需 `@tool` RoomManager/Enemy 才能编辑器预览（更侵入，按需再做）。
-- **`GameManager.input_locked` 是输入总闸**（`Player._physics_process` 一见到 true 就 `velocity=0; return`，不能动也不能打）。凡是把它设 true 的路径（ESC 暂停 `_open_pause`、死亡 `on_player_died`、生日 `_birthday`、驿站、地图、词条）回到可玩 `Game` 场景时都必须归位。**最稳的修法在 `Game._ready` 开头 `GameManager.input_locked = false`**（覆盖 ESC→重开 / 死亡→重试 / 死亡→回菜单→新游戏 / 生日→回游戏）；`reset_run` 也要归位。切勿只在某条路径补，否则兄弟路径照样卡死。
-- **整体 `Write` 重写 `.tscn` 必须保留根节点 `script = ExtResource("...")`**：Godot 不会因有同名 `ext_resource` 就自动给根节点挂脚本。漏写则整脚本静默未挂载——但 `autoplay`/`text`/`z_index` 等写死在 `.tscn` 的属性照常生效，画面看起来一切正常，唯独 `_ready`/`_input`/`_process` 全不执行（如 ESC 跳过失效、信号没连）。诊断法：无头注入按键后查 `current_scene.has_method("方法名")`，若为 false 即脚本没挂上。改 `.tscn` 后本机若仍异常，右键文件「重新导入」。
+## Godot 4.x 关键坑（务必遵守）
+- 严格模式：变量从 Variant 推断会解析失败，必须显式标类型(:int/:float/:Array/:Dictionary)。
+- 循环 class_name 强转崩溃：跨类用 `as Node2D/Area2D/Node` + `.call()/.set()`；仅留 `Boss extends Enemy`。
+- 无头 `extends Enemy`(按类名)找不到基类→改 `extends "res://src/enemies/Enemy.gd"`；`const BOSS=preload` 改运行期 `load`。
+- Theora 视频必须 `.ogv`（.ogg/.Ogg 被当音频导入→视频不显示）；帧高须16对齐(用 1072 非 1080)；AI 导出 ogv 必 `ffmpeg -v error -i x.ogv -f null -` 数解码错误行，别只看 ffprobe。
+- Autoload 用全局名 `GameManager`，别用 `Engine.get_singleton("Name")`。
+- 动态 UI/遮罩必须挂 CanvasLayer(屏幕空间)，否则被相机 zoom+跟随推到屏外（黑块/面板看不见）。取屏幕尺寸用 `get_window().get_visible_rect().size` 非 `get_viewport_rect()`。
+- `create_timer()` 返回 SceneTreeTimer 不能 add_child；`snappedf`→`snapped`；`AnimatedSprite2D.frames`→`sprite_frames`；`Camera2D.zoom` 是 Vector2；`Camera2D.z_index`∈[-4096,4096]，地板/背景须 -4000。
+- 字典缺键用 `.get(k,default)`；子节点贴图须在 add_child 前 set；`load_tex` 用 `load()`。
+- `dev` 动作绑 F12=4194315(非 F2)；字母键用 physical_keycode。编辑重复定义函数前先 Read 确认唯一。
+- **整体 Write 重写 .tscn 必须保留根节点 `script = ExtResource("1")`**，否则脚本静默未挂载(画面正常但 _ready/_input 不执行)。诊断：`current_scene.has_method("方法")==false`。
+- **`GameManager.input_locked` 是输入总闸**(`Player._physics_process` 见 true 即 velocity=0 return)。所有设 true 路径(ESC 暂停/死亡/生日/驿站/地图/词条)回到 Game 时必归位；最稳修法 Game._ready 开头 input_locked=false + reset_run 内归位。⚠️ 若运行期狂刷 `Invalid access to property or key 'input_locked' on Node (GameManager.gd)`：含义=**运行中的 Godot 进程手里那份 GameManager.gd 实例未绑定成员**(autoload 退化成裸 Node)，故 Game._ready 第49行 `GameManager.input_locked=false` 直接崩溃→房间构建/开场/相机设置全被掐断→**相机左上角是此崩溃的下游症状，不是相机代码问题**。判定：逐个通读 GameManager/SaveManager/MapData/_restart_test/Weapons/FloatingText 全部干净、`.godot`(uid_cache/global_script_class_cache/filesystem_cache) 与 `.uid` 均正常→**磁盘与缓存无损坏，错误纯属运行期陈旧脚本实例**。根治：**完全关闭 Godot 后**删除 `.godot`（运行中删会被进程用陈旧实例重建，无效）；若项目在 OneDrive/云同步盘，先暂停同步或挪到本地非同步目录，否则 `.godot` 被云同步回陈旧版→报错依旧。重开等导入完成后 F5，应零报错且角色居中。补8~补15 的相机改动都被这个上游故障拖累，相机在 补16 改为显式激活(`Player.tscn` `current=true` + `Player.gd _ready` 顶部 `make_current()` 且置于任何 GameManager 调用前解耦)，并给全部 `input_locked` 读写加 `_set_gm_locked/_is_gm_locked` 守卫(`"input_locked" in GameManager` 先判存在)消除刷屏；守卫使相机立即居中、游戏可跑便于验证。
+
+## 合并地图(三层合一)
+- `MapData.merged`(`"f{层}-{rid}"`→{floor,rid,type,gx,gy,state,links})；`build_merged()` 三趟：建节点→层内连线→跨层连线(须全建好再加)。`Game.transition_to` 含"-"键→拆层→`_switch_floor`。
+
+## 美术资产管线(v3.0)
+- 清单 `DevelopmentRequirements/梦境逐影_美术素材清单_最终版.xlsx`；尺寸：角色/普通怪/精英=130×250，Boss=260×500。命名 `{编号}_{snake_case}.png`。
+- 场景构建 v4.0 预制整图：`RoomManager._build_floor` 读 `_data.scene_img` 作背景(z_index=-4000)。玩家 `_sprite.scale=0.28`，敌人=0.45。
+
+## 编辑器可见性(@tool 预览)
+- 本作 .tscn 仅骨架，房间/墙/门/敌/Boss 运行时 add_child；默认编辑器空。给 Game/RoomManager/Enemy/Boss + Player 加 @tool，_ready 用 `Engine.is_editor_hint()` 走预览分支(只建视觉、跳过物理/计时器)，运行期不变。
+- 防重复 build：Game._ready 编辑器分支 return；RoomManager._ready 仅 `is_editor_hint() and _rid=="" and get_parent()==null` 才自 build；Enemy/Boss 靠 setup() 先于 add_child 调用(_eid 非空)跳过。
+- Enemy/Boss 的 `_physics_process` 首行 `if Engine.is_editor_hint(): return`。
+- **玩家相机（补17 确定性手动驱动，推翻补16 Camera2D 路线）**：本 Godot 4.7.1 中 Camera2D 的 `current=true` 声明式静默失效、`make_current()` 不接管视口、`enabled` 单相机也不自动激活——补6~补16 在 Camera2D 上打转全失败（补16 对 Player.tscn 的 current/enabled 编辑还因 old_string 不匹配静默未生效）。**最终正确解法（补17）= 不依赖 Camera2D**：`Player.tscn` 的 `Camera2D` 设 `enabled=false`；`Game.gd` 新增 `_update_camera()` 每帧直接写 `get_viewport().canvas_transform = Transform2D(_cam_zoom, center - _cam_zoom * player.global_position)`（center=视口尺寸/2），数学上保证玩家居中，与 stretch_mode=canvas_items 兼容。在 `_physics_process` 顶部（早于开场/锁输入提前 return）调用，故开场/锁输入期间也居中。此方案与 GameManager 是否加载无关——即使 `input_locked` 守卫兜底、GameManager 陈旧，玩家也稳定居中可移动。开局无放大（`_cam_zoom` 默认 1.0）；受击抖动原 `Player.shake()` tween 相机 offset 现已无效（Camera2D disabled），需抖动就给 `_update_camera` 加偏移量。编辑器预览仍 `cam.enabled=false` + `_focus_editor_viewport` 手动聚焦（运行期隔离）。
+- **矩阵顺序坑（仅编辑器聚焦用）**：`Transform2D().scaled(s).translated(t)` 是 `Scale*Translate`，平移会被乘 `s`（错）；必须 `.translated(t).scaled(s)` 才是 `Translate*Scale`（正确居中）。仅 `_focus_editor_viewport` 用，运行期已不手写 transform。
+- **编辑器 2D 视口默认不跟随 @tool 动态 Camera2D**→`_editor_build_preview` 末尾聚焦：取编辑器接口必须 `Engine.get_singleton("EditorInterface")`（**不要 `get_node("/root/EditorInterface")`**，Godot4 下该路径取不到→返回 null→整段静默失效，等于没修）；`EditorInterface` 非 GDScript 通用已知类型，故 `ei.call("get_editor_viewport_2d") as SubViewport` + `set_canvas_transform`(缩放0.6 平移到玩家中心)聚焦。开 `Game.tscn` 直接看到角色居中。
+
+## 场景内武器拾取/开场序列
+- 开场序列（补17 去掉放大）：`Game._play_prologue` 锁输入→**不再 tween cam.zoom**(无拉近)→0.5s 后对话框(_ui_layer 屏幕空间)→3.4s 或 ESC(ui_cancel)跳过→`_end_prologue` 移除对话框、生成3把起始武器(Weapons.STARTERS)。相机全程由 `_update_camera()` 手动居中（见相机条目）。
+- 起始武器 spawn 时机：新游戏仅 `_end_prologue` spawn；非序列路径 `_swap` 末尾 `if rid=="r1" and not prologue_pending: _spawn_starter_weapons()`；`weapon_id` 跳过已装备。
+- 地面武器 `WeaponPickup`(Node2D)：weapon_id 导出+图标+浮动；`just_dropped()`(0.6s 免疫防交换死循环)；拾取/交换 F(interact=70)，旧武器掉地免疫。邻近64px 检测，提示框挂 `_ui_layer`。
+
+## 已修连带坑
+- `GameManager.get_weapon()` 无武器返回 `{}`(非 null，否则 "Trying to return Nil from Dictionary")；所有调用方 `w.is_empty()` 判无武器。
+- headless 不复扫 global_script_class_cache：新建 class_name 后别用全局类型(解析期 "Could not find type Xxx")，用 `preload`+`Node2D`+`call/get/set`。
+- 零依赖武器图标：`tools/gen_weapon_icons.py`(PIL+managed venv) 重绘 staff/sword/scythe 96×96。
 
 ## 无头测试注意
-- headless 下 `E` 级错误非致命（只中断当前方法），只看退出码 0 会**漏检** bug。正确验证：进战斗房跑动画逻辑后 grep 日志 `Invalid access`/`SCRIPT ERROR`。
-- 临时进玩法：把 `project.godot` 的 `run/main_scene` 临时指 `Game.tscn`，挂 `_chk.gd`（reset_run→transition_to→等→quit），跑完还原。
-
-## 合并地图（三层合一）
-- 一张大图显示全 3 层（18 房间），并排左/中/右三栏，跨层连线 boss(r6)→下一层 r1；全部房间初始可见可点。
-- `MapData.merged`（`"f{层}-{rid}"`→`{floor,rid,type,gx,gy,state,links}`）；`build_merged()` 三趟：建节点→层内连线→跨层连线（须所有节点建好后再加，否则丢连线）。
-- `Game.transition_to` 解析含 `"-"` 键→拆层数→`_switch_floor`→走原逐层逻辑；`_go_next_layer` 不动。
-- `MapUI._draw_map` 遍历 `merged`，连线遍历 `links`，点击 `transition_to(合并键)`。
-
-## 美术资产管线（v3.0 清单驱动）
-- 权威清单：`DevelopmentRequirements/梦境逐影_美术素材清单_最终版.xlsx`（v3.0，Sheet5 音频按约定跳过）。关键尺寸：角色/普通怪/精英怪=**130×250**；Boss=**260×500**。
-- 命名铁律：`{编号}_{英文snake_case}.png`（如 `A-001_miai_idle.png`）。权威数据源 `tools/v3_assets.py`；生成器 `tools/gen_assets.py`（手写 zlib，无第三方库）生成 220 占位并写 `assets/GENERATED_PLACEHOLDERS.json`；迁移 `tools/migrate_code.py`（幂等）。
-- 维度回填：`Enemy/Player` 的 `fw/fh` 须=精灵表帧尺寸（怪 130/250、Boss 260/500），`fi`=idle/`fa`=attack 帧。
-- 替换：同名同尺寸 PNG 覆盖占位（帧数须一致）。
-- **场景构建=v4.0 预制整图**：每关美术预制整图（一房一图，含墙/地板/家具/灯光烘焙）+ 空气墙 `InvisibleWall`（`StaticBody2D`+`CollisionShape2D` 零贴图）+ 门 `Door`（开/关帧切 + Area2D 触发）。`RoomManager._build_floor` 读 `_data.scene_img` 作背景（`z_index=-4000`）并跳过通用瓦片墙；`LevelData` 第一层 `r2/r3` 已临时挂 `scene_img`（TEST，待正式流程接管）。`Game.gd` dev 标签 F2→F12。
-- 角色缩放：玩家 `_sprite.scale`=**0.28**，敌人=**0.45**（仅视觉，碰撞不变）。
-- 旧 v2.0 占位 135 张已迁至项目外 `_trash_v2/`（可逆），safe-delete 阈值耗尽未永久删。
-- `audio/bgm`/`audio/sfx` 预留，`LevelData.BGM` 引 `bgm_1..3.ogg` 缺失→静音。
-
-## 本会话已修 BUG（2026-07-26）
-- **切场景右下角黑屏**：`Game.tscn` 的 `Fade` 原是 `Game`(Node2D) 下的 `ColorRect`（世界空间），被相机 zoom=2 推到屏幕外，只在右下角露出一块黑（淡入淡出时可见）。改法：把 `Fade` 改为 `CanvasLayer`(layer=20) 内含全屏 `ColorRect`，`Game.gd` 用 `@onready _fade_rect:=$Fade/Rect` 并设 `size=get_window().get_visible_rect().size`。见下方 2026-07-26 日志。
-
-## 编辑器可见性（@tool 预览，2026-07-26 加）
-- 本游戏是「数据驱动 + 运行时生成」：`.tscn` 只放骨架，房间/墙/门/敌人/Boss 由 `RoomManager.setup()` 与 `Game._ready→transition_to→_swap` 在运行时 `add_child`。故默认编辑器里近乎全空。
-- 让编辑器可见的套路：给 `Game`/`RoomManager`/`Enemy`/`Boss` 加 `@tool`，在 `_ready` 用 `Engine.is_editor_hint()` 走「预览 build」分支（只建视觉、跳过输入/物理/计时器/信号），运行期逻辑不变。
-- 防重复 build 的关键：`Game._ready` 编辑器分支 `return` 早退；`RoomManager._ready` 仅当 `is_editor_hint() and _rid=="" and get_parent()==null`（独立打开 Room.tscn）才自动 build，被 Game 嵌套时不自动 build；`Enemy/Boss` 因 `setup()` 在 `add_child` 前调用、`_eid` 已非空，`_ready` 预览靠 `_eid==""` 跳过。
-- `Enemy/Boss` 的 `_physics_process` 首行必须 `if Engine.is_editor_hint(): return`，否则 `@tool` 下编辑器里会跑 AI/弹幕。
-- 玩家相机 `Camera2D` 永远用 `anchor_mode=0`（DRAG_CENTER，常规跟随）。场景里任何 `1`（FIXED_TOP_LEFT）都会把角色钉死在屏幕左上角，且 zoom 在世界里漂。开篇特写也是 `0` 不变（zoom 大自然以角色为中心），不要改 anchor_mode，**任何时候不要还原成 FIXED_TOP_LEFT**。
-- 注意：预览节点是 `@tool` 运行时 `add_child`，标准模式下不写进 `.tscn`；但提醒用户**不要在预览存在时 Ctrl+S 保存 Game.tscn**，误保存则删掉凭空出现的 `Room` 节点即可。
-
-## 场景内武器拾取 / 开场序列（2026-07-27 加，2026-07-27 修）
-- 新游戏流程：`Main._new_game` 置 `GameManager.prologue_pending=true` → `Intro`(NEXT_SCENE=Game.tscn) → `Game._ready` 见 flag 则 `reset_run("")`+播开场序列。开场序列=锁输入→**相机 anchor_mode 本就 0(DRAG_CENTER)，只放大 zoom 2→3.4**→头顶 Control 对话框→3.4s 或 **ESC 跳过**(`_input` 消费 ui_cancel)→zoom 回 2/生成 3 把起始武器(`Weapons.STARTERS`)。「继续」「死亡重开」不置 flag→不重播序列。
-- **起始武器 spawn 时机**（避免「重开后地面武器消失」）：开新游戏时仅由 `_end_prologue` spawn（因为 `_swap` 阶段 `prologue_pending=true` 被跳过）；重开/续关等非序列路径：`Game._swap` 末尾若 `rid=="r1" and not GameManager.prologue_pending` 则 `_spawn_starter_weapons()`。`_spawn_starter_weapons` 同时 `if wid == GameManager.weapon_id: continue` 跳过已装备的。
-- 地面武器 `src/weapons/WeaponPickup.gd`(Node2D)：`weapon_id` 导出+图标 Sprite(`scale=(0.8,0.8)`)+上下浮动；`just_dropped()`(0.6s 免疫防交换瞬间换回)、`can_interact()`、`prompt_text()`。拾取/交换在 `Game._pick_up_weapon`：F 拾起，已持武器则旧武器掉脚下(免疫)，`GameManager.weapon_id` 切换即生效(Weapon.gd 自动重建手持贴图, 持枪 `scale=(0.5,0.5)`)。邻近检测在 `Game._physics_process`(64px)，屏幕底部 `[F] 拾取 XX` 提示框挂 `_ui_layer`。
-- `F`=`interact`(physical_keycode 70) 直接复用；武器交换后旧武器落地的 0.6s 免疫是防「拾起即掉、掉了又捡」死循环的关键。
-
-## 两个已修连带坑（务必遵守）
-- **`GameManager.get_weapon() -> Dictionary` 在无武器(`weapon_id=""`)时返回 null 会运行时报 "Trying to return Nil from Dictionary"**：改为空 `{}` 返回；`Weapon.gd`/`HUD.gd` 用 `w.is_empty()` 判无武器（不要只判 `w == null`）。所有经 `get_weapon()` 拿 Dictionary 的地方都要先 `is_empty()`。
-- **headless 不复扫 `global_script_class_cache.cfg`**：新建 `class_name Xxx` 后在 `Game.gd` 等**别用全局类型 `Xxx`**（解析期 "Could not find type Xxx"）。正确姿势：`const XxxScript := preload("res://.../Xxx.gd")`，实例存为 `Node2D`/`Node`，成员走 `call()/get()/set()`。编辑器里正常（缓存会在打开时重建），仅无头/CI 卡这点。
-- **零依赖武器图标生成**：`tools/gen_weapon_icons.py` 用 PIL + `C:/Users/dapeng/.workbuddy/binaries/python/envs/default`（managed venv，预先 `pip install Pillow`）直接重绘 staff/sword/scythe 96×96 RGBA（4× 超采样 + LANCZOS），覆盖 `assets/weapons/icons/W-00{1,2,3}_*.png`，命名沿用 `Weapons.DATA` 不动代码。复跑：`python tools/gen_weapon_icons.py`。
+- headless 下 E 级错误非致命，只看退出码0 会漏检；跑完 grep 日志 `Invalid access`/`SCRIPT ERROR`。

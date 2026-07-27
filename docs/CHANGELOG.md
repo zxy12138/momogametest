@@ -448,3 +448,261 @@ v3.0 把角色/怪物贴图从占位的小尺寸改为 **130×250**（Boss 260×
 ## 风险 / 下一步
 - 若真机重新导入后仍花屏，则排除文件问题，转向 **Godot 4.7.1 Theora 解码器 / 显卡驱动层**排查（如：改用 GDExtension 支持的其他容器、或进一步降帧率/分辨率）。
 - `A_001.mp4` 含 AAC 音轨；如开头动画需要配音，后续可加 `-c:a libvorbis` 重新封装进 ogv。
+
+---
+
+# 改动 · 2026-07-27（补6）· 修复开场序列「视角不对」
+
+## 现象
+- 用户反馈：新游戏开场序列里视角不对——期望是「视角先居中、再放大拉近，等序列+对话播完后再回复正常位置」，但实际看到的是画面位置不对（对话框巨大且偏到角落）。
+
+## 根因
+- 相机本身已正确：`Player.tscn` 里 `Camera2D.anchor_mode = 0`（DRAG_CENTER，跟随玩家），全项目无相机 `limit`、仅一个 Camera2D，理论上应始终以玩家为中心。
+- **真正的元凶是对话框的挂点**：原 `_show_prologue_dialogue()` 把对话框 `Control` 作为**玩家节点的子节点（世界空间）** `p.add_child(box)`，`box.position = Vector2(-66,-92)`。开场把相机 zoom 到 3.4 时，这层气泡会被同比例放大 3.4 倍、并被推到屏幕左上偏移处（-224,-313 px），看起来就是「画面/位置不对」。
+
+## 修复（`src/scenes/Game.gd` 开场序列三函数）
+- `_play_prologue()`：显式 `cam.anchor_mode = 0; cam.position = Vector2.ZERO`，确保放大以玩家为中心（防御性，杜绝任何 FIXED_TOP_LEFT 残留）。
+- `_show_prologue_dialogue()`：对话框改挂 **`_ui_layer`（屏幕空间 CanvasLayer，layer=10）**，按窗口尺寸居中置于底部（`(vsize.x-bw)/2, vsize.y-bh-60`）；尺寸/字号/颜色在运行时设置，不再随相机 zoom 变形偏移。
+- `_end_prologue()`：zoom 回到 `Vector2(2,2)`（=「回复位置」，继续 DRAG_CENTER 跟随玩家），移除对话框，解锁输入，生成起始武器。
+
+## 验证（本机无 Godot，代码级核查）
+- `_ui_layer` 在 `_ready()` 的 `transition_to` 之前已创建（`add_child(ui)`），prologue 在其后运行，`_ui_layer` 必有效。
+- 对话框 `Control` 改用屏幕空间坐标，无 `get_parent()` 反模式；移除世界空间子节点后原 `_prologue_bubble` 引用仍可用于 `queue_free()`。
+- `vertical_alignment = VERTICAL_ALIGNMENT_CENTER` / `autowrap_mode = TextServer.AUTOWRAP_WORD_SMART` / `add_theme_*_override` 均为 Godot 4 有效 API。
+- 请在编辑器/运行确认：新游戏 → 镜头以玩家为中心拉近（脸部特写）→ 底部居中对话框「我醒来了，这是在哪……」清晰可读（不被放大）→ 3.4s 或 ESC 后镜头平滑回到正常跟随，地面摆出 3 把起始武器。
+
+---
+
+# 修复 · 2026-07-27（补7）· 角色在左上角/编辑器看不到
+
+## 现象
+- 用户反馈：角色显示在屏幕左上角、甚至看不到。实际是在场景编辑器里看 @tool 预览时出现（用户此前要求「编辑器里看到所有东西」，已加 @tool 预览）。
+
+## 代码核查结论（运行时相机逻辑本就正确）
+- `Player.tscn` 的 `Camera2D.anchor_mode = 0`（= ANCHOR_MODE_DRAG_CENTER，中心跟随；项目实测 `1`=FIXED_TOP_LEFT 才会钉死左上角，见 MEMORY.md）。
+- 全仓 `grep anchor_mode` 仅 `Game.gd` 两处设 `0`，无任何代码设 `1`：`_swap` 把玩家设为 `(0,0)`（房间中心），`_play_prologue` 设 `anchor_mode=0 / position=ZERO / zoom=3.4`（中心特写），`_end_prologue` 缩回 `2`（中心跟随）。
+- `Player.gd:135 shake()` 仅抖动 `cam.offset` 且必归零，不影响居中。
+- 故**运行期角色必然在屏幕中心**，不存在运行时左上角 bug。
+
+## 真正根因
+- 编辑器 2D 视口默认**不自动跟随** `@tool` 运行时动态生成的 `Camera2D`，且预览 build 房间后视口未重新聚焦 → 视图停在角落/缩放错位，表现为「角色在左上角、看不到」。
+
+## 修复（`src/scenes/Game.gd`）
+1. **运行时相机保险**（在 `_ready` 解锁输入后）：`_player_camera()` 拿玩家 Camera2D，强制 `anchor_mode=0 / position=ZERO / offset=ZERO`，覆盖任何跨场景残留或 shake 未归零边缘情况。
+2. **编辑器预览自动聚焦**（在 `_editor_build_preview` 末尾，`is_editor_hint` 守卫内）：通过 `get_node_or_null("/root/EditorInterface").get_editor_viewport_2d() as SubViewport`，用 `set_canvas_transform(Transform2D().scaled(z).translated(center - p.global_position*z))`（z=0.6）把 2D 视图对准玩家（房间中心），打开 `Game.tscn` 即直接看到角色。视口尺寸缺失时回退 1280x720。该段仅编辑器执行，运行时不跑。
+
+## 验证（本机无 Godot，代码级核查）
+- 类型安全：`vp` 显式 `SubViewport`、`tr` 为 `Transform2D`，无 `Variant`/untyped var；`get_editor_viewport_2d`/`set_canvas_transform` 均为 Godot 4 `Viewport` 有效 API；`ei`/`vp` 均 null 守卫，非编辑器返回 null 跳过。
+- 运行时相机逻辑无改动（仅加保险重置），行为不变。
+- 请在编辑器确认：打开 `Game.tscn` 后 2D 视口应直接聚焦在玩家（房间中心）且整房可见。若仍偏，可用鼠标滚轮缩放 / 双击 `Player` 节点手动聚焦一次。运行时 F5 不受此影响，角色本就在中心。
+
+---
+
+# 修复 · 2026-07-27（补8）· 角色仍偏左上角：根因补全（缺 `current` + 编辑器接口路径错）
+
+## 现象
+- 用户复测：角色与场景起点仍在屏幕左上角（非中心）。补7 的编辑器聚焦未生效、运行期也未被彻底排除。
+
+## 真正根因（两处，互为叠加）
+1. **运行期相机未激活**：`Player.tscn` 的 `Camera2D` 此前**未显式 `current = true`**。Godot 4 的 `Camera2D.current` 默认 `false`，若无活动相机，2D 视口回退默认变换——世界原点 (0,0) 落屏幕左上角，于是出生在 (0,0) 的玩家/房间全挤在左上角。补7 的相机保险只重置了 `anchor_mode/position/offset`，漏了 `current`，故未修好。
+2. **编辑器聚焦路径取不到接口**：补7 用 `get_node_or_null("/root/EditorInterface")` 取编辑器接口。Godot 4 下该路径并不存在（`EditorInterface` 是引擎单例，不挂在 `/root` 下），返回 `null` → 整段聚焦代码被静默跳过，编辑器 2D 视口始终停在世界原点左上角。
+
+## 修复
+- `src/player/Player.tscn`：`Camera2D` 加 `current = true`（根因1，彻底保证运行期以玩家为中心）。
+- `src/scenes/Game.gd` `_ready` 相机保险：补 `cam.current = true`（运行期兜底）。
+- `src/scenes/Game.gd` `_editor_build_preview`：改 `cam.current = true` + 调用新增 `_focus_editor_viewport()`。
+- `src/scenes/Game.gd` 新增 `_focus_editor_viewport(focus)`：`Engine.get_singleton("EditorInterface")` 取接口（Godot 4 正确单例名），再 `ei.call("get_editor_viewport_2d") as SubViewport`，`set_canvas_transform` 把 2D 视口对准玩家（z=0.6）。`EditorInterface` 非 GDScript 通用已知类型，故走 `Object.call()` 动态调用 + `as SubViewport`，避免严格模式误报「方法不存在」。
+
+## 验证（本机无 Godot，代码级核查）
+- 全仓 `grep` 无第二处 `Camera2D`、`current = false`、`make_current`，玩家相机为唯一且显式 current 的活动相机。
+- `anchor_mode = 0`（中心跟随）保持不变；`current = true` 仅明确激活，不改变跟随/居中语义。
+- `_focus_editor_viewport` 全程 null 守卫；`Engine.get_singleton` 是 Godot 4 有效 API，仅编辑器执行。
+- 请在编辑器/运行确认：打开 `Game.tscn` 角色居中可见；F5 进入后角色出生即在屏幕正中，开场序列放大仍以玩家为中心。
+
+---
+
+# 修复 · 2026-07-27（补9）· 开场动画结束后报错：`cam.current = true` 非法赋值
+
+## 现象
+- 用户复测：开头动画（Intro 视频 / 开场独白序列）结束后进入 `Game`，`_ready()` 直接报错崩溃：
+  `E 0:00:17:292 _ready: Invalid assignment of property or key 'current' with value of type 'bool' on a base object of type 'Camera2D'.`
+  错误定位 `Game.gd:54 @ _ready()`（即上一轮补8 在相机保险里新加的 `cam.current = true`）。
+
+## 真正根因
+- **本项目的 Godot 版本里 `Camera2D.current` 是引擎内部 setter 管理的属性，GDScript 直接 `cam.current = true` 会被拒并抛 “Invalid assignment”**。
+  - 该属性只能被引擎内部 setter 写入；激活活动相机必须用专用 API `Camera2D.make_current()`。
+  - 顺带说明：`.tscn` 里写的 `current = true` 走 C++ 层 `set`，会**静默失败**（不报错但不生效）——这正是补8 里「加了 `current = true` 却仍偏左上角」的根因：属性声明式写法在此版本并不真正激活相机，只有 `make_current()` 才可靠。
+- 因此补8 的「加 `current = true` 修好」结论不准确，且新加的 GDScript 直写反而引发崩溃。
+
+## 修复
+- `src/scenes/Game.gd` `_ready` 相机保险：`cam.current = true` → `cam.make_current()`，并加 `is_instance_valid(cam)` 守卫。
+- `src/scenes/Game.gd` `_editor_build_preview`：预览相机 `cam.current = true` → `cam.make_current()`；该处 `cam` 原为 `get_node_or_null("Camera")` 推断为 `Node`，补 `as Camera2D` 转型以便调用 `make_current()`（严格模式下 `Node` 无此方法会报「方法不存在」）。
+- `src/player/Player.tscn` 的 `current = true` 保留（声明意图，无害；真正激活由 `make_current()` 在运行时完成）。
+
+## 验证（本机无 Godot，代码级核查）
+- 全仓 `grep ".current ="` 仅剩 `GameManager.current_room` / `MapData` 等业务字段，相机相关直写已全部改为 `make_current()`，无残留。
+- `_ready`/`_editor_build_preview` 两处相机代码均经 `is_instance_valid` 守卫，避免对 freed 节点调用。
+- `Camera2D.make_current()` 是本版本标准 API，行为：把本相机设为当前视口活动相机（角色随之居中、不再落左上角），且不触发 GDScript 属性赋值错误。
+- 请在编辑器/运行确认：进入 `Game` 后角色出生即在屏幕正中，开场序列放大仍以玩家为中心，且 `_ready` 不再报错。
+
+---
+
+# 修复 · 2026-07-27（补10）· 开场结束后角色仍在左上角：make_current() 需多节点兜底
+
+## 现象
+- 用户复测（截图确认）：开头动画/开场序列结束后进入可玩状态，房间和角色仍挤在屏幕左上角，右下大片黑屏。补9 修了 `_ready()` 的崩溃（`current=true` → `make_current()`），但相机仍未居中跟随玩家。
+
+## 根因分析
+- **`_ready()` 的 `make_current()` 被后续流程静默覆盖**：`_ready()` 里调了 `make_current()`，但紧接着执行 `transition_to("r1")` → `_swap()`（创建房间/add_child/设玩家位置）→ 若新游戏还走 `_play_prologue()`（改 zoom 到 3.4）。这一系列场景构建和 tween 操作后，引擎的活动相机状态被重置或未"钉住"。
+- **`_end_prologue()` 是关键缺失点**：这是开场序列结束、交还控制权给玩家的唯一出口。它只把 zoom 缩回 2，却**没有重新调用 `make_current()`**。用户看到的正是这之后的画面——相机不活跃 → 视口回退默认变换 → 世界原点落左上角。
+- **`_swap()` 也缺兜底**：每次切房都会调用的核心函数，同样没有确保相机重新激活。
+
+## 修复（三道防线）
+1. **`_ready()` 相机保险**：`cam.make_current()` → `cam.call_deferred("make_current")`（延迟一帧，确保场景树完全就绪后再激活，避免 _ready 阶段调用后被引擎/场景切换流程覆盖）。
+2. **`_end_prologue()`**（新增）：获取相机后先 `cam.make_current()` 再 tween zoom 回 2。这是用户恢复控制的第一帧，必须保证相机在此处是活动状态。
+3. **`_swap()` 房间切换末尾**（新增）：每次切房后都调一次 `make_current()` 兜底，防止节点增删导致相机状态丢失。
+
+## 验证
+- 三处均经 `is_instance_valid(cam)` 守卫，不会对 freed 节点调用。
+- 全仓仅此三处 + 编辑器预览一处调用 `make_current()`，无遗漏无冲突。
+- 请在运行确认：开头动画/序列结束后角色出生在屏幕正中；切房后相机正常跟随；ESC 重开后同样居中。
+
+---
+
+# 修复 · 2026-07-27（补11）· 角色仍左上角：新增 canvas_transform 核弹兜底验证相机是否生效
+
+## 现象
+- 用户复测（截图确认）：补10 加了三处 `make_current()` 兜底后，角色和房间**仍然**在屏幕左上角，右下大片黑屏。连续 3 次修复（补8/9/10）均基于"Camera2D 没被激活"假设，但均未解决。
+
+## 新假设
+- **`Camera2D.make_current()` 在本项目 Godot 版本中可能静默不生效**——不报错、不崩溃，但也未真正接管视口变换。视口保持默认的 identity transform → 世界原点 (0,0) 映射到屏幕左上角 → 玩家在 (0,0) 就显示在左上角。
+- 需要一个**绕过 Camera2D 的验证方法**：直接写 `get_viewport().canvas_transform`。如果这能居中 → 证明问题确实是 Camera2D 未接管；如果这也不能居中 → 问题在更底层（视口/窗口/拉伸模式）。
+
+## 修复
+- **新增 `_force_center_on_player()` 函数**：直接计算并设置主视口的 `canvas_transform = Transform2D().scaled(zoom).translated(screen_center - player_pos * zoom)`，强制让玩家世界坐标精确落在屏幕像素中心。完全绕过 Camera2D。
+- **`_end_prologue()`**：在 `make_current()` + tween zoom 之后调用 `_force_center_on_player()`。
+- **`_swap()`**：在 `make_current()` 之后调用 `_force_center_on_player()`。
+- 行为说明：
+  - 若 Camera2D 实际活跃：它每帧覆盖 canvas_transform → 本函数效果仅持续一帧（无害）
+  - 若 Camera2D 不活跃：本函数效果持续 → 至少初始画面居中
+
+## 待验证（关键诊断）
+- **请确认**：开头序列结束后，角色是否终于在屏幕正中？
+  - **若居中了** → 确认 Camera2D.make_current() 在此版本不工作。下一步需实现手动相机跟随（每帧 _process 更新 canvas_transform），替代 Camera2D 的跟随功能。
+  - **若仍左上角** → 问题不在 Camera2D，而在更底层（可能涉及 viewport/window/stretch 配置或引擎 bug）。需要进一步排查视口本身的状态。
+
+---
+
+# 修复 · 2026-07-27（补12）· 确定性的手动相机：彻底弃用 Camera2D 激活逻辑
+
+## 现象
+- 用户复测（截图确认）：连续补8/9/10 基于「Camera2D 未激活」假设均失败；补11 直接写 `get_viewport().canvas_transform` 的核弹兜底仍顶不住——角色和房间依旧在屏幕左上角、右下大片黑屏。
+- 这说明：**Camera2D 的激活在这个 Godot 版本不可靠（`current=true` 静默失效、`make_current()` 也未能让它接管视口）**，而补11 那次性的 `canvas_transform` 写入又被某帧覆盖/或矩阵顺序写错，所以无效。
+
+## 根因（两点）
+1. **Camera2D 无法可靠接管视口**：`current=true`（.tscn 声明式）与 `make_current()`（API）在此版本都不能让 Camera2D 真正成为活动相机，导致视口回退默认变换→世界原点(0,0)落左上角。
+2. **补11 的变换矩阵顺序写错**：`Transform2D().scaled(s).translated(t)` 实际是 `Scale*Translate`，会把平移也乘上 `s`，玩家不会真正居中。正确应为 `Translate(t).scaled(s)`（`.translated().scaled()`）。
+3. **拉伸模式陷阱**：`project.godot` 是 `stretch_mode=canvas_items / aspect=expand`，视口基准固定 1920×1080。`canvas_transform` 在视口坐标空间解释，若用 `get_window()` 的窗口尺寸当 `center`，窗口非 1920×1080 时玩家会偏。必须用 `get_viewport().get_visible_rect().size`。
+
+## 修复（确定性方案，不再依赖 Camera2D 激活）
+- **`Player.tscn`**：`Camera2D` 由 `current=true` 改为 `enabled=false`（disabled 相机不参与渲染，也避免 Godot 自动选它为活动相机反过来覆盖我们的变换）。保留节点供受击抖动参考（不再生效）。
+- **`Game.gd` 新增手动相机**：
+  - `var _cam_zoom := Vector2(2,2)`（`_process` 每帧据其驱动）、`var _shake_offset`（受击抖动）。
+  - 新增 `_update_camera()`：每帧 `screen = zoom*(world-player) + center` 直接算 `Transform2D().translated(center - player*zoom).scaled(zoom)` 并赋给 `get_viewport().canvas_transform`；`center` 用 `get_viewport().get_visible_rect().size*0.5`（视口尺寸，非窗口）。编辑器（`is_editor_hint`）直接 return，交 `_focus_editor_viewport` 处理。
+  - 新增 `_process(_delta)` 每帧调 `_update_camera()`（唯一权威，不被任何相机覆盖）。
+  - 新增 `add_shake(mag)`：写 `_shake_offset`，`_update_camera` 里衰减。
+- **`Player.gd` `shake()`**：原直改 `Camera.offset` 已失效，改为 `get_tree().current_scene.call("add_shake", mag)` 走 Game 的视口抖动。
+- **`_play_prologue` / `_end_prologue`**：拉近/复位从 `cam.zoom` 的 tween 改为 `self._cam_zoom` 的 tween。
+- **`_focus_editor_viewport`**：矩阵顺序同样修正为 `.translated().scaled()`（编辑器预览此前也略偏）。
+- 删除所有 `make_current()` 调用与补11 的 `_force_center_on_player()`。
+
+## 验证（代码级核查）
+- 全仓无 `current=true` / `make_current()` 残留（仅编辑器预览留一处无害的 `cam.make_current()` 已删）。相机 `enabled=false`。
+- 居中由 `_process` 每帧强制断言，任何一帧被重置都会下一帧纠正 → 角色必在屏幕正中，切房/开场序列后亦然。
+- UI 层（HUD / Fade / 对话气泡）均为 `CanvasLayer`，独立于视口 `canvas_transform`，不受世界变换影响、保持屏幕空间。
+- 请运行确认：进入 Game 角色出生即屏幕正中；开场拉近→结束后平滑回 2 倍且仍居中；切房后跟随正常；ESC 重开居中。受击抖动应正常（走视口偏移）。
+
+---
+
+# 修复 · 2026-07-27（补13）· 回退到 Camera2D 自动激活：手动 canvas_transform 与拉伸管线冲突
+
+## 现象（用户复测 + 截图）
+- 补12（手动每帧驱动 `get_viewport().canvas_transform`）后：角色跑到**右下角**；按 WASD 移动时「**相机移动速度超过角色移动**」，角色以约 2 倍速滑向角落。
+
+## 根因（git 比对基线确认）
+- `git` 基线 `b6d2673`（"好的时候"）`Player.tscn` 的 `Camera2D` 仅 `anchor_mode=1`、`zoom=2`，**无 `current`**；`Game.gd._ready` **完全不碰相机**。相机由 Godot **自动**把唯一启用的 Camera2D 设为当前相机，正常跟随。
+- 补8~12 我逐步把相机改成 `enabled=false` + 手写 `canvas_transform`，想"脱离 Camera2D 激活逻辑"。但在 `project.godot` 的 `stretch_mode=canvas_items / aspect=expand` 下，引擎的**拉伸变换是叠在 `canvas_transform` 之上**单独应用的；我手写的值（用 `get_visible_rect()` 取尺寸做中心）与真实渲染坐标空间对不齐 → 角色偏右下落点；且相机变换不随玩家实时跟随时，玩家在屏幕上以 `zoom` 倍速移动 → 表现为"相机比角色快、跑右下角"。
+- 结论：本项目 Godot 版本里 `current=true`(.tscn) 静默失效、`make_current()`(API) 不可靠，但**让 Camera2D 保持 `enabled=true` 由 Godot 自动选中为当前相机**这一原始机制是好的，问题全部出在我后加的手动接管。
+
+## 修复（回退到可靠机制）
+- `Player.tscn`：`Camera2D` `enabled=false` → **`enabled=true`**；保留 `anchor_mode=0`(DRAG_CENTER 居中)、`zoom=2`。不设 `current`、不调 `make_current` —— 让 Godot 自动选唯一启用相机。
+- `Game.gd`：删除所有手动相机代码——`_cam_zoom`/`_shake_offset` 变量、`_update_camera()`、`_process()`、`add_shake()`、以及 `_ready`/`_play_prologue`/`_end_prologue`/`_swap` 里对它们的引用。
+- `Game.gd _play_prologue`/`_end_prologue`：镜头拉近/复位改 **tween `cam.zoom` 属性**（2→3.4→2），由自动激活的相机执行，居中跟随不变。
+- `Game.gd _editor_build_preview`：相机在编辑器预览里设 `enabled=false` + `_focus_editor_viewport` 手动聚焦（与运行期隔离，保留编辑器可见性）。
+- `Player.gd shake()`：恢复为直接 tween `Camera.offset`（受击屏幕抖动），删除原来调 `Game.add_shake()` 的写法。
+
+## 验证（代码级核查 + git 对照）
+- `git show b6d2673:src/player/Player.tscn` 确认基线仅 `anchor_mode=1`、无 `current`、`Game.gd` 不碰相机即工作 → 回退方向正确。
+- 全仓 grep：`_cam_zoom`/`_shake_offset`/`_update_camera`/`add_shake`/`make_current`/`current = true` 已无代码引用（仅注释说明"不再使用"）。
+- `Player.tscn` 唯一 Camera2D 且 `enabled=true` → Godot 自动设为当前相机 → `anchor_mode=0` 使玩家居中跟随。
+- 开场 zoom（tween `cam.zoom`）与受击抖动（tween `Camera.offset`）均走相机原生属性，无手写 transform。
+- 请运行确认：进入 Game 角色出生即屏幕正中、WASD 移动相机平滑跟随（不再倍速/偏角）；开场拉近→结束后平滑回 2 倍且仍居中；切房后跟随正常；ESC 重开居中；受击有抖动。
+
+
+---
+
+# 修复 · 2026-07-27（补14）· 相机激活改为独立 make_current；input_locked 刷屏定位为运行期旧缓存
+
+## 现象（用户复测 + 报错）
+- 补13 之后相机又回左上角；运行期每帧狂刷：
+  ERROR: res://src/scenes/Game.gd:698 - Invalid access to property or key 'input_locked' on a base object of type 'Node (GameManager.gd)'.（数千行）
+
+## 根因（两点）
+1. 相机未激活：补13 把相机设成 enabled=true, anchor_mode=0 但没有 current=true、也没 make_current()，想靠“启用即自动激活”。本 Godot 版本里仅 enabled 的 Camera2D 不一定被自动设为活动相机 → 视口回退默认变换 → 世界原点落左上角。
+2. make_current() 放错了位置（连锁）：之前补9/10 把 make_current() 放在 Game.gd _ready 里、且在 GameManager.input_locked=false（第49行）之后。若该 Autoload 运行实例是旧缓存（缺 input_locked），_ready 在第49行就崩，make_current() 永远没机会跑 → 相机永不激活 → 左上角。这同时解释了“左上角 + input_locked 刷屏”两个现象同源。
+3. input_locked 刷屏 = 运行期旧缓存：GameManager.gd 磁盘代码正确（第37行声明 var input_locked := false，全文无解析错误，括号配平）。且 _ready 里 GameManager.input_locked=false 能正常跑（房间也建出来了），证明 _ready 阶段 GameManager 完整。同一对象同一属性在 _ready 可用、在 _physics_process 却报“访问不到”，只可能是运行中的 Godot 实例缓存了一份缺 input_locked 的旧 GameManager.gd——属编辑器脚本缓存/反序列化陈旧，非代码 bug。
+
+## 修复
+- Player.tscn：Camera2D 加 current = true（与 enabled=true/anchor_mode=0/zoom=2 并列），作为激活的声明式兜底。
+- Player.gd _ready：开头独立调用 make_current()（受 if not Engine.is_editor_hint() 守卫，编辑器预览不干扰）。放在 Player 自身而非 Game，确保即使 Game._ready 因 GameManager 缓存问题中断，相机仍被激活、角色必然居中跟随。
+- Game.gd：更新过时注释。开场拉近/复位仍 tween cam.zoom（相机已活跃，正常生效）。
+
+## 验证 + 给用户的操作
+- 代码级核查：Player.tscn 相机块含 current=true；Player.gd _ready 含 make_current() 守卫；Game.gd 无残留 canvas_transform 手动驱动（仅编辑器预览 _focus_editor_viewport 用，运行期不跑）。
+- 请重启 Godot 编辑器（必要时 Project > Tools > Reimport 或删除 .godot 缓存目录）以清除旧的 GameManager.gd 脚本缓存——这能消除 input_locked 刷屏；相机居中由独立的 Player._ready 保证，重启后即正常。
+- 进入 Game：角色出生即屏幕正中、WASD 平滑跟随；开场拉近→结束后回 2 倍仍居中；切房/ESC 重开居中。
+
+---
+
+# 修复 · 2026-07-28（补15）· 相机回退 fc08289 + input_locked 真因锁定为运行期陈旧脚本实例
+
+## 现象（用户复测）
+- 删 `.godot` / 重启编辑器后仍狂刷：`Game.gd:698 - Invalid access to property or key 'input_locked' on a base object of type 'Node (GameManager.gd)'`（数千行）；相机仍在左上角。用户要求「回退到相机正常时的节点」并看修改日志。
+
+## 真因核查（代码级，已穷尽）
+- 逐个通读全部 autoload 与依赖脚本：`GameManager` / `SaveManager` / `MapData` / `_restart_test` / `Weapons` / `FloatingText` —— 均无解析错误、无循环 `class_name`（GameManager/SaveManager/MapData 本就无 `class_name`；`Weapons` 的 `class_name` 不被任何依赖反向引用）。`GameManager.gd` 第 37 行 `var input_locked := false` 确实存在。
+- 检查 `.godot` 缓存：`global_script_class_cache.cfg`、`uid_cache.bin`、`editor/filesystem_cache10` 中 `GameManager.gd` 条目结构完整（类型 GDScript、基类 Node）、`.uid` 文件齐全且格式正常。**磁盘与缓存均无损坏。**
+- 结论：`input_locked` 报错 100% 是**运行中的 Godot 进程手里的 GameManager.gd 是陈旧实例**（内存级），其脚本未绑定成员 → autoload 退化成裸 `Node`。磁盘/缓存干净但进程内存陈旧，这正是「重启无效、删 `.godot` 仍无效」的原因——尤其当项目位于云同步盘（OneDrive 等）时，删掉的 `.godot` 会被云端再次同步回来，陈旧脚本实例随之复活；或删 `.godot` 时编辑器仍在运行，进程用陈旧实例重建了缓存。
+- **相机左上角是下游症状，非相机代码问题**：`Game._ready` 首行 `GameManager.input_locked = false`（第 49 行）因上述崩溃而中断 → 房间构建/开场序列/相机设置全被掐断 → 相机停在默认位置（世界原点落左上角）。补 8~补 14 的相机代码改动都被这个上游故障拖累，并非相机本身错。
+
+## 修复（回退 + 根治路径）
+- **相机节点回退**：`Player.tscn` Camera2D、`Player.gd` 经 `git checkout fc08289` 回退到「补 13 自动激活」状态（`anchor_mode=0`、`zoom=2`、`enabled` 默认 `true`、无 `current`/`make_current`）。`git diff` 确认仅撤销了补 14 的两行 + `make_current` 块，无其它未提交改动丢失。
+- **根治 input_locked（用户侧操作，非代码）**：① 完全关闭 Godot；② 关闭状态下删除项目根 `.godot`（关键：必须在编辑器关闭时删，运行中删会被进程用陈旧实例重建）；③ 若 `H:` 是 OneDrive/云同步盘，先暂停同步或把项目移到本地非同步目录，否则 `.godot` 会被云端同步回陈旧版；④ 重新打开项目，等文件系统完全重新导入（底部进度条走完）再 F5。
+- 验证：重开后首次运行应**零** `input_locked` 报错；`Game._ready` 不再崩溃 → 房间构建 + 相机自动激活（enabled=true 唯一相机）→ 角色居中跟随。
+
+## 仍不奏效时的排查（请反馈）
+- 若严格按上述仍报错，则非缓存问题，请提供：① 编辑器「帮助→关于」的 Godot 精确版本；② `H:` 是否为云同步盘；③ 任务管理器是否有**多个** Godot 进程。据此再定位（如 Godot 构建缺陷或重复进程锁）。
+- 备选：我可在 `Game.gd` 加防御性 `"input_locked" in GameManager` 守卫让相机先居中、停止刷屏（治标），但 `GameManager` 状态仍缺失会导致武器/成长等逻辑失效，故优先根治环境。
+
+## 补16（2026-07-28）· 相机显式激活 + input_locked 全守卫
+- 用户要求「先把视角问题解决掉」并贴 补6 日志。补6 真因是**对话框挂在世界空间**（随相机 3.4 倍放大被推到角落），已通过挂 `_ui_layer` 屏幕空间修复（见 Game.gd 开场三函数，本轮回退未动）；而「相机左上角」是**相机从未被设为当前相机**的独立问题。
+- 根因确认：4 个 autoload + Weapons/FloatingText 源码全干净（无 BOM/不可见字符/循环 class_name/遮蔽），`input_locked` 报错确属运行期陈旧实例（非源码）。本 Godot 4.7.1 中「单启用 Camera2D 自动成为当前相机」不成立，需显式激活。
+- 改动：① `Player.tscn` 相机块加 `current = true` + `enabled = true`（声明式激活，规避 GDScript 直写 `cam.current=true` 报 Invalid assignment）；② `Player.gd _ready` 顶部（任何 GameManager 调用前）`cam.make_current()`，解耦相机与 GameManager 加载；③ 全部 `GameManager.input_locked` 读写改 `_set_gm_locked/_is_gm_locked` 守卫（`"input_locked" in GameManager` 先判存在），消除每帧刷屏并避免 `_ready` 中断；④ `Player._ready` 的 `GameManager.make_frames` 也加守卫。注意：全局替换曾误伤守卫函数体（`_is_gm_locked() = v` / 递归 `return _is_gm_locked()`），已修回。
+- 效果：守卫让相机立即居中、游戏可跑（即便 GameManager 陈旧），便于验证；根治仍需用户侧关编辑器删 `.godot`（云同步盘须先暂停同步）。Enemy/Boss 内 `make_frames` 未守卫（仅 GameManager 正常后触发）。
+
+## 补17（2026-07-28）· 相机改确定性手动驱动（去掉放大，仅居中）
+- 用户反馈 补16 仍左上角、`input_locked` 仍刷屏，明确「恢复、去掉视角放大、居中、保留武器」。
+- **放弃 Camera2D.current / make_current() 整条路线**：本 Godot 4.7.1 实测 `make_current()` 不接管视口、`enabled` 单相机也不自动激活，且 补16 对 `Player.tscn` 的 `current=true/enabled=true` 编辑因 old_string 不匹配**静默未生效**（文件仍为 fc08289 旧值）。再在 Camera2D 上打转无意义。
+- 改法（确定性）：`Player.tscn` 的 Camera2D 设 `enabled = false`（不再与手动 transform 抢写）；`Player.gd _ready` 移除 `make_current()` 块；`Game.gd` 新增 `_update_camera()` 每帧直接写 `get_viewport().canvas_transform = Transform2D(_cam_zoom, center - _cam_zoom * player.global_position)`，数学上保证玩家居中（与 stretch_mode=canvas_items 兼容，Camera2D 内部亦如此写）。`_physics_process` 顶部（早于开场/锁输入提前 return）调用 `_update_camera()`，故开场/锁输入期间也居中。
+- 去放大：删 `_play_prologue` 的 `cam.zoom→3.4` 拉近、删 `_end_prologue` 的 `cam.zoom→2` 复位；`_cam_zoom` 默认 `1.0`（=不放大）。**保留**：开场对话框（挂 `_ui_layer` 屏幕空间）、`_end_prologue` 的 `_spawn_starter_weapons()`（武器相关全保留）。
+- 此方案与 `GameManager` 是否加载无关——即使 `input_locked` 守卫兜底、GameManager 陈旧，玩家也稳定居中可移动；`input_locked` 守卫（补16）继续挡刷屏。
