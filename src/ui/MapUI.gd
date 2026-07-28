@@ -29,8 +29,21 @@ func _build_panel() -> void:
 	_panel.size = get_window().get_visible_rect().size
 	add_child(_panel)
 
+	# 地图背景图（铺在最底层；上方 dim 仅留薄薄一层滤镜让文字仍清晰可读）
+	var bg_tex: Texture2D = load("res://assets/ui/map/Maps_001.png") as Texture2D
+	if bg_tex != null:
+		var bg := TextureRect.new()
+		bg.name = "MapBg"
+		bg.texture = bg_tex
+		bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED  # 等比铺满，超出裁掉
+		bg.size = _panel.size
+		bg.position = Vector2.ZERO
+		bg.mouse_filter = Control.MOUSE_FILTER_IGNORE            # 不拦截点击
+		_panel.add_child(bg)
+
 	var dim := ColorRect.new()
-	dim.color = Color(0.02, 0.02, 0.06, 0.82)
+	dim.color = Color(0.02, 0.02, 0.06, 0.30)                    # 降低透明度让羊皮纸透出
 	dim.mouse_filter = 1
 	dim.size = _panel.size
 	_panel.add_child(dim)

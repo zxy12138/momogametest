@@ -706,3 +706,51 @@ v3.0 把角色/怪物贴图从占位的小尺寸改为 **130×250**（Boss 260×
 - 改法（确定性）：`Player.tscn` 的 Camera2D 设 `enabled = false`（不再与手动 transform 抢写）；`Player.gd _ready` 移除 `make_current()` 块；`Game.gd` 新增 `_update_camera()` 每帧直接写 `get_viewport().canvas_transform = Transform2D(_cam_zoom, center - _cam_zoom * player.global_position)`，数学上保证玩家居中（与 stretch_mode=canvas_items 兼容，Camera2D 内部亦如此写）。`_physics_process` 顶部（早于开场/锁输入提前 return）调用 `_update_camera()`，故开场/锁输入期间也居中。
 - 去放大：删 `_play_prologue` 的 `cam.zoom→3.4` 拉近、删 `_end_prologue` 的 `cam.zoom→2` 复位；`_cam_zoom` 默认 `1.0`（=不放大）。**保留**：开场对话框（挂 `_ui_layer` 屏幕空间）、`_end_prologue` 的 `_spawn_starter_weapons()`（武器相关全保留）。
 - 此方案与 `GameManager` 是否加载无关——即使 `input_locked` 守卫兜底、GameManager 陈旧，玩家也稳定居中可移动；`input_locked` 守卫（补16）继续挡刷屏。
+
+---
+
+# 修复 · 2026-07-28（补18）· 修正手动相机矩阵导致的整屏倾斜
+
+## 现象
+- 用户实机截图显示：房间、角色、地面武器和门整体绕屏幕旋转，画面呈明显倾斜状态；需求是保持正向显示。
+
+## 根因
+- `src/scenes/Game.gd::_update_camera()` 原写法为 `Transform2D(z, center - z * p.global_position)`。
+- Godot 4 的双参数构造签名是 `Transform2D(rotation, position)`，第一个参数是**弧度旋转**，不是缩放值。当前 `_cam_zoom = 1.0` 因而被解释成 1 弧度（约 57.3°），导致整个 `canvas_transform` 连同房间和角色一起旋转。
+- 玩家居中所需的平移公式本身没有问题，错误只在矩阵构造参数语义。
+
+## 修复
+- `Game.gd::_update_camera()` 改用三向量显式构造：X 轴 `Vector2(z, 0)`、Y 轴 `Vector2(0, z)`、原点 `center - z * player.global_position`。
+- 该矩阵旋转恒为 0，仅保留缩放与平移；不改玩家位置、武器拾取、输入锁定或场景布局。
+- 注释补充 `Transform2D(rotation, position)` 的参数说明，避免以后再次把缩放值传入旋转参数。
+
+## 验证
+- Godot 4.7.1 无头加载 `Game.tscn`：退出码 0，未发现 `SCRIPT ERROR`、`Parse Error`、`Invalid assignment` 或 `Invalid access`。
+- Godot 4.7.1 编辑器无头解析：退出码 0，未发现脚本解析错误。
+- `git diff --check` 通过。
+- 需在本机 F5 实机确认：房间边缘应水平/垂直，角色保持居中跟随；若编辑器仍显示旧画面，先关闭运行中的 Godot 窗口并重新导入 `Game.gd`。
+
+---
+
+# 修复 · 2026-07-28（补19）· 地图界面背景图
+
+## 需求
+- 用户提供 `assets/ui/map/Maps_001.png`（羊皮纸/卷轴地图素材），希望把它作为「地图」（M 键）界面的背景。
+
+## 改动
+- `src/ui/MapUI.gd::_build_panel()`：
+  - 用 `load("res://assets/ui/map/Maps_001.png") as Texture2D` 加载新图（在 `_panel` 已建好之后、添加 `dim` 之前插入）。
+  - 创建 `TextureRect` 作为背景节点：
+    - `expand_mode = TextureRect.EXPAND_IGNORE_SIZE`、`stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED` —— 整张图等比铺满 `_panel`，边缘黑色部分被裁出屏幕，羊皮纸本身始终居中填满。
+    - `size = _panel.size`、`position = Vector2.ZERO`、`mouse_filter = MOUSE_FILTER_IGNORE`（不拦截点击，让背景后的房间按钮仍能点）。
+    - 是 `_panel` 第一个子节点，所以渲染在所有连接线、按钮、标题下面。
+  - `dim` 透明度 `0.82 → 0.30`：让羊皮纸纹理与色调透出来，但仍有薄薄一层冷色调滤镜，保证标题与按钮文字仍清晰可读。
+
+## 验证
+- Godot 4.7.1 无头启动校验：通过，无 `SCRIPT ERROR` / `Parse Error` / `Invalid access`（只有 timeout 强杀的常规退出提示）。
+- 实际效果需用户 F5 进入游戏后按 M 键目测：羊皮纸应填满整屏；文字/按钮可读；连接线仍可见。
+
+## 后续
+- 替换背景图：只要覆盖同名 `Maps_001.png` 即可，路径 `res://assets/ui/map/Maps_001.png` 与代码 `load()` 路径一致，无需改代码。
+- 想完全去掉暗色滤镜，把 `dim.color.a = 0.30` 改 `0.0` 即可（但纯羊皮纸浅底会让深色文字对比略降，自行取舍）。
+

@@ -28,7 +28,7 @@ var _ui_layer: CanvasLayer = null
 # 相机：本 Godot 版本 Camera2D.current / make_current() 均不可靠（不接管视口），
 # 故改用确定性方案——Game.gd 每帧直接写 get_viewport().canvas_transform，数学上保证玩家居中。
 # Camera2D 节点已设为 enabled=false，仅作占位（Player.shake 仍 tween 其 offset，但视觉由手动 transform 决定）。
-var _cam_zoom: float = 1.0  # 视角倍数：1.0=不放大（去掉开场拉近后的基础值）；想放大改这里即可
+var _cam_zoom: float = 2.0  # 视角倍数：1.0=不放大（去掉开场拉近后的基础值）；想放大改这里即可
 
 # ============ 开场序列 / 场景内武器拾取 ============
 var _prologue_active := false
@@ -695,8 +695,16 @@ func _update_camera() -> void:
 		return
 	var vp := get_viewport()
 	var center := vp.get_visible_rect().size * 0.5
-	var z := _cam_zoom
-	vp.canvas_transform = Transform2D(z, center - z * p.global_position)
+	var z: float = _cam_zoom
+	# Transform2D(rotation, position) 的双参数构造会把第一个参数当成弧度旋转，
+	# 不能把缩放值 z 直接传进去，否则 z=1.0 会让整个世界旋转 1 弧度。
+	# 显式构造无旋转的缩放矩阵，确保画面始终保持正向：screen = z * world + translation。
+	var tr: Transform2D = Transform2D(
+		Vector2(z, 0.0),
+		Vector2(0.0, z),
+		center - z * p.global_position
+	)
+	vp.canvas_transform = tr
 
 
 func _set_gm_locked(v: bool) -> void:
