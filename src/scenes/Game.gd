@@ -6,6 +6,7 @@ const ROOM = preload("res://src/rooms/Room.tscn")
 const ENEMY = preload("res://src/enemies/Enemy.tscn")
 const DEATHCG = preload("res://src/ui/DeathCG.tscn")
 const BIRTHDAY = preload("res://src/ui/Birthday.tscn")
+const EPILOGUE = preload("res://src/scenes/Epilogue.tscn")
 # 预加载地面武器脚本。注意：headless 下全局 class_name 缓存不会重新扫描，
 # 因此这里用 preload 拿脚本引用来 new()，类型统一按 Node2D 处理（成员走 call/get/set），
 # 避免解析期依赖全局类型「WeaponPickup」导致 Parse Error。
@@ -29,6 +30,10 @@ var _ui_layer: CanvasLayer = null
 # 故改用确定性方案——Game.gd 每帧直接写 get_viewport().canvas_transform，数学上保证玩家居中。
 # Camera2D 节点已设为 enabled=false，仅作占位（Player.shake 仍 tween 其 offset，但视觉由手动 transform 决定）。
 var _cam_zoom: float = 2.0  # 视角倍数：1.0=不放大（去掉开场拉近后的基础值）；想放大改这里即可
+
+# 通关状态：从 Epilogue 返回时为 true。期间 ESC 直接返回主菜单，不弹暂停菜单。
+var _completed_state_active := false
+var _completion_overlay: Control = null
 
 # ============ 开场序列 / 场景内武器拾取 ============
 var _prologue_active := false
@@ -55,6 +60,12 @@ func _ready() -> void:
 	# 不跑任何游戏逻辑（输入/淡入/信号/计时器）。运行期走下方真实逻辑。
 	if Engine.is_editor_hint():
 		_editor_build_preview()
+		return
+	# 通关状态：玩家刚从 Epilogue 场景返回。跳过 prologue_pending 与 r1 生成，
+	# 直接进入第3层 r6（已清的 Boss 房）并显示通关覆盖层。消费完即清零。
+	if GameManager.game_completed:
+		GameManager.game_completed = false
+		_enter_completed_state()
 		return
 	_fade_rect.size = get_window().get_visible_rect().size
 	_fade_rect.modulate.a = 1.0
@@ -271,7 +282,81 @@ func on_boss_defeated(layer: int, _boss: Node) -> void:
 	if layer < 3:
 		_spawn_next_door(layer + 1)
 	else:
-		_birthday()
+		# 第3层Boss：进入结局剧情场景（Epilogue），
+		# 剧情播完后再回到 Game 时会进入「通关状态」UI。
+		GameManager.game_completed = true
+		_goto_epilogue()
+
+
+func _goto_epilogue() -> void:
+	_set_gm_locked(true)
+	var t := get_tree().create_tween()
+	t.tween_property(_fade_rect, "modulate:a", 1.0, 0.8)
+	t.tween_callback(func():
+		get_tree().change_scene_to_file(EPILOGUE.resource_path)
+	)
+
+
+# 通关状态：从 Epilogue 返回。跳到第3层 r7（已清的 Boss 房）+ 显示通关覆盖层。
+func _enter_completed_state() -> void:
+	_completed_state_active = true
+	GameManager.layer_index = 3
+	# 防御：boss_cleared[3] 可能因为「继续」/手动改存档而未置位，这里兜底置上，
+	# 避免 RoomManager._spawn_content 又把 Boss 重新刷出来。
+	if not GameManager.boss_cleared.get(3, false):
+		GameManager.boss_cleared[3] = true
+	_fade_rect.size = get_window().get_visible_rect().size
+	_fade_rect.modulate.a = 1.0
+	MapData.load_layer(3)
+	# 屏幕空间 UI 层（沿用 _ready 中的规范）
+	var ui := CanvasLayer.new()
+	ui.name = "UILayer"
+	ui.layer = 10
+	add_child(ui)
+	_ui_layer = ui
+	_build_toast()
+	_build_inn_prompt()
+	_build_dev_label()
+	_build_pickup_prompt()
+	transition_to("r7", true)
+	# 0.7s 后（fade-in 结束附近）显示通关覆盖层
+	get_tree().create_timer(0.7).timeout.connect(_show_completion_overlay)
+
+
+func _show_completion_overlay() -> void:
+	if not _completed_state_active:
+		return
+	_set_gm_locked(true)
+	var c := Control.new()
+	c.name = "CompletionOverlay"
+	c.mouse_filter = 0   # STOP，吞掉点击避免穿透
+	var vsize := get_window().get_visible_rect().size
+	var w := 480.0
+	var h := 200.0
+	c.position = vsize / 2 - Vector2(w / 2.0, h / 2.0)
+	c.size = Vector2(w, h)
+	var bg := ColorRect.new()
+	bg.color = Color(0.05, 0.05, 0.12, 0.96)
+	bg.size = c.size
+	bg.mouse_filter = 2
+	c.add_child(bg)
+	var title := _label("✦ 恭喜通关 ✦", Vector2(0, 26), 32)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.size = Vector2(w, 44)
+	title.add_theme_color_override("font_color", Color(0.95, 0.85, 0.65))
+	c.add_child(title)
+	var msg := _label("噩梦已被驱散", Vector2(0, 80), 18)
+	msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	msg.size = Vector2(w, 28)
+	msg.add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
+	c.add_child(msg)
+	var hint := _label("按 ESC 返回主菜单", Vector2(0, 116), 16)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.size = Vector2(w, 24)
+	hint.add_theme_color_override("font_color", Color(1, 1, 1, 0.7))
+	c.add_child(hint)
+	_ui_layer.add_child(c)
+	_completion_overlay = c
 
 
 func _spawn_next_door(next_layer: int) -> void:
@@ -509,6 +594,10 @@ func _input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _prologue_active:
 		return
+	# 通关状态：ESC 强制返回主菜单，不弹暂停菜单（玩家只剩这一条出路）
+	if _completed_state_active and event.is_action_pressed("ui_cancel"):
+		_return_menu()
+		return
 	if event.is_action_pressed("ui_cancel"):
 		if _inn_open and _inn_panel_ref != null:
 			_close_inn(_inn_panel_ref)
@@ -594,6 +683,8 @@ func _return_menu() -> void:
 	if is_instance_valid(_pause_overlay):
 		_pause_overlay.queue_free()
 	_pause_overlay = null
+	# 通关状态下走这里：清理通关标记与覆盖层引用
+	_completed_state_active = false
 	_set_gm_locked(false)   # 双保险：返回主菜单后也解锁输入
 	get_tree().change_scene_to_file("res://src/scenes/Main.tscn")
 

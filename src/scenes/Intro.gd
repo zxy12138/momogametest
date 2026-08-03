@@ -1,11 +1,11 @@
 # 《梦境逐影》开头动画场景。
 # 新游戏后播放：全屏视频 + 右上角「按 ESC 跳过」提示。
-# 播放完毕或按 ESC 跳过 -> 直接进入第一个场景（Game），
-# 由 Game 在开场序列（醒来独白 + 镜头拉近）结束后摆出 3 把初始武器供选择。
+# 播放完毕或按 ESC 跳过 -> 进入开篇剧情场景（Prologue），
+# 再由 Prologue 进入主玩法场景（Game）触发「醒来」开场序列并摆出 3 把初始武器。
 extends Control
 
-## 视频播放完毕 / 跳过后前往的场景：直接进主玩法场景（武器选择改为场景内完成）。
-const NEXT_SCENE := "res://src/scenes/Game.tscn"
+## 视频播放完毕 / 跳过后前往的场景：开篇剧情场景。
+const NEXT_SCENE := "res://src/scenes/Prologue.tscn"
 
 var _finished := false
 

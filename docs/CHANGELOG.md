@@ -754,3 +754,159 @@ v3.0 把角色/怪物贴图从占位的小尺寸改为 **130×250**（Boss 260×
 - 替换背景图：只要覆盖同名 `Maps_001.png` 即可，路径 `res://assets/ui/map/Maps_001.png` 与代码 `load()` 路径一致，无需改代码。
 - 想完全去掉暗色滤镜，把 `dim.color.a = 0.30` 改 `0.0` 即可（但纯羊皮纸浅底会让深色文字对比略降，自行取舍）。
 
+---
+
+# 2026-08-03 补20：3 层关卡流程重排 + 头尾剧情场景（Prologue / Epilogue）
+
+## 改动概览
+按用户提供的流程图（起点→战斗1→战斗2/3→精英→驿站→Boss），重排 3 层关卡中 `r4`/`r5` 的类型（r4=精英，r5=驿站），并在流程的最开头与最结尾各新增一个独立剧情场景。
+
+## 流程调整
+
+### 关卡房间（src/data/LevelData.gd）
+旧：`r1(start) → r2/r3(combat) → r4(inn) → r5(elite) → r6(boss)`
+新：`r1(start) → r2/r3(combat) → r4(elite) → r5(inn) → r6(boss)`
+
+3 层同步调整（每层 r4 拿原 r5 的精英敌人列表，r5 改为无敌人）：
+
+| 房间 | 旧 | 新 |
+|------|-----|-----|
+| r1 | start | start（不变） |
+| r2 | combat | combat（不变） |
+| r3 | combat | combat（不变） |
+| r4 | inn | **elite** + 敌人列表 |
+| r5 | elite + 敌人列表 | **inn**（无敌人） |
+| r6 | boss | boss（不变） |
+
+> 房间 pos 坐标保持不变（只改 type 与 enemies），neighbors 不变，因此网状连通性不变。
+
+## 新增场景
+
+### Prologue（src/scenes/Prologue.gd/.tscn）
+- 第一章标题「醒来」+ 剧情文字（意识浮起、噩梦化形、拿起武器）+ 「按任意键继续 · 按 ESC 跳过」提示
+- 任意键/鼠标按下 → `change_scene_to_file(Game.tscn)`；ESC 同样推进
+- 提示框有 0.3s 延迟淡入（避免一进画面就压过来）
+- 复用 Intro 的 Control+ColorRect+Label 模式，无外部资源依赖
+
+### Epilogue（src/scenes/Epilogue.gd/.tscn）
+- 终章标题「黎明」+ 剧情文字（驱散梦魇、回到现实）+ 同样的「任意键继续」提示
+- 推进后 `change_scene_to_file(Game.tscn)`，由 `GameManager.game_completed=true` 触发「通关状态」
+
+## 流程控制
+
+### Main.gd
+不变（仍 `→ Intro(视频) → Prologue(剧情) → Game(开场序列)`）。
+
+### Intro.gd
+`NEXT_SCENE` 由 `Game.tscn` 改为 `Prologue.tscn`：视频结束后不再直接进 Game，先看剧情。
+
+### GameManager.gd
+新增 `var game_completed := false`：第 3 层 Boss 击败后置 true；`Game._ready` 见此标志走 `_enter_completed_state()` 后立即清零。
+
+### Game.gd
+- 新增 `const EPILOGUE = preload("res://src/scenes/Epilogue.tscn")`
+- 新增字段 `_completed_state_active`、`_completion_overlay`
+- `_ready` 开头新增 `if GameManager.game_completed: _enter_completed_state(); return`，**优先于** `prologue_pending` 与 `transition_to("r1")` 处理
+- `on_boss_defeated` 第 3 层分支由 `_birthday()` 改为 `_goto_epilogue()`：置 `game_completed=true` → 0.8s 淡出 → `change_scene_to_file(Epilogue.tscn)`
+- 新增 `_goto_epilogue()` / `_enter_completed_state()` / `_show_completion_overlay()`：
+  - `_enter_completed_state`：`layer_index=3` + `boss_cleared[3]=true` 兜底 + `load_layer(3)` + `transition_to("r6", true)`（Boss 房，无怪） + 0.7s 后弹通关覆盖层
+  - 通关覆盖层：480×200 居中面板，「✦ 恭喜通关 ✦」+「噩梦已被驱散」+「按 ESC 返回主菜单」
+- `_unhandled_input` 开头新增：通关状态下 ESC 直接 `_return_menu()`，**不**弹暂停菜单
+- `_return_menu` 末尾加 `_completed_state_active = false` 清理标志
+
+## 设计取舍
+- **保留 in-game `_play_prologue`**：用户明确要求「剧情与游戏内独白并存」。Prologue 是章节标题式的全局剧情，`_play_prologue` 是醒来第一视角的独白，氛围互补
+- **Epilogue 后回关卡不通关菜单**：原 `_birthday()` 改为「Epilogue 剧情 → 回到 Game（r6）+ 通关覆盖层 → ESC 主菜单」三段式，比直接跳出生日彩蛋更符合用户「继续呆在关卡里面」的要求
+- **game_completed 不入存档**：与 `prologue_pending` 同理，是一次性瞬态标志，写进 SaveManager 会污染存档；`Game._ready` 消费后即清零
+- **r4/r5 房间连通性不变**：原 neighbors 数组就是「r2/r3↔r4↔r5↔r6」标准链式结构，互换 type 后连通路径完全保留
+
+## 验证
+- Godot 4.7.1 无头启动校验：`Game.tscn` / `Prologue.tscn` / `Epilogue.tscn` 均 EXIT=0，无 SCRIPT ERROR / Parse Error / Invalid access
+- 无头编辑器扫描：EXIT=0，无脚本错误
+- 房间类型与流程对应：手工对照 LevelData 三层 18 条记录全部正确
+
+## 后续
+- 剧情文字可随时改：直接编辑 `Prologue.gd/.tscn` 或 `Epilogue.gd/.tscn` 里的 `text` 字段
+- 想加配图/底图：在 `.tscn` 里把 `Background` 换成 `TextureRect` + `load("res://...png")` 即可
+- 想让 Epilogue 也接生日彩蛋：把 `_goto_epilogue()` 末尾改成 `change_scene_to_file(BIRTHDAY.resource_path)`，但当前实现已是按用户要求「回关卡+通关提示」的最简方案
+- 想加章节插画：把 `ChapterTitle` 旁加 `TextureRect` 即可，z_index 设大一些即可盖在文字之上
+
+---
+
+# 2026-08-03 补21：地图跟随关卡顺序调整（关卡结构从 6 房扩到 7 房，按用户流程图）
+
+## 根因
+- 用户在前一轮反馈「地图调整并没有生效」，原 `LevelData` 每层只有 6 房，但用户提供的关卡流程图共 7 个节点（起点 / 战斗1 / 战斗2 / 战斗3 / 精英 / 驿站 / boss）。
+- 旧的「r4=精英、r5=驿站」只是把类型互换，房间总数仍为 6，因此地图和流程图在结构上始终差一个节点。
+- 之前仅调类型不调房间数、不调 neighbors，导致地图上看到的「空间顺序」与流程图期望的 7 节点结构始终对不齐。
+
+## 修复（按用户新流程图严格对齐 7 节点）
+### 关卡房间重排（src/data/LevelData.gd）
+旧（每层 r1-r6，6 房）：`r1(start) → r2/r3(combat 平行) → r4(elite) → r5(inn) → r6(boss)`
+新（每层 r1-r7，7 房）：
+
+| rid | 节点   | 旧 type | 新 type |
+|-----|--------|---------|---------|
+| r1  | 起点    | start   | start   |
+| r2  | 战斗1   | combat  | combat  |
+| r3  | 战斗2   | combat  | combat  |
+| r4  | 战斗3   | elite   | **combat**（改） |
+| r5  | 精英    | inn     | **elite**（改）  |
+| r6  | 驿站    | boss    | **inn**（改）    |
+| r7  | boss   | —       | **boss**（新增） |
+
+- 3 层（f1/f2/f3）同步改动
+- r4 新增 combat 敌人清单（每层主题不同，与 r2/r3 错开）
+- r5 新增 elite 敌人清单（layer3 用 elite_996；layer1/2 用 tougher mix）
+- r6 改 inn（enemies=[]）
+- r7 接手原 r6 的 boss ID：f1=`b_director`、f2=`b_train`、f3=`b_fear`
+
+### neighbors 改线性（去网状）
+旧：r2/r3↔r4↔r5↔r6 链式 + r2↔r5、r3↔r4 斜连
+新（严格按流程图直线）：
+```
+r1 → [r2]                  r5 → [r3, r4, r6]
+r2 → [r1, r3, r4]          r6 → [r5, r7]
+r3 → [r2, r5]              r7 → [r6]
+r4 → [r2, r5]
+```
+
+### positions 按流程图空间布局重拍（每层 r1-r7 占各自列）
+- r1 [0.05, 0.50] 起 → r2 [0.20, 0.50] 战斗1
+- r3 [0.38, 0.25] 战斗2 / r4 [0.38, 0.75] 战斗3（上下平行分支）
+- r5 [0.58, 0.50] 精英 → r6 [0.78, 0.50] 驿站 → r7 [0.95, 0.55] boss
+
+### Boss 房迁移（src/scenes/Game.gd）
+- `_enter_completed_state()` 里 `transition_to("r6", true)` → `transition_to("r7", true)`
+- `_restore_map_progress()` 动态按 `data.type == "boss"` 找 boss 房，无需改代码
+
+### 不动的代码（影响面排查确认）
+- `RoomManager._spawn_content` 按 `data.type` 判定，与 rid 无关
+- `MapData.build_merged` 动态遍历 `LevelData.LAYERS`，r7 自动出现
+- `MapData.mark_boss_cleared(GameManager.current_room)` 用 current_room 字符串
+- `SaveManager` 按 layer 索引存 `boss_cleared`，与 rid 无关
+- `MapUI` 从 `MapData.merged` 读，自动展示 r7
+
+### 存档兼容
+- 旧存档 visited 含 r6（曾经的 boss）→ 现在 r6 是 inn，无冲突
+- boss_cleared[layer]=true 仍正确指向新 boss 房 r7（_restore_map_progress 按 type 匹配）
+
+## 验证
+- Godot 4.7.1 无头校验：临时挂 `ValTmp` autoload 打印 `MapData.merged` 全部 21 个 key（3 层 × 7 房），全部类型正确、neighbors 线性、跨层 boss→r1 连线正常
+- 校验输出（节选）：
+  ```
+  MERGED_KEYS_COUNT=21
+  f1-r1..r7: start/combat/combat/combat/elite/inn/boss  ✓
+  f2-r1..r7: 同上 + boss_id=b_train   ✓
+  f3-r1..r7: 同上 + boss_id=b_fear    ✓
+  跨层连线: f1-r7→f2-r1, f2-r7→f3-r1  ✓
+  VALIDATION OK  EXIT=0
+  ```
+- 临时 autoload + `_val.gd` / `_val_map.gd` 已清理，project.godot 复原
+- `Game.tscn` / `Main.tscn` 直接跑 EXIT=0
+
+## 后续
+- r4 的 combat 敌人清单当前是「主题混合」（与 r2/r3 不同），如需更明确的「战斗3」主题可单独调
+- r5 的 elite 清单 layer3 用了 `elite_996`；layer1/2 是 tougher mix——若要给 layer1/2 专属精英怪可在 Enemies.gd 新增
+- 流程图若后续调整，positions 和 neighbors 改 LevelData 即可，MapUI / MapData / RoomManager 自动跟进
+

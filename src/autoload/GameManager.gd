@@ -42,6 +42,10 @@ var dev_mode := false        # 开发者模式：地图全显示+任意跳关（
 # 「继续」/「死亡重开」不设置，因此不会重播开场。
 var prologue_pending := false
 
+# 通关标志：第3层Boss被击败后置 true，进入 Epilogue 剧情场景；
+# 回到 Game._ready 时由 _enter_completed_state 消费并清零，触发「通关状态」UI。
+var game_completed := false
+
 const START_WEAPON := "staff"
 
 
