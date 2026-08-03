@@ -23,12 +23,18 @@ func load_layer(idx: int) -> void:
 		states = {}
 		return
 	rooms = L["rooms"].duplicate(true)
+	# 注入 S_00 系列美术整图背景：各房间 scene_img 由 LevelData.TILES 统一驱动（取代逐房硬编码）。
+	for rid in rooms.keys():
+		var tp: String = LevelData.tile_path(idx, rid)
+		if tp != "":
+			rooms[rid]["scene_img"] = tp
 	states = {}
+	var start: String = LevelData.start_room(idx)
 	for rid in rooms.keys():
 		states[rid] = "LOCKED"
-	states["r1"] = "CURRENT"
+	states[start] = "CURRENT"
 	# 起始房相邻直接揭示
-	_reveal_neighbors("r1")
+	_reveal_neighbors(start)
 	perception = GameManager.level >= 21
 	# 开发者模式：揭示当前层所有房间（地图全显示、可任意传送）
 	if GameManager.dev_mode:
@@ -151,7 +157,7 @@ func build_merged() -> void:
 		if boss_of.has(floor_i):
 			var boss_rid: String = boss_of.get(floor_i, "") as String
 			var boss_key: String = "f%d-%s" % [floor_i, boss_rid]
-			var target_key: String = "f%d-r1" % next_floor
+			var target_key: String = "f%d-%s" % [next_floor, LevelData.start_room(next_floor)]
 			_merged_add_link(boss_key, target_key)
 
 

@@ -1,0 +1,110 @@
+[gd_resource type="Resource" script_class="RoomLayout" format=3 uid="uid://c6jms0irdtfg2"]
+
+[ext_resource type="Script" uid="uid://c2lmhehw6hdbx" path="res://src/rooms/RectDef.gd" id="1_qofnd"]
+[ext_resource type="Script" uid="uid://bbgbpxfu0qk0l" path="res://src/rooms/DoorDef.gd" id="2_gtflh"]
+[ext_resource type="Script" uid="uid://d0qrnkbxhrdoe" path="res://src/rooms/EnemyPlacementDef.gd" id="3_gtflh"]
+[ext_resource type="Script" uid="uid://njbattl0ivux" path="res://src/rooms/RoomLayout.gd" id="3_kbsk2"]
+[ext_resource type="Script" uid="uid://cv7cgcy5enob0" path="res://src/rooms/EnemyTypeCount.gd" id="4_kbsk2"]
+
+[sub_resource type="Resource" id="Resource_kbsk2"]
+script = ExtResource("2_gtflh")
+target = "r1"
+position = Vector2(0, -224)
+
+[sub_resource type="Resource" id="Resource_dgav6"]
+script = ExtResource("2_gtflh")
+target = "r3"
+position = Vector2(0, 224)
+
+[sub_resource type="Resource" id="Resource_k85vj"]
+script = ExtResource("2_gtflh")
+target = "r4"
+position = Vector2(-414, 0)
+
+[sub_resource type="Resource" id="Resource_uf2lg"]
+script = ExtResource("3_gtflh")
+enemy_id = "overtime_ghost"
+pos = Vector2(276, -31)
+
+[sub_resource type="Resource" id="Resource_bhmah"]
+script = ExtResource("3_gtflh")
+enemy_id = "overtime_ghost"
+pos = Vector2(-195, 72)
+
+[sub_resource type="Resource" id="Resource_w2jrt"]
+script = ExtResource("3_gtflh")
+enemy_id = "escalator"
+pos = Vector2(-80.871376, -63.48002)
+
+[sub_resource type="Resource" id="Resource_yxiyl"]
+script = ExtResource("3_gtflh")
+enemy_id = "escalator"
+pos = Vector2(-259, -58.000004)
+
+[sub_resource type="Resource" id="Resource_ad74j"]
+script = ExtResource("4_kbsk2")
+count = 2
+
+[sub_resource type="Resource" id="Resource_xuksd"]
+script = ExtResource("4_kbsk2")
+enemy_id = "kpi"
+
+[sub_resource type="Resource" id="Resource_rx03w"]
+script = ExtResource("4_kbsk2")
+enemy_id = "printer"
+
+[sub_resource type="Resource" id="Resource_agr6j"]
+script = ExtResource("4_kbsk2")
+enemy_id = "meeting"
+
+[sub_resource type="Resource" id="Resource_mpoqm"]
+script = ExtResource("4_kbsk2")
+enemy_id = "phone"
+
+[sub_resource type="Resource" id="Resource_1q25c"]
+script = ExtResource("4_kbsk2")
+enemy_id = "commuter"
+
+[sub_resource type="Resource" id="Resource_uwmh0"]
+script = ExtResource("4_kbsk2")
+enemy_id = "escalator"
+count = 2
+
+[sub_resource type="Resource" id="Resource_jbh8j"]
+script = ExtResource("4_kbsk2")
+enemy_id = "rider"
+
+[sub_resource type="Resource" id="Resource_1mwf2"]
+script = ExtResource("4_kbsk2")
+enemy_id = "revolving"
+
+[sub_resource type="Resource" id="Resource_rrn51"]
+script = ExtResource("4_kbsk2")
+enemy_id = "package"
+
+[sub_resource type="Resource" id="Resource_khjjf"]
+script = ExtResource("4_kbsk2")
+enemy_id = "message"
+
+[sub_resource type="Resource" id="Resource_fiyin"]
+script = ExtResource("4_kbsk2")
+enemy_id = "overdue"
+
+[sub_resource type="Resource" id="Resource_84lpm"]
+script = ExtResource("4_kbsk2")
+enemy_id = "rejected"
+
+[sub_resource type="Resource" id="Resource_cbuce"]
+script = ExtResource("4_kbsk2")
+enemy_id = "heart_beat"
+
+[sub_resource type="Resource" id="Resource_t7gb1"]
+script = ExtResource("4_kbsk2")
+enemy_id = "elite_996"
+
+[resource]
+script = ExtResource("3_kbsk2")
+doors = Array[ExtResource("2_gtflh")]([SubResource("Resource_kbsk2"), SubResource("Resource_dgav6"), SubResource("Resource_k85vj")])
+enemy_placements = Array[ExtResource("3_gtflh")]([SubResource("Resource_uf2lg"), SubResource("Resource_bhmah"), SubResource("Resource_w2jrt"), SubResource("Resource_yxiyl")])
+enemy_specs = Array[ExtResource("4_kbsk2")]([SubResource("Resource_ad74j"), SubResource("Resource_xuksd"), SubResource("Resource_rx03w"), SubResource("Resource_agr6j"), SubResource("Resource_mpoqm"), SubResource("Resource_1q25c"), SubResource("Resource_uwmh0"), SubResource("Resource_jbh8j"), SubResource("Resource_1mwf2"), SubResource("Resource_rrn51"), SubResource("Resource_khjjf"), SubResource("Resource_fiyin"), SubResource("Resource_84lpm"), SubResource("Resource_cbuce"), SubResource("Resource_t7gb1")])
+spawn_point = Vector2(10, 44)

@@ -18,6 +18,7 @@ var _entities: Node = null
 var _game: Node = null
 var _floor: TextureRect
 var _prefab := false  # 是否使用美术预制整图作背景（v4.0 试用）
+var _layout: RoomLayout
 
 
 func setup(rid: String, data: Dictionary, layer: int, entities: Node, game: Node) -> void:
@@ -26,12 +27,22 @@ func setup(rid: String, data: Dictionary, layer: int, entities: Node, game: Node
 	_layer = layer
 	_entities = entities
 	_game = game
+	_layout = _load_layout()
 	_build_floor()
 	_build_walls()
 	_build_doors()
+	_build_blocked()
 	if _data.get("type", "") == "inn":
 		_build_inn()
 	_spawn_content()
+
+
+func _load_layout() -> RoomLayout:
+	# 按 层+rid 读取该房的布局 .tres；不存在则退回空布局（全用默认/随机）。
+	var path := "res://src/rooms/layouts/%d_%s.tres" % [_layer, _rid]
+	if FileAccess.file_exists(path):
+		return load(path) as RoomLayout
+	return RoomLayout.new()
 
 
 func _build_floor() -> void:
@@ -56,6 +67,9 @@ func _build_floor() -> void:
 		# 按层轻微染色，强化每层主题（克制，近 1.0 乘法）
 		var tints := {1: Color(0.92, 0.96, 1.08), 2: Color(1.0, 1.0, 1.0), 3: Color(1.08, 0.92, 0.94)}
 		_floor.modulate = tints.get(_layer, Color(1, 1, 1))
+	# 背景偏移/缩放（来自 RoomLayout，用于对齐美术整图；缺省 0/1 等同原行为）
+	_floor.position += _layout.bg_offset
+	_floor.scale = Vector2(_layout.bg_scale, _layout.bg_scale)
 	# 地板永远在最底层：实体用 z_index=int(y) 做 Y 排序，上移时 y<0→z<0，
 	# 若地板 z=0 会把上移的角色/敌人/弹道盖住而「消失」。
 	_floor.z_index = -4000
@@ -133,6 +147,9 @@ func _wall_seg(tex: Texture2D, cx: float, cy: float, w: float, h: float) -> Text
 
 func _build_doors() -> void:
 	var edges := [Vector2(0, -H / 2 + 26), Vector2(0, H / 2 - 26), Vector2(-W / 2 + 26, 0), Vector2(W / 2 - 26, 0)]
+	var door_map := {}
+	for d in _layout.doors:
+		door_map[d.target] = d.position
 	var arrows := ["↑", "↓", "←", "→"]
 	var neigh: Array = _data.get("neighbors", [])
 	for i in mini(neigh.size(), edges.size()):
@@ -146,7 +163,7 @@ func _build_doors() -> void:
 		sh.size = Vector2(44, 44)
 		cs.shape = sh
 		d.add_child(cs)
-		d.position = edges[i]
+		d.position = door_map.get(nid, edges[i])
 		var cb := func(b: Node):
 			if b.is_in_group("player"):
 				if _game != null and _game.has_method("transition_to"):
@@ -184,6 +201,32 @@ func _room_label(rid: String) -> String:
 		"inn": return "驿站"
 		"start": return "起点"
 		_: return "房间"
+
+## 返回本房中「指向 target_rid 的那扇门」的房间局部坐标；找不到时返回 ZERO（调用方回退默认出生点）。
+## 用于让玩家从某扇门进入新房间时，出生在该房「指回旧房」的那扇门位置（从门走出角色的效果）。
+func entry_door_position(target_rid: String) -> Vector2:
+	var edges: Array[Vector2] = [
+		Vector2(0.0, -H / 2.0 + 26.0),
+		Vector2(0.0, H / 2.0 - 26.0),
+		Vector2(-W / 2.0 + 26.0, 0.0),
+		Vector2(W / 2.0 - 26.0, 0.0)
+	]
+	var door_map: Dictionary = {}
+	for d in _layout.doors:
+		door_map[d.target] = d.position
+	var neigh: Array = _data.get("neighbors", [])
+	for i in mini(neigh.size(), edges.size()):
+		if String(neigh[i]) == target_rid:
+			return door_map.get(target_rid, edges[i])
+	return Vector2.ZERO
+
+
+## 返回本房在 RoomLayout 中设置的角色出生点（房间局部坐标）；未设置(默认 ZERO)时返回 ZERO。
+## 用于让玩家在编辑器里自定义初始位置（Game._swap 首进/无来源房间时使用）。
+func spawn_point_position() -> Vector2:
+	if _layout != null:
+		return _layout.spawn_point
+	return Vector2.ZERO
 
 func _build_inn() -> void:
 	var pad := Area2D.new()
@@ -232,21 +275,23 @@ func _spawn_content() -> void:
 	if type == "boss":
 		var cleared: bool = GameManager.boss_cleared.get(_layer, false)
 		if not cleared:
-			_spawn_boss(_data.get("boss", "b_director"))
+			_start_boss_intro()
 		return
 	if type == "inn" or type == "start":
 		return
-	# 普通/精英房：刷怪（重进即刷新）
-	for spec in _data.get("enemies", []):
-		var eid: String = spec[0]; var cnt: int = int(spec[1])
-		for k in cnt:
-			var pos := _rand_pos()
-			_spawn_enemy(eid, pos)
-			# 精英怪分身
-			var ed: Dictionary = Enemies.get_enemy(eid)
-			if ed != null and ed.get("clone_count", 0) > 0:
-				for c in int(ed["clone_count"]):
-					_spawn_enemy(eid, _rand_pos())
+	# 拖入式敌人放置：按 RoomLayout.enemy_placements 实例化（取代原 LevelData.enemies 数据驱动刷怪）。
+	# 普通/精英房重进即刷新——玩家在编辑器里摆放的敌人每次进房都会重新出现。
+	for def in _layout.enemy_placements:
+		var eid: String = def.enemy_id
+		if eid == "" or eid in Enemies.BOSS:
+			continue
+		var pos: Vector2 = def.pos
+		_spawn_enemy(eid, pos)
+		# 精英怪分身（按数据 clone_count）
+		var ed: Dictionary = Enemies.get_enemy(eid)
+		if ed != null and ed.get("clone_count", 0) > 0:
+			for c in int(ed["clone_count"]):
+				_spawn_enemy(eid, pos + Vector2(randf_range(-90.0, 90.0), randf_range(-90.0, 90.0)))
 
 
 func _spawn_enemy(eid: String, pos: Vector2) -> void:
@@ -266,9 +311,52 @@ func _spawn_boss(bid: String) -> void:
 	# 加进本房间节点：随房间销毁
 	add_child(b)
 
+# Boss 房入场：先显示「入场图」(boss_intro_img，如 S_003_7)，播放入场动画（计时 boss_intro_time 秒），
+# 动画结束再切换为正式地图 (scene_img，如 S_003_7_1) 并开始 boss 战。
+# 仅当房间带 boss_intro_img 且未清空时生效；普通 boss 房（无该字段）intro 为空则直接出 boss。
+func _start_boss_intro() -> void:
+	var bid: String = _data.get("boss", "b_director")
+	var intro: String = _data.get("boss_intro_img", "")
+	var real: String = _data.get("scene_img", "")
+	var intro_time: float = float(_data.get("boss_intro_time", 0.0))
+	# 编辑器预览：直接出 boss，避免 @tool 下计时器行为异常
+	if Engine.is_editor_hint():
+		_spawn_boss(bid)
+		return
+	# 进入时先显示入场图（如 S_003_7）
+	if intro != "" and _floor != null:
+		_floor.texture = load(intro) as Texture2D
+	if intro_time <= 0.0:
+		_spawn_boss(bid)
+		return
+	var timer := get_tree().create_timer(intro_time)
+	timer.timeout.connect(func():
+		if is_instance_valid(_floor) and real != "":
+			_floor.texture = load(real) as Texture2D
+		_spawn_boss(bid)
+	)
 
-func _rand_pos() -> Vector2:
-	return Vector2(randf_range(-W / 2 + 60, W / 2 - 60), randf_range(-H / 2 + 60, H / 2 - 60))
+
+# 禁区/不可走区域：在 RoomLayout.blocked 中定义，生成无形碰撞墙 + 半透明红色可视。
+func _build_blocked() -> void:
+	for i in _layout.blocked.size():
+		var rd: RectDef = _layout.blocked[i]
+		var sb := StaticBody2D.new()
+		sb.name = "Blocked_%d" % i
+		sb.collision_layer = 16
+		var cs := CollisionShape2D.new()
+		var sh := RectangleShape2D.new()
+		sh.size = rd.size
+		cs.shape = sh
+		cs.position = rd.center
+		sb.add_child(cs)
+		add_child(sb)
+		var cr := ColorRect.new()
+		cr.color = Color(0.8, 0.2, 0.2, 0.35)
+		cr.size = rd.size
+		cr.position = rd.center - rd.size / 2.0
+		cr.z_index = -5
+		add_child(cr)
 
 
 # 编辑器预览：独立打开 Room.tscn 时构建一个示例战斗房（墙/门/敌人可见）。

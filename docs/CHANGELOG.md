@@ -910,3 +910,80 @@ r4 → [r2, r5]
 - r5 的 elite 清单 layer3 用了 `elite_996`；layer1/2 是 tougher mix——若要给 layer1/2 专属精英怪可在 Enemies.gd 新增
 - 流程图若后续调整，positions 和 neighbors 改 LevelData 即可，MapUI / MapData / RoomManager 自动跟进
 
+
+## 修改 · 2026-08-03 · 关卡扩展 + S_00 瓦片接入 + 第三关 Boss 房地图切换
+
+### 1. 第三层新增起点房 r0（f3-r0）
+- LevelData 第三层 rooms 增加 `r0`（type=start，pos=[0.0,0.50]，neighbors=[r1]）；原 r1 由 start 改为 combat（neighbors=[r0,r2]），形成 r0→r1→r2… 的线性链头部。
+- 新增 `LevelData.start_room(idx)`：返回某层 type=="start" 的房间（第三层=r0，第一/二层=r1），取代各处硬编码 "r1"。
+- 联动修正（原来多处写死 r1 为起点/传送/武器生成目标）：
+  - MapData.load_layer：起始房 CURRENT 与相邻揭示改用 start_room(idx)。
+  - MapData.build_merged：跨层连线 boss→下一层起点改为 `start_room(next_floor)`（第三层目标由 f3-r1 变为 f3-r0）。
+  - Game.gd：初始进入、编辑器预览、_go_next_layer(next)、dev_goto_layer(l) 的 transition_to 全部改用 start_room(...)。
+  - Game.gd _swap：起始房武器生成判定由 `rid=="r1"` 改为 `room(rid).type=="start"`（第三层在 r0 生成起始武器）。
+- 注意：第三层 r1 现为空 combat 房（enemies=[]），需战斗内容请自行在 LevelData 填 enemies。
+
+### 2. S_00 系列美术整图背景接入
+- 新增 `LevelData.TILES` 表，键规则 "S_00{层}_{房}"（房="3or4"/"3ro4" 表示 r3 与 r4 平行分支共用一张图；第三关文件名 3or4，第二关为 3ro4——以实际文件为准）。
+- MapData.load_layer 加载房间后按 TILES 注入每个房间的 scene_img（res://assets/tiles/S_00X_Y.png）；RoomManager._build_floor 原样取用（prefab 整图，墙体烘焙在图内，碰撞仍由无形 StaticBody2D 负责）。
+- 因此全部房间改用美术整图背景（此前仅第一层 r2/r3 试用 changjing1.png，已移除该硬编码）；prefab 模式下墙的可视贴图被抑制（图内已含墙），符合 v4.0 预制整图方案。
+- 映射：第一层 r1→S_001_1…r7→S_001_7；第二层 r1→S_002_1…r7→S_002_7；第三层 r0→S_003_0…r7→S_003_7_1。
+
+### 3. 第三关 Boss 房地图切换（S_003_7 → S_003_7_1）
+- 第三层 r7 新增字段 `boss_intro_img="res://assets/tiles/S_003_7.png"`、`boss_intro_time=2.5`。
+- RoomManager 新增 `_start_boss_intro()`：进入未清空的 boss 房时，先显示入场图 S_003_7，计时 boss_intro_time 秒（"boss 入场动画"占位）后，再切换为正式地图 S_003_7_1（scene_img）并 spawn_boss()。
+- 编辑器预览（@tool）直接出 boss，不走延迟，避免预览异常。
+- 普通 boss 房（第一/二层 r7 无 boss_intro_img 字段）intro 为空、intro_time=0 → 行为与之前一致（直接出 boss，无切换）。
+- boss 已清空再次进入：_build_floor 直接显示 S_003_7_1，不重播入场与切换。
+
+### 验证
+- 静态核对：TILES 共 19 张 S_00 图片全部被引用；start_room 仅改第三层起点；跨层连线/传送/武器生成已解耦硬编码 r1。
+- 沙箱不可达 Godot 二进制，仅做代码级静态核对 + 文件已落盘；请于编辑器内 F5 实机验证：① 第三层从 r0 进入、线性通到 r7；② 各房背景为对应 S_00 整图；③ 第三层 r7 先进 S_003_7，约 2.5s 后切 S_003_7_1 并开始 boss 战。
+
+### 备注
+- "3or4 表示第三关和第四关用同一张地图" 理解为 r3/r4 平行分支共用一张图（小关 3、4）；当前项目仅 3 层，未建第四层，S_003_3or4 仅供 r3/r4 复用，后续若加第四层可沿用同名图。
+
+---
+
+## 修改·2026-08-04（补25）— 固定视角 / 禁区生效 / 拖入式敌人 / 角色从门走出
+### 1. 固定视角（不再跟随玩家）
+- `Game._update_camera` 改为固定 fit 缩放：把整间 880×500 房间居中显示在视口，玩家在房间内自由移动而画面不动。`_cam_zoom=0` 自动适配（整房可见），>0 保留手动放大倍率。删去原「玩家居中跟随」逻辑。
+
+### 2. 禁区实际生效
+- 碰撞层本就正确（玩家 collision_mask=56 含层16，与墙体相同），禁区应挡人。修两处：① 默认禁区手柄不再压在出生点(0,0)，改默认 center=(0,130)，避免「走过即看似无效」的误判；② 清理旧 `spawn_points` 遗留：`layouts/1_r2.tres` 删除已失效的 `spawn_points` 行、`RoomLayoutEditor.tscn` 删除 `spawn_count` 字段与残留子节点，防止属性不匹配导致场景/资源加载报错。
+
+### 3. 拖入式敌人（取代原 LevelData.enemies 数据驱动刷怪）
+- 读取美术素材清单（角色素材表）确认共 18 种敌人类型，且 `src/data/Enemies.gd` 已全有（14 普通 + 1 精英 elite_996 + 3 Boss），无需新增数据，仅暴露为可放置项。
+- 新增 `src/rooms/EnemyPlacementDef.gd`（资源：enemy_id+pos）、`src/rooms/EnemyPlacement.gd`（@tool 拖拽手柄，`@export_enum` 枚举 15 种可放置类型，普通=青色/精英=紫色方块并显中文名）。
+- `RoomLayout.spawn_points` → `enemy_placements: Array[EnemyPlacementDef]`；`RoomLayoutEditor.spawn_count` → `enemy_count`（手柄在 Inspector 下拉选 enemy_id、视口拖位置，Ctrl+S 落盘）。
+- `RoomManager._spawn_content` 改为按 `enemy_placements` 实例化（含精英分身 clone_count）；Boss 仍由 Boss 房 `_start_boss_intro` 演出生成，不在此放置。
+- 原 `LevelData.enemies` 字段不再被 RoomManager 读取（保留在字典中，已失效）。
+
+### 4. 角色从门走出
+- `RoomManager` 新增 `entry_door_position(target_rid)`：返回本房中「指向 target_rid 的那扇门」局部坐标。
+- `Game._swap` 捕获 `prev_rid`（进入前的房间），把玩家放在新房间「指回旧房的那扇门」位置，并向房间中心偏移 70px 防止一出门就立即回弹触发同门；首进 / 无来源 / 找不到对应门时回退默认出生点。
+
+### 验证
+- 沙箱无 Godot 二进制，仅代码级静态核对；请于编辑器内 F5 实机验证：① RoomLayoutEditor 设层/房，门可拖、Enemy Count 调大出现青/紫方块、选中后 Inspector 下拉选 enemy_id，Ctrl+S 落盘 `layouts/{层}_{房}.tres`；② F5 进战斗房应见摆放的敌人、禁区挡人、视角固定整房、过门后从对面门走入。
+- 已知风险：`EnemyPlacement.gd` 的 `@export_enum`+get/set 与 `Enemies.get_enemy` 在 @tool 下运行，若特定 Godot 版本不支持该组合需回退为纯字符串导出。
+
+## 修改·2026-08-04（补26）— 敌人按类型编辑数量 / 可拖出生点 / 修「Array is in read-only state」报错
+### 1. 敌人按类型编辑数量（清晰分行）
+- 用户要求每种怪单独设数量。新增 `src/rooms/EnemyTypeCount.gd`（资源：`@export_enum` 类型 + `count:int`）。
+- `RoomLayout` 增 `enemy_specs: Array[EnemyTypeCount]`；`RoomLayoutEditor` 把原 `enemy_count:int` 改为 `@export enemy_specs: Array[EnemyTypeCount]`，预填充全部 15 种（默认 count=0），Inspector 每组一行 = 类型下拉 + 数量。
+- 改数量经 `_process` 监听快照变化（`_watch_specs`）重建手柄，按类型保留已摆位置（`_enemy_markers` 非空时读实时位置，否则从 `_layout.enemy_placements` 恢复）。
+- 该列表**按房间保存**：切换房间时 `_load_specs_into_editor` 从 `_layout.enemy_specs` 重载，避免跨房串数据。实际位置仍由 `enemy_placements`（手柄拖拽）落盘，`RoomManager._spawn_content` 读它刷怪。
+
+### 2. 可拖拽角色出生点
+- `RoomLayout` 增 `spawn_point: Vector2`；`RoomLayoutEditor` 新增绿色「出生点」菱形手柄（走 `_make_handle` 同款，与门一致可拖），Ctrl+S 写回 `_layout.spawn_point`。
+- `RoomManager.spawn_point_position()` 返回该点；`Game._swap` 在「非从门进入」时优先用 `spawn_point`，未设置（默认 ZERO）则回退默认(0,0)/boss 房底。过门进入仍走 `entry_door_position`（走出门效果）。
+
+### 3. 修复「Array is in read-only state」报错
+- **根因**：`_save_layout` 直接 `_layout.doors.clear()`/`.append()`（及 enemy_placements/blocked）。首次保存时 `_layout=RoomLayout.new()`（或 reload 的 .tres）的数组是**共享默认 / 只读**数组，就地 clear/append 触发只读报错。
+- **修复**：一律重新赋值新数组（`_layout.doors = new_doors` 等），不再就地 clear；同样处理新增的 `enemy_specs` 与 `spawn_point`。
+
+### 清理
+- `RoomLayoutEditor.tscn` 删除旧 `enemy_count = 1` 与残留敌人手柄节点（保留 uid，不手写）。
+
+### 验证
+- 沙箱无 Godot 二进制，仅代码级静态核对；请于编辑器内实机验证：① RoomLayoutEditor 的「敌人放置（各类型数量）」每组一行改 count → 视口出现对应数量青/紫方块可拖；② 拖「出生点」绿菱形到目标位；③ Ctrl+S **不再**报「Array is in read-only state」；④ F5 首进用出生点、过门仍从对面门走出。

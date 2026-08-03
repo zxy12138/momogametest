@@ -29,7 +29,7 @@ var _ui_layer: CanvasLayer = null
 # 相机：本 Godot 版本 Camera2D.current / make_current() 均不可靠（不接管视口），
 # 故改用确定性方案——Game.gd 每帧直接写 get_viewport().canvas_transform，数学上保证玩家居中。
 # Camera2D 节点已设为 enabled=false，仅作占位（Player.shake 仍 tween 其 offset，但视觉由手动 transform 决定）。
-var _cam_zoom: float = 2.0  # 视角倍数：1.0=不放大（去掉开场拉近后的基础值）；想放大改这里即可
+var _cam_zoom: float = 0.0  # 0 = 自动适配整间房(固定视角，不跟随玩家)；>0 时沿用该固定倍率（手动放大）
 
 # 通关状态：从 Epilogue 返回时为 true。期间 ESC 直接返回主菜单，不弹暂停菜单。
 var _completed_state_active := false
@@ -84,7 +84,7 @@ func _ready() -> void:
 	_build_inn_prompt()
 	_build_dev_label()
 	_build_pickup_prompt()
-	transition_to("r1", true)
+	transition_to(LevelData.start_room(1), true)
 
 	# 新游戏：先强制播放开场序列（醒来独白 + 镜头拉近），结束后才生成可选武器。
 	# 「继续」/「死亡重开」不会置 prologue_pending，因此直接进正常玩法。
@@ -103,7 +103,7 @@ func _editor_build_preview() -> void:
 	MapData.load_layer(1)
 	var room := ROOM.instantiate() as Node2D
 	$World.add_child(room)
-	room.call("setup", "r1", MapData.room("r1"), 1, $World, self)
+	room.call("setup", LevelData.start_room(1), MapData.room(LevelData.start_room(1)), 1, $World, self)
 	# 顺手放两个敌人 + 一个 Boss，方便在编辑器里核对精灵与朝向
 	var e1 := ENEMY.instantiate() as Node2D
 	e1.call("setup", "overtime_ghost")
@@ -225,6 +225,7 @@ func transition_to(rid: String, instant: bool = false) -> void:
 
 
 func _swap(rid: String) -> void:
+	var prev_rid: String = GameManager.current_room
 	# 清理上一房间残留的弹道/拾取物（它们加在场景根，不随房间销毁）
 	for n in get_tree().get_nodes_in_group("projectile"):
 		if is_instance_valid(n):
@@ -249,14 +250,31 @@ func _swap(rid: String) -> void:
 	room.call("setup", rid, MapData.room(rid), GameManager.layer_index, $World, self)
 	var p: Node2D = $World/Player
 	var type: String = MapData.room(rid).get("type", "")
-	if type == "boss":
-		p.global_position = Vector2(0, _layer_h / 2 - 60)
-	else:
-		p.global_position = Vector2(0, 0)
+	# 角色从门走入：若来自另一房间，则出生在该房「指回旧房的那扇门」位置，并向房间中心偏移避免立即回弹；
+	# 首进 / 无来源 / 找不到对应门时回退默认出生点。
+	var spawn_pos: Vector2 = Vector2.ZERO
+	var from_door := false
+	if prev_rid != "" and prev_rid != rid:
+		var dp: Variant = room.call("entry_door_position", prev_rid)
+		if dp is Vector2 and dp != Vector2.ZERO:
+			spawn_pos = dp
+			from_door = true
+	if not from_door:
+		# 优先用编辑器里自定义的出生点（RoomLayout.spawn_point）；未设置则回退默认点。
+		var sp: Variant = room.call("spawn_point_position")
+		if sp is Vector2 and sp != Vector2.ZERO:
+			spawn_pos = sp
+		elif type == "boss":
+			spawn_pos = Vector2(0, _layer_h / 2 - 60)
+		else:
+			spawn_pos = Vector2(0, 0)
+	if from_door and spawn_pos.length() > 1.0:
+		spawn_pos += (Vector2.ZERO - spawn_pos).normalized() * 70.0
+	p.global_position = spawn_pos
 	p.reset_ult()
 	# 起始房（r1）：若不是由开场序列负责生成武器（开场序列结束才摆出可选武器），
 	# 则在此直接摆出初始武器——覆盖「重新开始后地面武器消失」的问题。
-	if rid == "r1" and not GameManager.prologue_pending:
+	if MapData.room(rid).get("type", "") == "start" and not GameManager.prologue_pending:
 		_spawn_starter_weapons()
 
 
@@ -404,7 +422,7 @@ func _go_next_layer(next: int) -> void:
 	GameManager.layer_index = next
 	MapData.load_layer(next)
 	GameManager.emit_signal("stats_changed")
-	transition_to("r1", true)
+	transition_to(LevelData.start_room(next), true)
 	toast("进入 " + MapData.LAYER[next])
 
 
@@ -707,7 +725,7 @@ func dev_goto_layer(l: int) -> void:
 	GameManager.layer_index = l
 	MapData.load_layer(l)
 	GameManager.emit_signal("stats_changed")
-	transition_to("r1", true)
+	transition_to(LevelData.start_room(l), true)
 	toast("进入 " + MapData.LAYER[l])
 	var mu := get_node_or_null("MapUI")
 	if mu != null and mu.has_method("redraw"):
@@ -774,26 +792,26 @@ func _player_camera() -> Camera2D:
 	return p.get_node_or_null("Camera") as Camera2D
 
 
-# 手动相机：每帧把玩家对准屏幕正中。不依赖 Camera2D.current / make_current()（本版本不可靠）。
-# canvas_transform 映射：screen = z * world + t。令玩家落屏幕中心：
-#   z * player_pos + t = center  →  t = center - z * player_pos
+# 固定视角：把整间房(880x500)居中显示在视口，不随玩家移动（玩家在房间内自由走，画面不动）。
+# canvas_transform 映射：screen = z * world + t。令房间中心(原点)落屏幕中心 → t = center。
+# _cam_zoom<=0 时自动计算 fit 缩放让整房可见；>0 时沿用该固定倍率（手动放大）。
 # 与 stretch_mode=canvas_items 兼容（Camera2D 内部也是这么写的）。
 func _update_camera() -> void:
 	if Engine.is_editor_hint():
 		return
-	var p: Node2D = $World/Player
-	if p == null:
-		return
 	var vp := get_viewport()
 	var center := vp.get_visible_rect().size * 0.5
 	var z: float = _cam_zoom
+	if z <= 0.01:
+		# 适配整房（留 2% 边距），保证 880x500 房间完整可见、固定不跟随。
+		z = min(center.x * 2.0 / _layer_w, center.y * 2.0 / _layer_h) * 0.98
 	# Transform2D(rotation, position) 的双参数构造会把第一个参数当成弧度旋转，
 	# 不能把缩放值 z 直接传进去，否则 z=1.0 会让整个世界旋转 1 弧度。
 	# 显式构造无旋转的缩放矩阵，确保画面始终保持正向：screen = z * world + translation。
 	var tr: Transform2D = Transform2D(
 		Vector2(z, 0.0),
 		Vector2(0.0, z),
-		center - z * p.global_position
+		center
 	)
 	vp.canvas_transform = tr
 

@@ -7,11 +7,12 @@
 - 玩家=食梦貘主题 2.5D 8 向动作射击，给 Vtuber「弥绘」庆生；当前占位素材验证玩法。
 
 ## 关卡流程(2026-08-03 重排→扩 7 房)
-- **每层 7 房（按用户流程图）**：`r1(start) → r2(战斗1) → r3(战斗2)/r4(战斗3) 平行 → r5(精英) → r6(驿站) → r7(boss)`。
+- **每层房间**：第一/二层各 7 房 `r1(start)→r2→r3/r4→r5→r6→r7(boss)`；**第三层 8 房**，最前多一个 `r0(start)`，即 `r0(start)→r1(combat)→r2→r3/r4→r5→r6→r7(boss)`。`LevelData.start_room(idx)` 返回该层起点（第三层=r0，其余=r1），取代硬编码 r1（Game/MapData 跨层连线与起始武器生成已改用它）。
 - 3 层同步；boss ID：f1=`b_director`、f2=`b_train`、f3=`b_fear`，全部挂在 r7。
 - **neighbors 线性**（去网状）：`r1→[r2]`、`r2→[r1,r3,r4]`、`r3→[r2,r5]`、`r4→[r2,r5]`、`r5→[r3,r4,r6]`、`r6→[r5,r7]`、`r7→[r6]`。
 - **positions** 每层 r1-r7 占各自列：`r1[0.05,0.50]` → `r2[0.20,0.50]` → `r3[0.38,0.25]/r4[0.38,0.75]` 上下分支 → `r5[0.58,0.50]` → `r6[0.78,0.50]` → `r7[0.95,0.55]`。
 - **boss 房迁移**：旧 r6(boss) → 新 r7(boss)。`Game._enter_completed_state` 里 `transition_to("r6", true)` → `"r7"`。`_restore_map_progress` 按 `data.type=="boss"` 动态匹配无需改。存档 `boss_cleared[layer]=true` 仍指向新 r7，无破坏。
+- **美术整图背景（S_00 系列）**：`LevelData.TILES` 表把每个房间 scene_img 映射到 `res://assets/tiles/S_00{层}_{房}.png`（房="3or4"/"3ro4" 表示 r3/r4 平行分支共用图；第三关文件名 3or4，第二关 3ro4）。`MapData.load_layer` 注入 scene_img，`RoomManager` prefab 整图显示（墙体烘焙在图内，墙可视贴图被抑制）。第三层 r7 额外 `boss_intro_img=S_003_7` + `boss_intro_time=2.5`：进房先显 S_003_7，计时后切 S_003_7_1(scene_img) 并出 boss（`_start_boss_intro`）；普通 boss 房无该字段则直接出 boss。
 - 通关条件：3 层 Boss 全部击败 → `on_boss_defeated(3, …)` 置 `GameManager.game_completed=true` → 0.8s 淡出 → `Epilogue.tscn`。
 - 通关态回关卡：Epilogue 推进后切回 `Game.tscn`，`Game._ready` 优先查 `game_completed` → 走 `_enter_completed_state()`（layer=3 + 兜底 `boss_cleared[3]=true` + `transition_to("r7", true)`）→ 0.7s 后弹通关覆盖层。ESC 直接 `_return_menu()`，不开暂停菜单。
 
@@ -58,3 +59,9 @@
 
 ## 无头测试注意
 - headless 下 E 级错误非致命，只看退出码0 会漏检；跑完 grep 日志 `Invalid access`/`SCRIPT ERROR`。
+
+## @tool 可视化编辑器（可拖拽手柄）模式 · 补24
+- **坑**：`@tool` 脚本里 `add_child` 生成的节点，**不设 `owner` 则 2D 视口不把它当可编辑对象 → 点不中、拖不动**；且 `Marker2D` 十字准星极难点中、易被误判为不可拖。
+- **正确做法**（`src/rooms/RoomLayoutEditor.gd` 范例）：手柄用 `Node2D` + 实心 `Polygon2D`（一大块好点中），并在 `_set_owner()` 里 `node.owner = get_tree().edited_scene_root` → 视口可点选拖拽。
+- **新增可编辑项**：用「`@export count` + backing field + `_adjust_*` 增删手柄」模式（如 `spawn_count`/`blocked_count`），比纯 `.tres` Inspector 编辑直观；保存用 `NOTIFICATION_EDITOR_PRE_SAVE` 把手柄坐标写回 `RoomLayout` 资源。
+- 注：手柄会随场景保存临时进 `.tscn`（仅臃肿，无害）；重开场景 `_rebuild` 清空并按 `.tres` 重建，数据不丢。
