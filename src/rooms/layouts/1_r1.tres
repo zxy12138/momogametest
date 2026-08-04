@@ -7,84 +7,91 @@
 [ext_resource type="Script" uid="uid://cv7cgcy5enob0" path="res://src/rooms/EnemyTypeCount.gd" id="4_4bkui"]
 
 [sub_resource type="Resource" id="Resource_4bkui"]
+script = ExtResource("1_etvvy")
+center = Vector2(-17, -37)
+shape_type = 1
+points = PackedVector2Array(15.215, 12.22, 28.82, -2.115, 13.015, -25.03, -16.98, -0.33, -6.205, 15.915)
+
+[sub_resource type="Resource" id="Resource_lwxil"]
 script = ExtResource("2_3ll5e")
 target = "r2"
 position = Vector2(314, -133)
 
-[sub_resource type="Resource" id="Resource_lwxil"]
+[sub_resource type="Resource" id="Resource_cgs5u"]
 script = ExtResource("3_3ll5e")
 enemy_id = "overtime_ghost"
 pos = Vector2(157, 36)
 
-[sub_resource type="Resource" id="Resource_cgs5u"]
+[sub_resource type="Resource" id="Resource_vcbyr"]
 script = ExtResource("3_3ll5e")
 enemy_id = "kpi"
 pos = Vector2(-217, 24)
 
-[sub_resource type="Resource" id="Resource_vcbyr"]
-script = ExtResource("4_4bkui")
-count = 1
-
 [sub_resource type="Resource" id="Resource_t46xp"]
 script = ExtResource("4_4bkui")
-enemy_id = "kpi"
 count = 1
 
 [sub_resource type="Resource" id="Resource_wnu1k"]
 script = ExtResource("4_4bkui")
-enemy_id = "printer"
+enemy_id = "kpi"
+count = 1
 
 [sub_resource type="Resource" id="Resource_46feu"]
 script = ExtResource("4_4bkui")
-enemy_id = "meeting"
+enemy_id = "printer"
 
 [sub_resource type="Resource" id="Resource_8fb81"]
 script = ExtResource("4_4bkui")
-enemy_id = "phone"
+enemy_id = "meeting"
 
 [sub_resource type="Resource" id="Resource_tmdt0"]
 script = ExtResource("4_4bkui")
-enemy_id = "commuter"
+enemy_id = "phone"
 
 [sub_resource type="Resource" id="Resource_01ddn"]
 script = ExtResource("4_4bkui")
-enemy_id = "escalator"
+enemy_id = "commuter"
 
 [sub_resource type="Resource" id="Resource_7d6w7"]
 script = ExtResource("4_4bkui")
-enemy_id = "rider"
+enemy_id = "escalator"
 
 [sub_resource type="Resource" id="Resource_g1oax"]
 script = ExtResource("4_4bkui")
-enemy_id = "revolving"
+enemy_id = "rider"
 
 [sub_resource type="Resource" id="Resource_32836"]
 script = ExtResource("4_4bkui")
-enemy_id = "package"
+enemy_id = "revolving"
 
 [sub_resource type="Resource" id="Resource_k6cff"]
 script = ExtResource("4_4bkui")
-enemy_id = "message"
+enemy_id = "package"
 
 [sub_resource type="Resource" id="Resource_1e5iq"]
 script = ExtResource("4_4bkui")
-enemy_id = "overdue"
+enemy_id = "message"
 
 [sub_resource type="Resource" id="Resource_20gs3"]
 script = ExtResource("4_4bkui")
-enemy_id = "rejected"
+enemy_id = "overdue"
 
 [sub_resource type="Resource" id="Resource_pr3ww"]
 script = ExtResource("4_4bkui")
-enemy_id = "heart_beat"
+enemy_id = "rejected"
 
 [sub_resource type="Resource" id="Resource_tgjlj"]
+script = ExtResource("4_4bkui")
+enemy_id = "heart_beat"
+
+[sub_resource type="Resource" id="Resource_o6vbr"]
 script = ExtResource("4_4bkui")
 enemy_id = "elite_996"
 
 [resource]
 script = ExtResource("3_4bkui")
-doors = Array[ExtResource("2_3ll5e")]([SubResource("Resource_4bkui")])
-enemy_placements = Array[ExtResource("3_3ll5e")]([SubResource("Resource_lwxil"), SubResource("Resource_cgs5u")])
-enemy_specs = Array[ExtResource("4_4bkui")]([SubResource("Resource_vcbyr"), SubResource("Resource_t46xp"), SubResource("Resource_wnu1k"), SubResource("Resource_46feu"), SubResource("Resource_8fb81"), SubResource("Resource_tmdt0"), SubResource("Resource_01ddn"), SubResource("Resource_7d6w7"), SubResource("Resource_g1oax"), SubResource("Resource_32836"), SubResource("Resource_k6cff"), SubResource("Resource_1e5iq"), SubResource("Resource_20gs3"), SubResource("Resource_pr3ww"), SubResource("Resource_tgjlj")])
+doors = Array[ExtResource("2_3ll5e")]([SubResource("Resource_lwxil")])
+enemy_placements = Array[ExtResource("3_3ll5e")]([SubResource("Resource_cgs5u"), SubResource("Resource_vcbyr")])
+enemy_specs = Array[ExtResource("4_4bkui")]([SubResource("Resource_t46xp"), SubResource("Resource_wnu1k"), SubResource("Resource_46feu"), SubResource("Resource_8fb81"), SubResource("Resource_tmdt0"), SubResource("Resource_01ddn"), SubResource("Resource_7d6w7"), SubResource("Resource_g1oax"), SubResource("Resource_32836"), SubResource("Resource_k6cff"), SubResource("Resource_1e5iq"), SubResource("Resource_20gs3"), SubResource("Resource_pr3ww"), SubResource("Resource_tgjlj"), SubResource("Resource_o6vbr")])
 spawn_point = Vector2(-68, 92)
+blocked = Array[ExtResource("1_etvvy")]([SubResource("Resource_4bkui")])

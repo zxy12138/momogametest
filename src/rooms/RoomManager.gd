@@ -48,31 +48,62 @@ func _load_layout() -> RoomLayout:
 func _build_floor() -> void:
 	_floor = get_node("Floor") as TextureRect
 	var img: String = _data.get("scene_img", "")
+	# 背景基准变换（来自 RoomLayout 的 bg_offset/bg_scale 用于对齐美术整图；缺省 0/1 等同原行为）。
+	# 视频与图片两套背景套用同一变换，确保编辑器摆放与运行期渲染完全一致。
+	var base_pos := Vector2(-W / 2, -H / 2) + _layout.bg_offset
+	var base_scale := Vector2(_layout.bg_scale, _layout.bg_scale)
 	if img != "":
 		# 预制整图方案（v4.0 试用）：直接用美术预制的一图一房背景，墙体烘焙在图内；
 		# 碰撞仍由 _build_walls 的无形墙负责，这里只做背景显示。
 		_prefab = true
-		_floor.texture = load(img) as Texture2D
+		var res := load(img)
+		if res is VideoStream:
+			# 动态地图（.ogv Theora）：用 VideoStreamPlayer 播放，原 TextureRect 隐藏。
+			_floor.visible = false
+			_add_video_floor(res as VideoStream, base_pos, base_scale)
+			return
+		_floor.texture = res as Texture2D
 		_floor.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		_floor.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		_floor.size = Vector2(W, H)
-		_floor.position = Vector2(-W / 2, -H / 2)
+		_floor.position = base_pos
+		_floor.scale = base_scale
 		_floor.modulate = Color(1, 1, 1)
 	else:
 		_floor.texture = load("res://assets/tiles/T-000_base_dream_floor_tile_1.png") as Texture2D
 		_floor.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		_floor.stretch_mode = TextureRect.STRETCH_TILE
 		_floor.size = Vector2(W, H)
-		_floor.position = Vector2(-W / 2, -H / 2)
+		_floor.position = base_pos
+		_floor.scale = base_scale
 		# 按层轻微染色，强化每层主题（克制，近 1.0 乘法）
 		var tints := {1: Color(0.92, 0.96, 1.08), 2: Color(1.0, 1.0, 1.0), 3: Color(1.08, 0.92, 0.94)}
 		_floor.modulate = tints.get(_layer, Color(1, 1, 1))
-	# 背景偏移/缩放（来自 RoomLayout，用于对齐美术整图；缺省 0/1 等同原行为）
-	_floor.position += _layout.bg_offset
-	_floor.scale = Vector2(_layout.bg_scale, _layout.bg_scale)
 	# 地板永远在最底层：实体用 z_index=int(y) 做 Y 排序，上移时 y<0→z<0，
 	# 若地板 z=0 会把上移的角色/敌人/弹道盖住而「消失」。
 	_floor.z_index = -4000
+
+
+## 动态地图视频背景：以 VideoStreamPlayer 覆盖 880×500 房间世界区域，
+## 与图片背景套用相同变换（base_pos/base_scale），保证编辑器摆放和运行期渲染一致。
+## 音频静音（audio_track=-1），背景音效交给 BGM；10s 片段循环播放（loop=true）。
+func _add_video_floor(stream: VideoStream, base_pos: Vector2, base_scale: Vector2) -> void:
+	var vp := VideoStreamPlayer.new()
+	vp.name = "FloorVideo"
+	vp.stream = stream
+	vp.expand = true            # 视频缩放铺满 880×500 房间区域（视频 1280×720 与房间 1.76:1 几乎同比例，拉伸失真可忽略）
+	vp.loop = true             # 片段播完自动循环（动态地图背景）
+	vp.audio_track = -1        # 背景地图静音，避免与 BGM 叠加
+	vp.set_anchors_preset(Control.PRESET_TOP_LEFT)  # 让 position/size 直接生效（Control 不被父 Node2D 的 rect 影响）
+	vp.size = Vector2(W, H)
+	vp.position = base_pos
+	vp.scale = base_scale
+	vp.z_index = -4000
+	add_child(vp)
+	# play() 必须在节点进入场景树后调用（VideoStreamPlayer 要求 is_inside_tree()），
+	# 否则报 "!is_inside_tree()" 且视频不播放→背景黑屏。call_deferred 保证整棵树就绪后的下一帧再播，
+	# 即便 RoomManager 自身此刻尚未挂入场景树也能安全生效。
+	vp.call_deferred("play")
 
 
 func _build_walls() -> void:
@@ -193,7 +224,13 @@ func _build_doors() -> void:
 		add_child(lab)
 
 func _room_label(rid: String) -> String:
-	var t: String = MapData.room(rid).get("type", "")
+	# 从 LevelData 全局类直接取房间类型（编辑器预览期 MapData 单例可能是 placeholder，
+	# 调用其方法会崩；LevelData 为 class_name 全局类，编辑器/运行期均可安全访问）。
+	var t: String = ""
+	var layer: Dictionary = LevelData.get_layer(_layer)
+	var rooms_d: Dictionary = layer.get("rooms", {}) as Dictionary
+	if rooms_d.has(rid):
+		t = (rooms_d[rid] as Dictionary).get("type", "")
 	match t:
 		"combat": return "战斗"
 		"elite": return "精英"
@@ -277,7 +314,9 @@ func _spawn_content() -> void:
 		if not cleared:
 			_start_boss_intro()
 		return
-	if type == "inn" or type == "start":
+	# 起点房(start)现在也从 enemy_placements 刷怪（满足「起始场景也能刷怪」需求）；
+	# 驿站(inn)仍不刷，保持为安全休整区。
+	if type == "inn":
 		return
 	# 拖入式敌人放置：按 RoomLayout.enemy_placements 实例化（取代原 LevelData.enemies 数据驱动刷怪）。
 	# 普通/精英房重进即刷新——玩家在编辑器里摆放的敌人每次进房都会重新出现。
@@ -338,25 +377,45 @@ func _start_boss_intro() -> void:
 
 
 # 禁区/不可走区域：在 RoomLayout.blocked 中定义，生成无形碰撞墙 + 半透明红色可视。
+# 支持矩形(shape_type=0)与多边形(shape_type=1)；rotation_deg 让形状任意旋转对齐倾斜障碍。
 func _build_blocked() -> void:
 	for i in _layout.blocked.size():
 		var rd: RectDef = _layout.blocked[i]
+		var is_poly: bool = (rd.shape_type == 1 and rd.points.size() >= 3)
 		var sb := StaticBody2D.new()
 		sb.name = "Blocked_%d" % i
 		sb.collision_layer = 16
-		var cs := CollisionShape2D.new()
-		var sh := RectangleShape2D.new()
-		sh.size = rd.size
-		cs.shape = sh
-		cs.position = rd.center
-		sb.add_child(cs)
+		if is_poly:
+			# 多边形碰撞：用 CollisionPolygon2D 节点直接吃局部顶点（比 PolygonShape2D 更稳，且不依赖 Shape 子类解析）。
+			var cp := CollisionPolygon2D.new()
+			cp.polygon = rd.points          # 多边形顶点为相对 center 的局部坐标
+			cp.position = rd.center
+			cp.rotation = deg_to_rad(rd.rotation_deg)
+			sb.add_child(cp)
+		else:
+			var cs := CollisionShape2D.new()
+			var rsh: RectangleShape2D = RectangleShape2D.new()
+			rsh.size = rd.size
+			cs.shape = rsh
+			cs.position = rd.center
+			cs.rotation = deg_to_rad(rd.rotation_deg)
+			sb.add_child(cs)
 		add_child(sb)
-		var cr := ColorRect.new()
-		cr.color = Color(0.8, 0.2, 0.2, 0.35)
-		cr.size = rd.size
-		cr.position = rd.center - rd.size / 2.0
-		cr.z_index = -5
-		add_child(cr)
+		# 半透明红色可视：与碰撞形状套用同一变换(center+rotation)，所见即所得。
+		var pts: PackedVector2Array
+		if is_poly:
+			pts = rd.points
+		else:
+			var hw: float = rd.size.x / 2.0
+			var hh: float = rd.size.y / 2.0
+			pts = PackedVector2Array([Vector2(-hw, -hh), Vector2(hw, -hh), Vector2(hw, hh), Vector2(-hw, hh)])
+		var poly := Polygon2D.new()
+		poly.polygon = pts
+		poly.color = Color(0.8, 0.2, 0.2, 0.35)
+		poly.position = rd.center
+		poly.rotation = deg_to_rad(rd.rotation_deg)
+		poly.z_index = -5
+		add_child(poly)
 
 
 # 编辑器预览：独立打开 Room.tscn 时构建一个示例战斗房（墙/门/敌人可见）。

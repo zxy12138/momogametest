@@ -9,12 +9,12 @@
 [sub_resource type="Resource" id="Resource_kbsk2"]
 script = ExtResource("2_gtflh")
 target = "r1"
-position = Vector2(0, -224)
+position = Vector2(79, -132)
 
 [sub_resource type="Resource" id="Resource_dgav6"]
 script = ExtResource("2_gtflh")
 target = "r3"
-position = Vector2(0, 224)
+position = Vector2(371, 4)
 
 [sub_resource type="Resource" id="Resource_k85vj"]
 script = ExtResource("2_gtflh")

@@ -70,7 +70,19 @@ static func tile_path(floor_idx, rid) -> String:
 	var name: String = layer_tiles.get(rid, "")
 	if name == "":
 		return ""
-	return "res://assets/tiles/" + name + ".png"
+	# 动态地图（.ogv Theora）优先：仅当该 ogv 已被 Godot 成功导入（ResourceLoader 可加载）才用，
+	# 否则退回同名的 .png。这样在 ogv 未导入前显示静态图，导入成功后自动升级为动态视频（自修复）。
+	# 跨 assets/tiles/ 与 assets/tiles/Maps/ 两目录查找；ogv 优先级高于同名 png，且不受目录顺序影响。
+	var dirs: Array[String] = ["res://assets/tiles/Maps/", "res://assets/tiles/"]
+	for base in dirs:
+		var ogv: String = base + name + ".ogv"
+		if ResourceLoader.exists(ogv):
+			return ogv
+	for base in dirs:
+		var png: String = base + name + ".png"
+		if ResourceLoader.exists(png):
+			return png
+	return ""
 
 ## 返回某层的「起点房」rid（type=="start"）。第三层起点为 r0（新增），第一/二层仍为 r1。
 ## Game 的跨层跳转与 starter 武器生成依赖此函数，避免硬编码 r1。

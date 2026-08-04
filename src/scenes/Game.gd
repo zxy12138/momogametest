@@ -100,10 +100,20 @@ func _ready() -> void:
 func _editor_build_preview() -> void:
 	if get_node_or_null("World/Room") != null:
 		return
-	MapData.load_layer(1)
+	# 编辑器预览：直接从 LevelData（class_name 全局类，编辑器内可用）取房间数据，
+	# 避免调用 MapData 单例。@tool 预览期 autoload 可能是 placeholder 实例，
+	# 调用其方法会报 "Attempt to call a method on a placeholder instance"（旧实现 Game.gd:103）。
+	# 手动注入 scene_img（原由 MapData.load_layer 完成），保证预览也能显示动态背景。
+	var rid: String = LevelData.start_room(1)
+	var layer: Dictionary = LevelData.get_layer(1)
+	var rooms_d: Dictionary = layer.get("rooms", {}) as Dictionary
+	var room_data: Dictionary = (rooms_d.get(rid, {}) as Dictionary).duplicate(true)
+	var tp: String = LevelData.tile_path(1, rid)
+	if tp != "":
+		room_data["scene_img"] = tp
 	var room := ROOM.instantiate() as Node2D
 	$World.add_child(room)
-	room.call("setup", LevelData.start_room(1), MapData.room(LevelData.start_room(1)), 1, $World, self)
+	room.call("setup", rid, room_data, 1, $World, self)
 	# 顺手放两个敌人 + 一个 Boss，方便在编辑器里核对精灵与朝向
 	var e1 := ENEMY.instantiate() as Node2D
 	e1.call("setup", "overtime_ghost")

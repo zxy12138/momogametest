@@ -987,3 +987,117 @@ r4 → [r2, r5]
 
 ### 验证
 - 沙箱无 Godot 二进制，仅代码级静态核对；请于编辑器内实机验证：① RoomLayoutEditor 的「敌人放置（各类型数量）」每组一行改 count → 视口出现对应数量青/紫方块可拖；② 拖「出生点」绿菱形到目标位；③ Ctrl+S **不再**报「Array is in read-only state」；④ F5 首进用出生点、过门仍从对面门走出。
+
+## 修改·2026-08-04（补27）— f1-r1 背景替换成动态 .ogv 视频地图 + 可视化编辑器兼容
+### 1. 需求
+- 用户做了动态地图视频 `assets/tiles/Maps/S_001_1.ogv`（theora 1280×720，10s），要把**第一层起点房 f1-r1** 的静态背景 `S_001_1.png` 替换成它。
+
+### 2. 改动（3 个文件）
+- `src/data/LevelData.gd`：`tile_path()` 改为在 `assets/tiles/` 与 `assets/tiles/Maps/` 两处查找，**优先 `.ogv` 动态地图，退回 `.png`**。把视频丢进任一目录都能自动启用；只对存在 ogv 的房生效（当前仅 `S_001_1`，即 f1-r1）。
+- `src/rooms/RoomManager.gd`：`_build_floor()` 增加 `VideoStream` 分支——命中视频时隐藏原 `Floor` TextureRect，改用 `VideoStreamPlayer` 覆盖 880×500 房间世界区域；新增 `_add_video_floor()` 辅助函数。图片分支逻辑不变。
+- `src/rooms/RoomLayoutEditor.gd`：`_build_bg()` 支持 `VideoStream`（用 `VideoStreamPlayer` 显示动态背景），并**补上 `bg_offset`/`bg_scale` 应用**，与运行期 `_build_floor` 完全对齐（之前编辑器没应用这两个，运行期才应用——顺手修正了一处已有小不一致）。
+
+### 3. Godot 4.7 `VideoStreamPlayer` API 关键坑（务必记牢）
+- **没有 `stretch_mode` 属性**（旧 `STRETCH_COVER` 等枚举已移除，写 `VideoStreamPlayer.STRETCH_COVER` 直接解析失败）。等比铺满改用 `expand = true`（视频缩放铺满控件尺寸；房间 1.76:1 与视频 1.78:1 几乎同比例，拉伸失真可忽略）。
+- **内置 `loop = true`** 循环播放（不用再手动连 `finished` 信号）。
+- **`audio_track = -1`** 静音背景，音效交给 BGM。
+- 作为 `Control` 加进 `Node2D` 父节点：必须 `set_anchors_preset(Control.PRESET_TOP_LEFT)`，否则 position/size 不生效（Control 默认受父 rect 影响）。
+
+## 修改·2026-08-04（补28）— 修复 f1-r1 动态 ogv 背景「不播放/仍是静态图」
+
+### 现象
+- 用户 F5 进游戏，f1-r1 背景是静态图、不播放视频（「没动起来」）。
+
+### 根因（真凶：tile_path 目录优先级 bug，非导入问题）
+- 旧 `tile_path()` 写法是「先扫 `assets/tiles/`、再扫 `assets/tiles/Maps/`；任一目录找到文件就立刻 return」。
+- 同名 `S_001_1.png` 在 `assets/tiles/`（根），`S_001_1.ogv` 在 `assets/tiles/Maps/`。循环先扫到根目录的 PNG → 直接 return，**永远轮不到 `Maps/` 里的 ogv** → 加载的是静态 PNG。
+- 误判排查：曾以为 ogv 没被导入（全项目无 `.ogv.import` 文件）。实际探针证明 `THEORA_CLASS=true`、`ResourceLoader.exists("res://assets/tiles/Maps/S_001_1.ogv")=true`、`load(ogv) is VideoStream=true`——**ogv 完全可加载**，只是被 PNG 盖掉了。
+
+### 修复（`src/data/LevelData.gd`）
+- `tile_path()` 重写：**ogv 优先级高于同名 png，且不受目录顺序影响**。用 `ResourceLoader.exists()`（判定「资源是否已导入」）代替 `FileAccess.file_exists()`（只看磁盘文件）：
+  1. 先跨 `assets/tiles/Maps/` 与 `assets/tiles/` 两目录找 `.ogv`，存在即用（动态视频）；
+  2. 再跨两目录找 `.png` 退回（静态图）；
+  3. 找不到返回 `""`。
+- 副作用（良性）：ogv 尚未被导入前 `ResourceLoader.exists` 为 false → 自动退回 png（显示静态图），导入成功后下次读取立刻升级为动态视频——**自修复**，不会黑屏。
+
+### 验证（无头）
+- `ResourceLoader.exists(S_001_1.ogv)=true`、`load() is VideoStream=true` 两项探针通过。
+- `Game.tscn` 无头运行 EXIT=0、零 SCRIPT ERROR/Parse Error；临时 autoload 递归找房间树确认生成 `FloorVideo` 节点（`class=VideoStreamPlayer, stream=true`）→ 视频分支确实执行且挂载了 ogv 流。
+- 顺手清理本次排查遗留的临时探针脚本（`_theora_probe.gd`/`_load_probe.gd`/`_valfloor.gd`）与孤儿 `Maps/_t.ogv.uid`。
+
+### 结论
+- 用户只需重新 F5：f1-r1 现在会加载 `Maps/S_001_1.ogv` 动态背景（10s 循环、静音）。其他房无 ogv → 仍显示原 PNG，互不干扰。
+- 若将其他房也换成视频：把对应 `.ogv` 按 `S_00{层}_{房}.ogv` 命名丢进 `assets/tiles/` 或 `assets/tiles/Maps/` 即可自动启用（tile_path 已支持）。
+
+## 修改·2026-08-04（补29）— 修复「全黑屏」：VideoStreamPlayer 播放时序 + @tool 预览调用 MapData 崩溃
+### 现象
+- 用户 F5 进游戏 f1-r1 背景**全黑**；控制台两条报错：
+  1. `ERROR: res://src/scenes/Game.gd:103 - Invalid call function 'load_layer' in base 'Node (MapData.gd)': Attempt to call a method on a placeholder instance. Check if the script is in tool mode.`
+  2. `ERROR: scene/gui/video_stream_player.cpp:336 - Condition "!is_inside_tree()" is true.`
+
+### 根因与修复（2 个文件）
+- **黑屏主因（视频）**：`RoomManager._add_video_floor()` 旧代码在 `add_child(vp)` **之前**调用 `vp.play()`。`VideoStreamPlayer` 要求 `is_inside_tree()` 才允许 `play()`，提前调用直接返回且不播放 → 节点加进树后也不会自动开播 → 而原 `Floor`(TextureRect) 已被 `visible=false` 隐藏 → 整屏黑。
+  - 修复：先 `add_child(vp)` 再 `vp.call_deferred("play")`。`call_deferred` 保证下一帧整棵树（含 RoomManager）就绪后再播，即便 `RoomManager` 自身此刻尚未挂入场景树也安全。
+- **@tool 预览崩溃（MapData placeholder）**：`Game._editor_build_preview()` 在编辑器 `@tool` 预览期直接调用 `MapData` 单例方法；编辑器预览阶段 autoload 可能是 placeholder 实例，调用其方法即崩（报错指向旧 `Game.gd:103` 的 `MapData.load_layer(1)`）。
+  - 修复：预览改为直接用 **`LevelData`（class_name 全局类，编辑器/运行期均可访问）** 取房间数据并手动注入 `scene_img`，彻底不再触碰 `MapData`。
+  - 连带修复 `RoomManager._room_label()`（被 `_build_doors` 在 `setup` 中调用，预览也会走）：旧代码 `MapData.room(rid).get("type")` 同样会在预览期崩；改为从 `LevelData.get_layer(_layer)["rooms"][rid]` 取类型。
+  - 改动后仍保留 `MapData` 在**运行期** `transition_to` 中的使用（Game.gd:250/252），因为运行期 MapData 正常加载（无头已验证）。
+
+### 验证
+- `RoomManager.gd` 仅剩一处 `MapData` 文字（注释），无实际调用 → 预览/setup 链路已无 autoload 依赖。
+- `Game.tscn` 无头运行 EXIT=0、零 SCRIPT ERROR/Parse Error/`is_inside_tree`/placeholder 报错。
+- ⚠️ 编辑器 `@tool` 预览的「是否真渲染视频」无法在无头环境验证，需用户在编辑器打开 `Game.tscn` 实机确认不再报错；游戏内 F5 黑屏问题由上述 play 时序修复解决。
+
+### 4. 与「可视化放置各种位置」的兼容性结论（用户重点问项）
+- **结论：完全兼容，无坐标错位风险。** 编辑器（RoomLayoutEditor）和 RoomManager 摆放门/敌人/出生点/禁区的坐标空间是**固定的 880×500 世界单位**（`W`/`H` 常量），与背景素材类型（PNG 还是 OGV 视频）**无关**——这些坐标存的是 RoomLayout.enemy_placements/doors/spawn_point/blocked 里的局部坐标。
+- 只要视频在编辑器与运行期都用**相同变换**渲染（size=880×500、居中、`expand` 铺满、相同 `bg_offset`/`bg_scale`、z=-4000），视频画面与 PNG 画面映射到同一套世界坐标 → 你在编辑器里对着视频摆的敌人/门/出生点，运行期精确落在相同位置。
+- 唯一功能性影响：此前编辑器背景只认静态图，换成视频会空白、没法看着动态画面摆。本次给编辑器也加了 `VideoStreamPlayer` 支持，且把 bg_offset/bg_scale 也应用到编辑器背景，**保证了「所见即所得」**。
+- 宽高比：旧 PNG `S_001_1.png` 是 1376×768（≈1.79:1），视频 1280×720（≈1.78:1），都是 ~16:9，裁切/拉伸差异极小，视觉基本一致。
+
+### 5. 前向兼容提醒（暂未改，未来若触发再说）
+- `RoomManager._start_boss_intro()` 仍对 boss 房直接 `_floor.texture = load(real) as Texture2D`（假设 scene_img 是图片）。**若以后给 boss 房也换视频背景，那段需同步改成视频分支**，否则 `as Texture2D` 会拿到 null/视频而静默失效。当前 f1-r1 是起点房，不涉及。
+
+### 6. 验证与已知限制
+- 无头沙箱**无法导入 ogv**（Theora 视频导入插件在本无头 Godot 构建里不激活——连新生成的合法 theora 也不导入；PNG 正常）。故无头只能验证：脚本**解析无误、运行无报错**，无法跑通视频分支（load 返回 null 走静默回退）。**用户需在 Godot 编辑器 F5/F6 实机验证**：打开项目时编辑器会自动导入 ogv，f1-r1 即显示动态背景。
+- 已删除用户原先那个 20 字节的损坏 `S_001_1.ogv.uid`（空占位会让编辑器导入时困惑）；Godot 打开项目会自动重新生成正确的 `.uid`。
+- 验证用临时文件（`_probe.gd/_probe.tscn/_val2.gd` 及各自 `.uid`、`_t.ogv.uid`）因沙箱 safe-delete 拦截未能自动清除，属无害残留（无 class_name、未被任何场景/autoload 引用），请手动删除。
+
+## 修改·2026-08-04（补30）— RoomLayoutEditor 动态背景不显示修复（视频/图片统一兼容）
+- **现象**：在 `RoomLayoutEditor.tscn` 里设 floor_idx=1 / room_id=r1，背景是空的，看不到动态地图，没法对着画面摆怪。
+- **根因**：`RoomLayoutEditor._build_bg()` 里 `vp.play()` 在 `add_child(vp)` **之前**调用——与补29 中 `RoomManager` 那次黑屏是**同一个 `!is_inside_tree()` 时序 bug**。视频不播放，而原 `TextureRect` 又被 `visible=false` 隐藏 → 背景整片空白。
+- **修复（与运行期 RoomManager 一致）**：
+  - 先 `add_child(vp)` 再 `vp.call_deferred("play")`；并加 `vp.autoplay = true`（编辑器视口里 autoplay 能可靠触发播放）。
+  - 视频与图片两条分支统一处理：`res is VideoStream` → VideoStreamPlayer（`expand`/`loop`/`audio_track=-1`/同 `base_pos`/`base_scale`/`z=-100`）；`res is Texture2D` → 直接 `r.texture = res`。
+  - **兜底底图**：若同目录存在同名 `.png` 静帧（如 `S_001_1.png`），作为底图保留（`r.texture = 该 png`），即便编辑器里视频偶发不渲染也能看到房间布局来对齐敌人/门/出生点；无同名 png 时才 `r.visible=false`。
+- **兼容性**：门/敌人/出生点/禁区坐标仍是固定的 880×500 世界单位，与背景是图片还是视频无关；编辑器与运行期用同一变换（size/z/offset/scale），「所见即所得」。
+- **验证**：无头运行 `Game.tscn` EXIT=0、零 `RoomLayoutEditor`/`_build_bg` 脚本解析错误（ogv 视频分支仍需编辑器 F5 实机确认播放）。
+
+## 修改·2026-08-04（补31）— 禁区：支持多边形自定义形状 + 旋转生效 + 起始房刷怪
+用户三处诉求：①禁区只能轴对齐矩形，场景有不规则物体想要自定义形状；②在 Inspector 调了旋转运行期未应用；③start 房明明设了怪却不刷。
+
+### ① 禁区支持多边形自定义形状
+- **旧**：`RectDef` 仅 `center`+`size`，只能轴对齐矩形。
+- **新**：`RectDef` 向后兼容扩展字段——`rotation_deg:float`、`shape_type:int`（0矩形/1多边形）、`points:PackedVector2Array`（多边形局部顶点，相对 center）。
+  - 旧 `.tres`（`1_r1.tres` 已有 2 个矩形禁区，仅 center/size）加载不受影响，新字段走默认（矩形、0°）。
+- **编辑器手柄**：新增 `src/rooms/BlockedHandle.gd`（`@tool Node2D`，`class_name BlockedHandle`）。在 `RoomLayoutEditor.tscn` 场景树里可直接选中，于 Inspector 编辑 `shape_type`/`rect_size`/`points`/`rotation_deg`，并在视口拖拽移动中心、用旋转 gizmo 旋转。
+  - `BlockedHandle._draw()` 按 shape_type 绘制矩形或多边形（半透明红 + 描边），所见即所得。
+  - `RoomLayoutEditor` 的 `_build_blocked`/`_adjust_blocked`/`_save_layout` 改为读写 `BlockedHandle` 的全部属性并回写到 `RectDef`。旧 `_make_blocked_handle` 删除。
+- **运行期碰撞**：`RoomManager._build_blocked()` 多边形分支改用 **`CollisionPolygon2D` 节点**（直接吃 `polygon` 局部顶点，比 `PolygonShape2D` 更稳，本引擎构建对 `PolygonShape2D` 的 `.new()` 解析异常，故避开）。矩形分支沿用 `RectangleShape2D`+`CollisionShape2D`。可视统一用 `Polygon2D`（顶点旋转跟随）。
+
+### ② 禁区旋转保存并应用到运行期（修复）
+- **根因**：旧 `_save_layout()` 只写 `h.position` + `h.get_meta("size")`，**完全忽略 Inspector 里设的 `Node2D.rotation`**；运行期 `_build_blocked` 也从不用旋转 → 调了旋转运行期不生效。
+- **修复**：`RectDef` 增 `rotation_deg`；编辑器保存时 `rd.rotation_deg = rad_to_deg(h.rotation)`；运行期对碰撞体 `cs.rotation`（矩形）或 `CollisionPolygon2D.rotation`（多边形）+ 可视 `Polygon2D.rotation` 应用 `deg_to_rad(rd.rotation_deg)`。
+
+### ③ 起始房(start)也能刷怪
+- **旧**：`RoomManager._spawn_content()` 中 `if type == "inn" or type == "start": return`，start 房（r1）即便 `enemy_placements` 有怪也不刷。
+- **新**：去掉 `type == "start"` 的提前 return，**start 房现在从 `enemy_placements` 刷怪**（与 combat 一致）；驿站 `inn` 仍不刷，保持安全休整区。`1_r1.tres` 已含 4 个 enemy_placements，改动后即生效。
+
+### 踩坑（供后续参考）
+- Godot 4.7.1 该构建中 `PolygonShape2D.new()` 在 GDScript 解析期报「Identifier not declared / cannot infer type」，**改用 `CollisionPolygon2D` 节点**。
+- 脚本注册期（无场景树）`@export` setter（如 `blocked_count`）会被触发，`_set_owner` 内 `get_tree()` 抛 `data.tree is null`；改用 `is_inside_tree()` 短路守卫。
+- 无头 `grep` 引擎二进制查类名不可靠（二进制压缩，所有类名 grep 计数均为 0），应以实际解析报错为准。
+
+### 验证
+- 无头 `--headless --editor --quit` 解析 `RoomLayoutEditor`/`RoomManager`/`RectDef`/`BlockedHandle`：零 `SCRIPT ERROR`/`Parse Error`。
+- 无头运行 `Game.tscn`：零 `RoomManager`/`blocked`/`RectDef`/`CollisionPolygon` 运行时报错（视频 ogv 分支为已知无头限制，不相关）。
+- 编辑器实机（F5 / 打开 `RoomLayoutEditor.tscn`）需用户确认：选禁区手柄 → Inspector 改 `shape_type=1`+编辑 `points` 画不规则形状、调 `rotation_deg` 旋转 → 视口即时显示；`Ctrl+S` 保存；进对应房间运行期应看到同形状/旋转的红区且玩家被挡。start 房进房即有怪。

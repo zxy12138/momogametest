@@ -10,7 +10,8 @@ class_name RoomLayoutEditor
 ##   4. 敌人放置：在「敌人放置（各类型数量）」分组里，每种怪物各占一行，直接改 count(数量)；
 ##      视口里即时出现对应数量的可拖拽方块手柄（青色=普通/紫色=精英）；选中手柄在视口拖动设位置
 ##   5. 出生点：拖绿色「出生点」菱形手柄到角色初始位置（和门一样可拖）
-##   6. 禁区：把「Blocked Count」调大，红色方块手柄出现，拖动到不可走区域（大小在 .tres 里改）
+##   6. 禁区：把「Blocked Count」调大，红色手柄出现；拖拽移动中心，视口旋转 gizmo 或 Inspector 填 rotation_deg 旋转；
+##      选中手柄在 Inspector 里改 shape_type(0矩形/1多边形)、rect_size 或 points(多边形局部顶点) 定义不规则形状
 ##   7. 按 Ctrl+S：PRE_SAVE 把位置/数量写回 res://src/rooms/layouts/{层}_{房}.tres
 ##   8. F5 运行，RoomManager 自动读取该 .tres 生效
 ##
@@ -116,6 +117,10 @@ func _neighbors() -> Array:
 
 ## 让动态生成的节点被编辑器当作「可编辑实例」的一部分，2D 视口才能点选并拖拽。
 func _set_owner(n: Node) -> void:
+	# 脚本注册期(无场景树)可能触发 blocked_count setter → _adjust_blocked → 此处；
+	# 此时 get_tree() 会抛 "data.tree is null"，故先以 is_inside_tree() 短路（安全，无树时返回 false）。
+	if not is_inside_tree():
+		return
 	var esr := get_tree().edited_scene_root
 	if esr != null:
 		n.owner = esr
@@ -143,17 +148,50 @@ func _make_handle(label_text: String, color: Color, pos: Vector2, meta_key: Stri
 
 
 func _build_bg() -> void:
-	var tex: Texture2D = load(LevelData.tile_path(floor_idx, room_id)) as Texture2D
+	var path: String = LevelData.tile_path(floor_idx, room_id)
+	# 背景基准变换：与运行期 RoomManager._build_floor 完全一致（含 bg_offset/bg_scale），
+	# 保证编辑器里对视频/图片摆放的敌人·门·出生点，运行期精确落位。
+	var base_pos := Vector2(-W / 2.0, -H / 2.0) + _layout.bg_offset
+	var base_scale := Vector2(_layout.bg_scale, _layout.bg_scale)
 	var r := TextureRect.new()
 	r.name = "BG"
-	if tex != null:
-		r.texture = tex
-		r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	r.size = Vector2(W, H)
-	r.position = Vector2(-W / 2.0, -H / 2.0)
+	r.position = base_pos
+	r.scale = base_scale
 	r.z_index = -100
 	add_child(r)
+	if path == "":
+		return
+	var res := load(path)
+	if res is VideoStream:
+		# 编辑器里也用 VideoStreamPlayer 播放动态背景，确保可视化摆放对齐运行期。
+		# 关键：play() 必须在 add_child 之后调用（节点进入场景树），否则报 !is_inside_tree() 且不播放，
+		# 底图又被隐藏 → 整个背景黑屏。call_deferred 保证整棵树就绪后的下一帧再播，与 RoomManager 一致。
+		var vp := VideoStreamPlayer.new()
+		vp.name = "BGVideo"
+		vp.stream = res
+		vp.expand = true
+		vp.loop = true
+		vp.autoplay = true          # 编辑器视口里 autoplay 能可靠触发播放
+		vp.audio_track = -1
+		vp.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		vp.size = Vector2(W, H)
+		vp.position = base_pos
+		vp.scale = base_scale
+		vp.z_index = -100
+		add_child(vp)
+		vp.call_deferred("play")
+		# 兜底：若同目录存在同名 .png 静帧（如 S_001_1.png），作为底图保留，
+		# 即便编辑器里视频偶发不渲染也能看到房间布局来对齐敌人/门/出生点。
+		var poster: String = path.get_basename() + ".png"
+		if ResourceLoader.exists(poster):
+			r.texture = load(poster) as Texture2D
+		else:
+			r.visible = false
+	elif res is Texture2D:
+		r.texture = res
 
 
 func _build_doors() -> void:
@@ -240,50 +278,49 @@ func _build_spawn() -> void:
 
 
 func _build_blocked() -> void:
-	var n := _layout.blocked.size()
-	for i in n:
+	for i in _layout.blocked.size():
 		var rd: RectDef = _layout.blocked[i]
-		var h := _make_blocked_handle("禁区%d" % i, rd.center, rd.size)
+		var h := BlockedHandle.new()
+		h.name = "Blocked_%d" % i
+		h.position = rd.center
+		h.rotation_deg = rd.rotation_deg
+		h.shape_type = rd.shape_type
+		h.rect_size = rd.size
+		h.points = rd.points
+		add_child(h)
+		_set_owner(h)
 		_blocked_rects.append(h)
-	_blocked_count = n
+	_blocked_count = _layout.blocked.size()
 
 
-func _make_blocked_handle(label_text: String, center: Vector2, size: Vector2) -> Node2D:
-	var root := Node2D.new()
-	root.position = center
-	var hw := size.x / 2.0
-	var hh := size.y / 2.0
-	var poly := Polygon2D.new()
-	poly.polygon = PackedVector2Array([Vector2(-hw, -hh), Vector2(hw, -hh), Vector2(hw, hh), Vector2(-hw, hh)])
-	poly.color = Color(1.0, 0.3, 0.3, 0.35)
-	root.add_child(poly)
-	var lab := Label.new()
-	lab.text = label_text
-	lab.position = Vector2(-hw, -hh - 16.0)
-	lab.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
-	root.add_child(lab)
-	root.set_meta("size", size)
-	add_child(root)
-	_set_owner(root)
-	return root
-
-
-## 增删禁区手柄，保留已有手柄的中心与尺寸。
+## 增删禁区手柄，保留已有手柄的中心/旋转/形状/尺寸。
 func _adjust_blocked(n: int) -> void:
 	var items: Array[Dictionary] = []
 	for h in _blocked_rects:
-		items.append({"center": h.position, "size": h.get_meta("size", Vector2(120.0, 120.0))})
+		items.append({
+			"position": h.position,
+			"rotation_deg": h.rotation_deg,
+			"shape_type": h.shape_type,
+			"rect_size": h.rect_size,
+			"points": h.points
+		})
 	for h in _blocked_rects:
 		h.queue_free()
 	_blocked_rects.clear()
 	for i in n:
-		var center: Vector2 = Vector2(0.0, 130.0)
-		var size: Vector2 = Vector2(120.0, 120.0)
+		var h := BlockedHandle.new()
+		h.name = "Blocked_%d" % i
 		if i < items.size():
 			var it: Dictionary = items[i]
-			center = it.get("center", Vector2(0.0, 130.0))
-			size = it.get("size", Vector2(120.0, 120.0))
-		var h := _make_blocked_handle("禁区%d" % i, center, size)
+			h.position = it.get("position", Vector2(0.0, 130.0))
+			h.rotation_deg = it.get("rotation_deg", 0.0)
+			h.shape_type = it.get("shape_type", 0)
+			h.rect_size = it.get("rect_size", Vector2(120.0, 120.0))
+			h.points = it.get("points", PackedVector2Array())
+		else:
+			h.position = Vector2(0.0, 130.0)
+		add_child(h)
+		_set_owner(h)
 		_blocked_rects.append(h)
 
 
@@ -362,7 +399,10 @@ func _save_layout() -> void:
 	for h in _blocked_rects:
 		var rd := RectDef.new()
 		rd.center = h.position
-		rd.size = h.get_meta("size", Vector2(120.0, 120.0))
+		rd.rotation_deg = rad_to_deg(h.rotation)
+		rd.shape_type = h.shape_type
+		rd.size = h.rect_size
+		rd.points = h.points
 		new_blocked.append(rd)
 	_layout.blocked = new_blocked
 
