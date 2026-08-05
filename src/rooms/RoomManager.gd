@@ -35,6 +35,7 @@ func setup(rid: String, data: Dictionary, layer: int, entities: Node, game: Node
 	if _data.get("type", "") == "inn":
 		_build_inn()
 	_spawn_content()
+	_spawn_decorations()
 
 
 func _load_layout() -> RoomLayout:
@@ -331,6 +332,30 @@ func _spawn_content() -> void:
 		if ed != null and ed.get("clone_count", 0) > 0:
 			for c in int(ed["clone_count"]):
 				_spawn_enemy(eid, pos + Vector2(randf_range(-90.0, 90.0), randf_range(-90.0, 90.0)))
+
+
+## 装饰性动态素材：所有房间类型（含 inn/boss）都实例化，独立于 _spawn_content 的刷怪逻辑。
+## 数据来自 RoomLayout.decorations（编辑器里从序列帧插件拖入生成）；随房间销毁，不跨房叠加。
+func _spawn_decorations() -> void:
+	for def in _layout.decorations:
+		if def.scene_path == "" or not ResourceLoader.exists(def.scene_path):
+			continue
+		var ps := load(def.scene_path) as PackedScene
+		if ps == null:
+			push_error("RoomManager: 装饰场景加载失败 %s" % def.scene_path)
+			continue
+		var inst := ps.instantiate() as Node2D
+		if inst == null:
+			continue
+		inst.global_position = def.pos
+		inst.z_index = int(def.pos.y)
+		# 还原编辑器里的视觉调整：缩放/旋转/翻转，保证运行期与编辑器预览一致。
+		# Node2D 只有 rotation(弧度)，用 deg_to_rad 把数据里的 rotation_deg 转回。
+		inst.scale = def.scale_xy
+		inst.rotation = deg_to_rad(def.rotation_deg)
+		inst.flip_h = def.flip_h
+		inst.flip_v = def.flip_v
+		add_child(inst)
 
 
 func _spawn_enemy(eid: String, pos: Vector2) -> void:

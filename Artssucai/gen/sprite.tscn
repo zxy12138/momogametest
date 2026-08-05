@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://di5i5klui1gvs"]
+
+[ext_resource type="SpriteFrames" uid="uid://ctnkdo1obckhd" path="res://Artssucai/gen/sprite.tres" id="1_bn7aa"]
+
+[node name="sprite" type="AnimatedSprite2D" unique_id=1752611261]
+sprite_frames = ExtResource("1_bn7aa")
+autoplay = "default"
+centered = false

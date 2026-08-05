@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://c2lmhehw6hdbx" path="res://src/rooms/RectDef.gd" id="1_etvvy"]
 [ext_resource type="Script" uid="uid://bbgbpxfu0qk0l" path="res://src/rooms/DoorDef.gd" id="2_3ll5e"]
+[ext_resource type="Script" uid="uid://c868fxscb2g0i" path="res://src/rooms/DecorationPlacement.gd" id="2_lwxil"]
 [ext_resource type="Script" uid="uid://d0qrnkbxhrdoe" path="res://src/rooms/EnemyPlacementDef.gd" id="3_3ll5e"]
 [ext_resource type="Script" uid="uid://njbattl0ivux" path="res://src/rooms/RoomLayout.gd" id="3_4bkui"]
 [ext_resource type="Script" uid="uid://cv7cgcy5enob0" path="res://src/rooms/EnemyTypeCount.gd" id="4_4bkui"]
@@ -10,7 +11,6 @@
 script = ExtResource("1_etvvy")
 center = Vector2(-17, -37)
 shape_type = 1
-points = PackedVector2Array(15.215, 12.22, 28.82, -2.115, 13.015, -25.03, -16.98, -0.33, -6.205, 15.915)
 
 [sub_resource type="Resource" id="Resource_lwxil"]
 script = ExtResource("2_3ll5e")

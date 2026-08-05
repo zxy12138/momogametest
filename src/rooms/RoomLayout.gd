@@ -23,6 +23,10 @@ extends Resource
 ## 禁区/不可走矩形区域。
 @export var blocked: Array[RectDef] = []
 
+## 装饰性动态素材（序列帧动画等）：每个元素是一个 DecorationPlacement（场景路径 + 房间局部坐标）。
+## 运行期 RoomManager 实例化并自动播放，随房间切换销毁；在 RoomLayoutEditor 里从序列帧插件拖入生成。
+@export var decorations: Array[DecorationPlacement] = []
+
 ## 背景整图偏移（局部坐标，默认 0）与缩放（默认 1）。用于对齐美术整图。
 @export var bg_offset: Vector2 = Vector2.ZERO
 @export var bg_scale: float = 1.0

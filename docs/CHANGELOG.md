@@ -1101,3 +1101,55 @@ r4 → [r2, r5]
 - 无头 `--headless --editor --quit` 解析 `RoomLayoutEditor`/`RoomManager`/`RectDef`/`BlockedHandle`：零 `SCRIPT ERROR`/`Parse Error`。
 - 无头运行 `Game.tscn`：零 `RoomManager`/`blocked`/`RectDef`/`CollisionPolygon` 运行时报错（视频 ogv 分支为已知无头限制，不相关）。
 - 编辑器实机（F5 / 打开 `RoomLayoutEditor.tscn`）需用户确认：选禁区手柄 → Inspector 改 `shape_type=1`+编辑 `points` 画不规则形状、调 `rotation_deg` 旋转 → 视口即时显示；`Ctrl+S` 保存；进对应房间运行期应看到同形状/旋转的红区且玩家被挡。start 房进房即有怪。
+
+## 新增·2026-08-05（补32）— 序列帧素材管理器编辑器插件
+用户诉求：做一个 Godot 编辑器插件（管理界面），选取序列帧/单图素材，自动探测同目录 `.json` 图集（没有则按网格切分），实时预览，一键生成可拖入场景编辑的「动态素材」。参考素材 `Artssucai/test/`（sprite.png 11520×6480 + index.json：9列×9行、1280×720 帧、76 帧、逐帧时间 t）。
+
+### 插件文件（`addons/sequence_frame_manager/`，已在 project.godot `[editor_plugins]` 启用）
+- `plugin.cfg`：插件元信息（名称「序列帧素材管理器」）。
+- `plugin.gd`（`@tool EditorPlugin`）：`_enter_tree` 把 `SeqFramePanel` 作为底部 Dock 注册；`_exit_tree` 卸载。
+- `SeqFramePanel.gd`（`@tool Control`，底部 Dock 面板）：
+  - ① 选图：`EditorFileDialog`（`ACCESS_RESOURCES`）筛选图片。
+  - ② 图集自动探测：`_find_atlas()` 扫描同目录 `.json`，解析后若含 `frames` 即采用；支持本项目 `index.json` 格式（顶层 `frame_size` + `frames:[{x,y,w,h,t}]`）与 TexturePacker 字典格式（`frames` 为字典、帧矩形在 `.frame`）。无 JSON → 按「帧宽/帧高」均匀网格切分，可勾选「手动指定总帧数」覆盖。
+  - 实时预览：右侧 `AnimatedSprite2D` 即时播放当前配置（动态所见即所得）。
+  - ③ 输出：素材名（默认取图名）+ 输出目录（默认 `res://Artssucai/gen/`）。
+  - ④ 生成：`_generate()` 用 `AtlasTexture` 把每帧裁出，写入 `SpriteFrames` 存为 `<name>.tres`；再 `PackedScene.pack(AnimatedSprite2D)` 存为 `<name>.tscn`（含 `autoplay="default"`）。二者均可直接从 FileSystem 拖入任意场景编辑。
+  - ⑤ 管理列表：扫描输出目录列出 `.tscn`，双击 `EditorInterface.open_scene_from_path` 打开；生成后 `EditorFileSystem.scan()` 刷新面板。
+  - 帧率：图集有 `t` 字段时按相邻帧平均时间推算，否则取 UI 上的 fps。
+
+### 验证
+- 无头 `--headless -s` 跑真实管线（sprite.png + index.json）：`RECTS_COUNT=76`、`FRAME_COUNT=76`、`fps≈12`；生成 `.tres`+`.tscn`，`load()`+`instantiate()` 成功且帧数 76；零 `SCRIPT ERROR`。测试产物与临时脚本已清理。
+- 编辑器实机需用户确认：重开 Godot → 底部 Dock 出现「序列帧素材」→ 选 `Artssucai/test/sprite.png` → 自动识别 index.json → 预览播放 → 点「生成素材」→ FileSystem 出现 `sprite.tres`/`.tscn`，拖入场景即是一个会动的 AnimatedSprite2D。
+
+### 本构建踩到的 API 坑（已规避，记入 MEMORY.md）
+- `DirAccess.make_dir_recursive()` 在本构建是实例方法，须 `DirAccess.open("res://").make_dir_recursive(path)`。
+- `AnimatedSprite2D` 无 `playing` 属性（Godot 4 用 `play()`/`autoplay`），设置会抛 SCRIPT ERROR。
+- `EditorInterface.get_resource_filesystem()` 与 `EditorFileSystem.scan()` 静态调用在本构建均不存在/非静态；正确拿实例：`Engine.get_singleton("EditorFileSystem").call("scan")`。
+
+## 修改·2026-08-05（补33）— 插件预览区空白修复（看不到图片）
+症状：打开「序列帧素材」Dock，选了图也看不到预览画面。
+根因：预览用的 `AnimatedSprite2D`（`Node2D`/2D 节点）被加进底部 Dock 的 GUI 容器（`VBoxContainer`，属 `Control` 体系）。`Node2D` 在 `Control` 树中没有 2D 画布可渲染，整块空白；无论是否选图都不可见，与「没选图」外观一致，极具迷惑性。
+修法：预览区改为 `Panel` + `TextureRect`（`Control` 系，能在 GUI 内渲染），由 `Timer` 轮播各帧 `AtlasTexture` 模拟动画；新增 `_on_preview_timeout()` 与设置项实时联动 `_on_settings_changed()`（帧宽/帧高/总帧数/fps/循环任一变更即重算预览与帧信息）。未选图时 `TextureRect` 显示占位提示文案引导先选图。
+验证：无头 `--editor` 启动 `EXIT=0`、零 `SCRIPT ERROR`；旧 `_preview(AnimatedSprite2D)` 引用已全清。此坑已补入 MEMORY.md 编辑器坑②。
+
+## 修改·2026-08-05（补34）— 预览区增加逐帧控制 UI（上一帧/播放/下一帧 + 进度条）
+用户诉求：插件要有合理 UI —— 有「选择图片」按钮，点选后自动读取图集，能用按钮前后切帧，切到哪帧预览区就显示哪帧。
+改动（`SeqFramePanel.gd`）：
+- ④ 预览区新增控制条：`上一帧` / `播放·暂停` / `下一帧` 三个按钮 + `第 X / N 帧` 计数标签 + `HSlider` 帧进度条（拖动即逐帧）。
+- 选图后（`_on_image_selected` → `_rebuild_preview`）自动读取图集/网格、装配帧数组、自动从第 0 帧开始播放。
+- `_set_frame(idx)`：设当前帧并同步预览图/进度条/计数；`_on_prev_pressed`/`_on_next_pressed` 逐帧前后切（到头自动回绕）；`_on_play_pressed` 切换播放/暂停；`_on_slider_changed` 拖动跳帧。任意手动操作都会暂停自动播放，符合「前后切好后预览」的预期。
+- 健壮性：预览方法对 `_preview_timer`/`_frame_slider`/`_frame_label` 增加 null 守卫（防御 `_ready` 未完成即被调用）。
+验证：无头 `-s` 构造面板实例 + 真实 `sprite.png`/`index.json` 跑通 —— `FRAMES=76`、`next→1`、连按两次 `prev→75`（回绕）、`set(10)→第11/76帧`、进度条 `max=75 val=10`，零 `SCRIPT ERROR`；测试脚本已清理。
+
+## 修改·2026-08-05（补35）— 序列帧插件：像素自动识别 + 右侧素材库 + 拖入场景
+用户诉求：① 帧切分/帧率默认自动识别、可手动覆盖（含像素算法）；② 面板右边空，要自动列出已切好的素材并循环预览、能直接拖入场景；③ 解决拖入场景保存报错与游戏内动画不显示。
+改动（`SeqFramePanel.gd` 整体重写）：
+- **自动识别（默认开）**：`② 帧切分设置` 新增「自动识别」勾选。有图集 JSON → 用帧矩形；无图集但有透明通道 → `_detect_grid()` 用**不透明帧带**算法（检测帧带中心间隔取众数得 stride，列/行数 = (总长-帧宽)/stride+1，避免末位漏帧）推断单元格与行列；无透明通道（如全不透明视频帧图）则提示手动。手动帧宽/帧高在自动开启时被禁写，关闭后可手改。
+- **帧率自动（默认开）**：「帧率自动」勾选 → 有图集时序则推算、否则默认 12fps；取消勾选可手填。
+- **右栏素材库**：面板改左右双栏。右侧 ⑤「素材库」自动扫 `_output_edit` 目录的 `.tscn`，用共享 `Timer` 循环播放每个已生成素材的预览（`_load_lib_frames` 从 .tscn 提取 SpriteFrames 各帧），每个条目实现 `_get_drag_data` 返回 `{"files":[path]}`，**可直接从面板拖入任意场景的 2D 视口/场景树**。
+改动（`RoomLayoutEditor.gd`）：
+- 新增 `_saving` 标志：`NOTIFICATION_EDITOR_PRE_SAVE` 期间置位，`_watch_specs`（`_process` 轮询重建手柄）在此期间跳过，避免保存/拖入瞬间 `queue_free` 掉场景树面板仍缓存的节点路径，抑制 `Node not found: RoomLayoutEditor/@Node2D@...` 报错（已知 Godot 编辑器坑，无害日志但扰人）。
+验证：无头 `--editor` 编译 EXIT=0 零 `SCRIPT ERROR`（插件+RoomLayoutEditor）。无头 `-s`：合成 3×3 带间隔图 → `DETECT_OK CELL(72,72) COLS3 ROWS3 RECTS9`；真实 `sprite.png`+`index.json` → `ATLAS_FRAMES76`、`LIB_FRAMES76`（素材库循环预览取帧正常）。测试产物已清理。
+
+## 说明·2026-08-05 — 关于「拖入场景后游戏内动画不显示」
+RoomLayoutEditor 是**编辑器专用工具场景**，其下子节点（含拖入的素材）不会进入实际游戏；把生成的 `.tscn` 拖进 RoomLayoutEditor 不会在游戏里出现。正确做法：把素材从插件右栏（或 FileSystem）**拖进真正的玩法场景**（如一个 2D/游戏场景），实例化后 `AnimatedSprite2D.autoplay="default"` 会在进场景树时自动播放。如需「房间内装饰性动态素材」，应走 RoomManager 在运行期实例化，而非手动拖进工具场景。

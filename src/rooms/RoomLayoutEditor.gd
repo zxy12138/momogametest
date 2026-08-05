@@ -68,6 +68,9 @@ var _enemy_markers: Array[Node2D] = []
 var _spawn_marker: Node2D = null
 var _blocked_rects: Array[Node2D] = []
 var _spec_snapshot: Dictionary = {}
+## 保存/拖入期间置位，禁止 _process 轮询重建手柄（否则会 queue_free 掉场景树面板
+## 仍缓存的节点路径，触发 “Node not found: RoomLayoutEditor/@Node2D@...” 报错）。
+var _saving: bool = false
 
 
 func _ready() -> void:
@@ -78,19 +81,22 @@ func _ready() -> void:
 func _rebuild() -> void:
 	if not Engine.is_editor_hint() or not is_inside_tree():
 		return
+	_ensure_layout()
+	# 清空手柄前，先把用户从序列帧插件拖入的 AnimatedSprite2D 吸收为 decorations 数据，避免丢失。
+	_sync_decorations_from_children()
 	for c in get_children():
 		c.queue_free()
 	_door_markers.clear()
 	_enemy_markers.clear()
 	_blocked_rects.clear()
 	_spawn_marker = null
-	_ensure_layout()
 	_load_specs_into_editor()
 	_build_bg()
 	_build_doors()
 	_build_enemies()
 	_build_spawn()
 	_build_blocked()
+	_build_decorations()
 	queue_redraw()
 	_snapshot_specs()
 
@@ -339,6 +345,8 @@ func _process(_delta: float) -> void:
 
 
 func _watch_specs() -> void:
+	if _saving:
+		return
 	var changed := false
 	if _spec_snapshot.get("_len", -1) != enemy_specs.size():
 		changed = true
@@ -363,7 +371,9 @@ func _snapshot_specs() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE and Engine.is_editor_hint():
+		_saving = true
 		_save_layout()
+		_saving = false
 
 
 func _save_layout() -> void:
@@ -409,7 +419,64 @@ func _save_layout() -> void:
 	if _spawn_marker != null:
 		_layout.spawn_point = _spawn_marker.position
 
+	# 把场景里用户从序列帧插件拖入的 AnimatedSprite2D 同步进 decorations 数据（保存即最新，含拖拽后的位置）。
+	_sync_decorations_from_children()
+
 	var path := _layout.resource_path if _layout.resource_path != "" else _layout_path()
 	var err := ResourceSaver.save(_layout, path)
 	if err != OK:
 		push_error("RoomLayoutEditor: 保存布局失败 %s -> %d" % [path, err])
+
+
+# ----------------------------------------------------------------------------
+# 装饰性动态素材（序列帧动画）：从插件素材库拖入 .tscn 即落进 RoomLayout 数据，
+# 运行期由 RoomManager._spawn_decorations 实例化。编辑器里用「吸收法」处理——
+# RoomLayoutEditor 是 Node2D 不能直接接收 GUI 文件拖放，但 Godot 会把拖入的
+# .tscn 原生化实例为子节点，我们在这里把它转成可持久化的数据。
+# ----------------------------------------------------------------------------
+
+## 把当前场景里用户从序列帧插件拖入的 AnimatedSprite2D 实例，吸收为 RoomLayout.decorations 数据。
+## 必须在 _rebuild 清空子节点之前、以及保存之前调用，避免拖入的装饰丢失或保存旧位置。
+## 统一用「重新赋值新数组」规避 Godot 对 .tres 已加载数组的只读限制。
+func _sync_decorations_from_children() -> void:
+	if _layout == null:
+		return
+	var new_deco: Array[DecorationPlacement] = []
+	for c in get_children():
+		if c is AnimatedSprite2D:
+			var spr := c as Node2D
+			var d := DecorationPlacement.new()
+			d.scene_path = c.scene_file_path
+			d.pos = c.position
+			# 完整记录视觉调整：缩放/旋转/翻转，运行期原样还原（所见即所得）。
+			# 注意 Node2D 只有 rotation(弧度)，无 rotation_deg 属性——存数据时转成度。
+			d.scale_xy = spr.scale
+			d.rotation_deg = rad_to_deg(spr.rotation)
+			d.flip_h = c.flip_h
+			d.flip_v = c.flip_v
+			new_deco.append(d)
+	_layout.decorations = new_deco
+
+
+## 从 RoomLayout.decorations 重建装饰预览：编辑器里就能直接看到动画在房间对应位置播放。
+## 运行期由 RoomManager._spawn_decorations 按同一数据实例化，两者解耦——编辑器预览仅用于摆位。
+func _build_decorations() -> void:
+	if _layout == null:
+		return
+	for def in _layout.decorations:
+		if def.scene_path == "" or not ResourceLoader.exists(def.scene_path):
+			continue
+		var ps := load(def.scene_path) as PackedScene
+		if ps == null:
+			continue
+		var inst := ps.instantiate() as AnimatedSprite2D
+		if inst == null:
+			continue
+		inst.position = def.pos
+		inst.z_index = int(def.pos.y)
+		inst.scale = def.scale_xy
+		inst.rotation = deg_to_rad(def.rotation_deg)
+		inst.flip_h = def.flip_h
+		inst.flip_v = def.flip_v
+		add_child(inst)
+		_set_owner(inst)
