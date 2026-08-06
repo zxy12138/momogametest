@@ -9,9 +9,9 @@
 
 [sub_resource type="Resource" id="Resource_dgav6"]
 script = ExtResource("2_dgav6")
-scene_path = "res://Artssucai/gen/sprite.tscn"
-pos = Vector2(-444.33334, -261)
-scale_xy = Vector2(0.69531244, 0.72786456)
+scene_path = "res://assets/tiles/Dynamic_objects/dianti.tscn"
+pos = Vector2(-444.00003, -251)
+scale_xy = Vector2(0.6976563, 0.6984376)
 
 [sub_resource type="Resource" id="Resource_k85vj"]
 script = ExtResource("2_gtflh")

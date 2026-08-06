@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bdid0r1ickeoo"]
+
+[ext_resource type="SpriteFrames" uid="uid://c82cenfhw4ha8" path="res://Artssucai/gen/huatan.tres" id="1_psj23"]
+
+[node name="huatan" type="AnimatedSprite2D" unique_id=412593571]
+sprite_frames = ExtResource("1_psj23")
+autoplay = "default"
+centered = false

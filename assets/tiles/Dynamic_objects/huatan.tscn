@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bjfyvmr3200ep"]
+
+[ext_resource type="SpriteFrames" uid="uid://cjf63w8fjp765" path="res://assets/tiles/Dynamic_objects/huatan.tres" id="1_pi6am"]
+
+[node name="huatan" type="AnimatedSprite2D" unique_id=218514040]
+sprite_frames = ExtResource("1_pi6am")
+autoplay = "default"
+centered = false

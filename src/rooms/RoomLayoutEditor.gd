@@ -81,9 +81,12 @@ func _ready() -> void:
 func _rebuild() -> void:
 	if not Engine.is_editor_hint() or not is_inside_tree():
 		return
-	_ensure_layout()
-	# 清空手柄前，先把用户从序列帧插件拖入的 AnimatedSprite2D 吸收为 decorations 数据，避免丢失。
+	# 关键顺序修复：先吸收「当前房间（切换前）」的拖入装饰进旧布局，再加载新布局。
+	# 否则切换房间时 _ensure_layout 已把 _layout 换成新房间的 .tres，
+	# 残留的旧房间装饰子节点会被误写进新房间的 .tres，
+	# 导致装饰在所有关卡都显示（房间 .tres 被互相污染）。
 	_sync_decorations_from_children()
+	_ensure_layout()
 	for c in get_children():
 		c.queue_free()
 	_door_markers.clear()

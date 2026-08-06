@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://207jn7d244y7"]
+
+[ext_resource type="SpriteFrames" uid="uid://mddxuwddnjyy" path="res://assets/tiles/Dynamic_objects/dianti.tres" id="1_emq2h"]
+
+[node name="dianti" type="AnimatedSprite2D" unique_id=1104796653]
+sprite_frames = ExtResource("1_emq2h")
+autoplay = "default"
+centered = false

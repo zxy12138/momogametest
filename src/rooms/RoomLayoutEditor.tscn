@@ -2,111 +2,83 @@
 
 [ext_resource type="Script" uid="uid://b2fd1ac2cjbke" path="res://src/rooms/RoomLayoutEditor.gd" id="1"]
 [ext_resource type="Script" uid="uid://cv7cgcy5enob0" path="res://src/rooms/EnemyTypeCount.gd" id="2_80545"]
-[ext_resource type="Script" uid="uid://bf00wmg6yv0vg" path="res://src/rooms/EnemyPlacement.gd" id="2_hqiib"]
-[ext_resource type="PackedScene" uid="uid://di5i5klui1gvs" path="res://Artssucai/gen/sprite.tscn" id="4_ocap3"]
+[ext_resource type="Script" uid="uid://dccvysjn4g7cb" path="res://src/rooms/BlockedHandle.gd" id="4_c0ufc"]
+
+[sub_resource type="Resource" id="Resource_80545"]
+script = ExtResource("2_80545")
 
 [sub_resource type="Resource" id="Resource_ocap3"]
 script = ExtResource("2_80545")
-count = 2
+enemy_id = "kpi"
 
 [sub_resource type="Resource" id="Resource_q0at0"]
 script = ExtResource("2_80545")
-enemy_id = "kpi"
+enemy_id = "printer"
 
 [sub_resource type="Resource" id="Resource_hwrp5"]
 script = ExtResource("2_80545")
-enemy_id = "printer"
+enemy_id = "meeting"
 
 [sub_resource type="Resource" id="Resource_lnlal"]
 script = ExtResource("2_80545")
-enemy_id = "meeting"
+enemy_id = "phone"
 
 [sub_resource type="Resource" id="Resource_c0ufc"]
 script = ExtResource("2_80545")
-enemy_id = "phone"
+enemy_id = "commuter"
 
 [sub_resource type="Resource" id="Resource_yurqk"]
 script = ExtResource("2_80545")
-enemy_id = "commuter"
+enemy_id = "escalator"
 
 [sub_resource type="Resource" id="Resource_7tue8"]
 script = ExtResource("2_80545")
-enemy_id = "escalator"
-count = 2
+enemy_id = "rider"
 
 [sub_resource type="Resource" id="Resource_go31q"]
 script = ExtResource("2_80545")
-enemy_id = "rider"
+enemy_id = "revolving"
 
 [sub_resource type="Resource" id="Resource_4k643"]
 script = ExtResource("2_80545")
-enemy_id = "revolving"
+enemy_id = "package"
 
 [sub_resource type="Resource" id="Resource_644av"]
 script = ExtResource("2_80545")
-enemy_id = "package"
+enemy_id = "message"
 
 [sub_resource type="Resource" id="Resource_tnkhy"]
 script = ExtResource("2_80545")
-enemy_id = "message"
+enemy_id = "overdue"
 
 [sub_resource type="Resource" id="Resource_6ssfl"]
 script = ExtResource("2_80545")
-enemy_id = "overdue"
+enemy_id = "rejected"
 
 [sub_resource type="Resource" id="Resource_gvlet"]
 script = ExtResource("2_80545")
-enemy_id = "rejected"
-
-[sub_resource type="Resource" id="Resource_ihdv3"]
-script = ExtResource("2_80545")
 enemy_id = "heart_beat"
 
-[sub_resource type="Resource" id="Resource_fk6rh"]
+[sub_resource type="Resource" id="Resource_ihdv3"]
 script = ExtResource("2_80545")
 enemy_id = "elite_996"
 
 [node name="RoomLayoutEditor" type="Node2D" unique_id=902869484]
 script = ExtResource("1")
 floor_idx = 1
-room_id = "r2"
-enemy_specs = Array[ExtResource("2_80545")]([SubResource("Resource_ocap3"), SubResource("Resource_q0at0"), SubResource("Resource_hwrp5"), SubResource("Resource_lnlal"), SubResource("Resource_c0ufc"), SubResource("Resource_yurqk"), SubResource("Resource_7tue8"), SubResource("Resource_go31q"), SubResource("Resource_4k643"), SubResource("Resource_644av"), SubResource("Resource_tnkhy"), SubResource("Resource_6ssfl"), SubResource("Resource_gvlet"), SubResource("Resource_ihdv3"), SubResource("Resource_fk6rh")])
+room_id = "r1"
+enemy_specs = Array[ExtResource("2_80545")]([SubResource("Resource_80545"), SubResource("Resource_ocap3"), SubResource("Resource_q0at0"), SubResource("Resource_hwrp5"), SubResource("Resource_lnlal"), SubResource("Resource_c0ufc"), SubResource("Resource_yurqk"), SubResource("Resource_7tue8"), SubResource("Resource_go31q"), SubResource("Resource_4k643"), SubResource("Resource_644av"), SubResource("Resource_tnkhy"), SubResource("Resource_6ssfl"), SubResource("Resource_gvlet"), SubResource("Resource_ihdv3")])
+blocked_count = 1
 
-[node name="@Node2D@22298" type="Node2D" parent="." unique_id=2068751875]
-position = Vector2(79, -132)
-metadata/target = "r1"
+[node name="@Node2D@19895" type="Node2D" parent="." unique_id=1795942927]
+position = Vector2(314, -133)
+metadata/target = "r2"
 
-[node name="@Node2D@22301" type="Node2D" parent="." unique_id=808384283]
-position = Vector2(371, 4)
-metadata/target = "r3"
+[node name="_Node2D_19906" type="Node2D" parent="." unique_id=10279074]
+position = Vector2(-68, 92)
 
-[node name="@Node2D@22304" type="Node2D" parent="." unique_id=1749304984]
-position = Vector2(-414, 0)
-metadata/target = "r4"
-
-[node name="@Node2D@22305" type="Node2D" parent="." unique_id=1758487741]
-position = Vector2(276, -31)
-script = ExtResource("2_hqiib")
-enemy_id = "overtime_ghost"
-
-[node name="@Node2D@22308" type="Node2D" parent="." unique_id=1430009419]
-position = Vector2(-195, 72)
-script = ExtResource("2_hqiib")
-enemy_id = "overtime_ghost"
-
-[node name="@Node2D@22313" type="Node2D" parent="." unique_id=1240519863]
-position = Vector2(-80.871376, -63.48002)
-script = ExtResource("2_hqiib")
-enemy_id = "escalator"
-
-[node name="@Node2D@22318" type="Node2D" parent="." unique_id=1096826297]
-position = Vector2(-259, -58.000004)
-script = ExtResource("2_hqiib")
-enemy_id = "escalator"
-
-[node name="@Node2D@22323" type="Node2D" parent="." unique_id=439697121]
-position = Vector2(10, 44)
-
-[node name="sprite" parent="." unique_id=1752611261 instance=ExtResource("4_ocap3")]
-position = Vector2(-444.33334, -261)
-scale = Vector2(0.69531244, 0.72786456)
+[node name="@Node2D@19907" type="Node2D" parent="." unique_id=642640117]
+position = Vector2(-86, -116)
+script = ExtResource("4_c0ufc")
+shape_type = 1
+points = PackedVector2Array()
