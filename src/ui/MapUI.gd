@@ -24,7 +24,7 @@ func _ready() -> void:
 
 func _build_panel() -> void:
 	_panel = Control.new()
-	_panel.mouse_filter = 1  # 拦截点击，避免穿透到游戏世界
+	_panel.mouse_filter = Control.MOUSE_FILTER_PASS  # 拦截点击，避免穿透到游戏世界
 	_panel.position = Vector2.ZERO
 	_panel.size = get_window().get_visible_rect().size
 	add_child(_panel)
@@ -44,7 +44,7 @@ func _build_panel() -> void:
 
 	var dim := ColorRect.new()
 	dim.color = Color(0.02, 0.02, 0.06, 0.30)                    # 降低透明度让羊皮纸透出
-	dim.mouse_filter = 1
+	dim.mouse_filter = Control.MOUSE_FILTER_PASS
 	dim.size = _panel.size
 	_panel.add_child(dim)
 

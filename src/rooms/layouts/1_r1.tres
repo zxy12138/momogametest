@@ -11,7 +11,6 @@
 script = ExtResource("1_etvvy")
 center = Vector2(-86, -116)
 shape_type = 1
-points = PackedVector2Array()
 
 [sub_resource type="Resource" id="Resource_cgs5u"]
 script = ExtResource("2_3ll5e")

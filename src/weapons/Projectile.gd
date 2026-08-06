@@ -14,6 +14,7 @@ var effects := ""
 var effect_time := 0.0
 var homing := false
 var texture_path := ""
+var spin := false   # 飞旋斧：弹体自转（视觉 + 判定暗示）
 var _life := 3.0
 var _hit := []   # 已命中敌人，避免穿透重复结算
 
@@ -40,7 +41,15 @@ func _physics_process(delta: float) -> void:
 			var to := (p.global_position - global_position).normalized()
 			direction = direction.lerp(to, 0.06).normalized()
 	global_position += direction * speed * delta
-	rotation = direction.angle() if not from_player else 0.0
+	if spin:
+		# 飞旋斧：只转 Sprite（节点 rotation 保持 0，弹体整体朝向仍随方向）
+		var sp := get_node_or_null("Sprite")
+		if sp != null:
+			sp.rotation += 22.0 * delta
+			rotation = direction.angle()
+	else:
+		# 玩家与敌人弹体都朝飞行方向（贴图基准朝右）；旧逻辑玩家弹不转向导致箭横着飞
+		rotation = direction.angle()
 	_life -= delta
 	if _life <= 0:
 		queue_free()

@@ -5,11 +5,12 @@
 - Autoload：GameManager(全局状态/成长/瞬态标志 prologue_pending·game_completed)、SaveManager(user://save.json)、MapData(房间状态机)。
 - 玩家=食梦貘 2.5D 8向动作射击；占位素材验证玩法。
 
-## 关卡(2026-08-03 扩7房)
-- f1/f2: r1(start)→r2→r3/r4→r5→r6→r7(boss)；f3 加 r0(start) 共8房。start_room(idx) 第三层=r0 其余=r1。
-- neighbors 线性(去网状)；boss=f1 b_director/f2 b_train/f3 b_fear 全挂 r7。
-- 背景 S_00{层}_{房}.png/.ogv 由 LevelData.TILES→MapData.load_layer 注入 scene_img，RoomManager prefab 整图(z=-4000)。f3 r7 额外 boss_intro_img=S_003_7+boss_intro_time=2.5。
-- 通关：3 Boss 全清→game_completed→Epilogue→回 Game 走 _enter_completed_state(transition_to("r7",true))。
+## 关卡(2026-08-07 场景化大重构)
+- **架构**：每房独立场景 `src/rooms/scenes/f{层}_{房}.tscn`（22 个，根=RoomManager+导出 layer/room_id，F6 可单跑）；每层一个世界场景 `src/rooms/worlds/Layer{1,2,3}.tscn`（房间锚点节点名=rid 按 LevelData.pos 摆布 SPACING=6000×2240 + Ghost 占位框 group `layer_ghost` + 邻居 Line2D 连线；Layer.gd 运行时隐藏占位）。
+- **Game 切房**：`_ensure_world()` 按层名实例化世界场景（切层自动重建）→ `_swap` 在锚点下实例化房间场景 → `setup(rid, MapData.room(rid), layer, anchor, self)`（RoomManager._setup_done 防重：场景 _ready 已自建）；出生点=锚点 global + 房间局部；相机 focus=当前房间实例 global_position。
+- 房间内容数据流不变：背景 S_00{层}_{房}.png/.ogv 由 LevelData.TILES→tile_path 注入 scene_img；门/敌人/禁区/出生点存 layouts/{层}_{房}.tres（RoomLayoutEditor 仍编辑它）。
+- f1/f2: r1(start)→r2→r3/r4→r5→r6→r7(boss)；f3 加 r0(start) 共8房。start_room(idx) 第三层=r0 其余=r1。boss=f1 b_director/f2 b_train/f3 b_fear 全挂 r7。通关：3 Boss 全清→Epilogue→回 Game _enter_completed_state。
+- **武器（2026-08-07 回退单武器）**：WeaponSystem 单武器模式（loadout 至多 1 把，图标固定悬浮 (34,-40)，8 形态攻击保留）；开局地面随机 3 把 F 选 1（_starter_pickups 拾取后其余消失）；每新房首进掉 1~2 把 F 替换；拾取物挂 $World 世界坐标，_swap 显式清 group `weapon_pickup`。
 
 ## Godot 4.x 关键坑（必守）
 - 严格模式：变量必显式标类型；推断 Variant 解析失败。

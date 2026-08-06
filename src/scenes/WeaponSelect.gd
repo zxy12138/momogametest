@@ -1,5 +1,5 @@
 # 《梦境逐影》初始武器三选一（Control 根）
-# 选中 -> GameManager.reset_run(wid) -> 进入 Game 场景。
+# 开局随机抽 3 把作为悬浮武器栏，点「开始游戏」进入 Game 场景。
 extends Control
 
 func _ready() -> void:
@@ -9,33 +9,40 @@ func _ready() -> void:
 	add_child(bg)
 
 	var t := Label.new()
-	t.text = "选择你的初始武器"
-	t.position = Vector2(get_viewport_rect().size.x / 2 - 130, 50)
-	t.add_theme_font_size_override("font_size", 24)
+	t.text = "你的初始武器（随机三把 · 悬浮身边）"
+	t.position = Vector2(get_viewport_rect().size.x / 2 - 190, 50)
+	t.add_theme_font_size_override("font_size", 22)
 	t.add_theme_color_override("font_color", Color(0.9, 0.85, 1.0))
 	add_child(t)
 
-	var starters: Array = Weapons.STARTERS
-	var n := starters.size()
-	var card_w := 220.0
+	var ids: Array[String] = Weapons.pick_three()
+	var n := ids.size()
+	var card_w := 200.0
 	var gap := 30.0
 	var total := float(n) * card_w + float(n - 1) * gap
 	var x0 := (get_viewport_rect().size.x - total) / 2.0
 	var y0 := 150.0
 	for i in n:
-		var wid: String = starters[i]
-		var w: Dictionary = Weapons.get_weapon(wid)
-		var card := _card(wid, w, Vector2(x0 + i * (card_w + gap), y0), card_w)
-		add_child(card)
+		var c := _card(ids[i], Vector2(x0 + i * (card_w + gap), y0), card_w)
+		add_child(c)
+
+	var start := Button.new()
+	start.text = "开始游戏"
+	start.position = Vector2(get_viewport_rect().size.x / 2 - 90, 440)
+	start.size = Vector2(180, 40)
+	start.pressed.connect(func(): _start(ids))
+	add_child(start)
 
 	var back := Button.new()
 	back.text = "返回主菜单"
-	back.position = Vector2(get_viewport_rect().size.x / 2 - 90, 440)
+	back.position = Vector2(get_viewport_rect().size.x / 2 - 90, 490)
 	back.size = Vector2(180, 40)
 	back.pressed.connect(_back)
 	add_child(back)
 
-func _card(wid: String, w: Dictionary, pos: Vector2, ww: float) -> Control:
+
+func _card(wid: String, pos: Vector2, ww: float) -> Control:
+	var w: Dictionary = Weapons.get_weapon(wid)
 	var c := Control.new()
 	c.position = pos
 	var panel := ColorRect.new()
@@ -70,22 +77,17 @@ func _card(wid: String, w: Dictionary, pos: Vector2, ww: float) -> Control:
 	c.add_child(dmg)
 
 	var cd := Label.new()
-	cd.text = "攻速：" + str(snapped(1.0 / w["cooldown"], 0.01)) + " 次/秒"
+	cd.text = "攻速：" + str(snapped(1.0 / float(w["cooldown"]), 0.01)) + " 次/秒"
 	cd.position = Vector2(10, 178)
 	cd.add_theme_font_size_override("font_size", 13)
 	c.add_child(cd)
-
-	var btn := Button.new()
-	btn.text = "选择"
-	btn.position = Vector2(ww / 2.0 - 50, 200)
-	btn.size = Vector2(100, 38)
-	btn.pressed.connect(func(): _choose(wid))
-	c.add_child(btn)
 	return c
 
-func _choose(wid: String) -> void:
-	GameManager.reset_run(wid)
+
+func _start(ids: Array) -> void:
+	GameManager.reset_run_loadout(ids)
 	get_tree().change_scene_to_file("res://src/scenes/Game.tscn")
+
 
 func _back() -> void:
 	get_tree().change_scene_to_file("res://src/scenes/Main.tscn")

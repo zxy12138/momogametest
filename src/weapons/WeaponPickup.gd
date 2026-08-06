@@ -26,7 +26,7 @@ func _ready() -> void:
 		img.fill(Color(1, 0, 1, 1))
 		_spr.texture = ImageTexture.create_from_image(img)
 	_spr.z_index = int(global_position.y)
-	_spr.scale = Vector2(0.8, 0.8)   # 放大显示在地面，确保「看得出是武器」
+	_spr.scale = Vector2(0.22, 0.22)   # 地面武器缩放（用户多次反馈太大：0.8→0.55→0.35→0.22，约 66px < 玩家 84px）
 	add_child(_spr)
 	# 轻微上下浮动，提示这是可交互物
 	var tw := get_tree().create_tween()

@@ -9,6 +9,11 @@ const ENEMY = preload("res://src/enemies/Enemy.tscn")
 # 改为运行期 load()：进入 Boss 房时 Enemy 早已注册，可安全解析。
 const BOSS_PATH := "res://src/enemies/Boss.tscn"
 
+## 场景自描述（世界场景里的房间场景 f{层}_{房}.tscn 导出）：编辑器里直接看到该节点属于哪层哪房，
+## 也用于独立运行(F6)/编辑器打开时 _ready 自动构建该真实房间。
+@export var layer: int = 1
+@export var room_id: String = ""
+
 var W := 880.0
 var H := 500.0
 var _rid := ""
@@ -19,12 +24,16 @@ var _game: Node = null
 var _floor: TextureRect
 var _prefab := false  # 是否使用美术预制整图作背景（v4.0 试用）
 var _layout: RoomLayout
+var _setup_done := false  # 防重复构建：房间场景 _ready 自建后，Game 再调 setup 直接返回
 
 
-func setup(rid: String, data: Dictionary, layer: int, entities: Node, game: Node) -> void:
+func setup(rid: String, data: Dictionary, floor_idx: int, entities: Node, game: Node) -> void:
+	if _setup_done:
+		return
+	_setup_done = true
 	_rid = rid
 	_data = data
-	_layer = layer
+	_layer = floor_idx
 	_entities = entities
 	_game = game
 	_layout = _load_layout()
@@ -34,8 +43,11 @@ func setup(rid: String, data: Dictionary, layer: int, entities: Node, game: Node
 	_build_blocked()
 	if _data.get("type", "") == "inn":
 		_build_inn()
-	_spawn_content()
-	_spawn_decorations()
+	# 编辑器预览只构建静态骨架（地板/墙/门/禁区/驿站）：避免刷怪把动态节点写进场景文件，
+	# 也避免 @tool 下 GameManager(placeholder) 被调用崩溃。运行期(F5/F6)才刷怪/装饰。
+	if not Engine.is_editor_hint():
+		_spawn_content()
+		_spawn_decorations()
 
 
 func _load_layout() -> RoomLayout:
@@ -47,7 +59,12 @@ func _load_layout() -> RoomLayout:
 
 
 func _build_floor() -> void:
-	_floor = get_node("Floor") as TextureRect
+	_floor = get_node_or_null("Floor") as TextureRect
+	if _floor == null:
+		# 防御：场景缺少 Floor 子节点时自建（生成的房间场景缺 Floor 会崩；此处兜底）
+		_floor = TextureRect.new()
+		_floor.name = "Floor"
+		add_child(_floor)
 	var img: String = _data.get("scene_img", "")
 	# 背景基准变换（来自 RoomLayout 的 bg_offset/bg_scale 用于对齐美术整图；缺省 0/1 等同原行为）。
 	# 视频与图片两套背景套用同一变换，确保编辑器摆放与运行期渲染完全一致。
@@ -100,11 +117,14 @@ func _add_video_floor(stream: VideoStream, base_pos: Vector2, base_scale: Vector
 	vp.position = base_pos
 	vp.scale = base_scale
 	vp.z_index = -4000
+	# play() 必须在节点进入场景树后调用（VideoStreamPlayer 要求 is_inside_tree()）。
+	# 用 tree_entered 信号保证时序，但【必须在 add_child 之前 connect】——
+	# tree_entered 在 add_child 时同步发出，connect 写在 add_child 之后会错过信号，play() 永不执行 → 背景黑屏。
+	vp.tree_entered.connect(func() -> void:
+		if is_instance_valid(vp):
+			vp.play()
+	)
 	add_child(vp)
-	# play() 必须在节点进入场景树后调用（VideoStreamPlayer 要求 is_inside_tree()），
-	# 否则报 "!is_inside_tree()" 且视频不播放→背景黑屏。call_deferred 保证整棵树就绪后的下一帧再播，
-	# 即便 RoomManager 自身此刻尚未挂入场景树也能安全生效。
-	vp.call_deferred("play")
 
 
 func _build_walls() -> void:
@@ -347,7 +367,7 @@ func _spawn_decorations() -> void:
 		var inst := ps.instantiate() as Node2D
 		if inst == null:
 			continue
-		inst.global_position = def.pos
+		inst.position = def.pos   # 房间局部坐标（房间实例挂在锚点下，全局由锚点变换）
 		inst.z_index = int(def.pos.y)
 		# 还原编辑器里的视觉调整：缩放/旋转/翻转，保证运行期与编辑器预览一致。
 		# Node2D 只有 rotation(弧度)，用 deg_to_rad 把数据里的 rotation_deg 转回。
@@ -361,7 +381,7 @@ func _spawn_decorations() -> void:
 func _spawn_enemy(eid: String, pos: Vector2) -> void:
 	var e := ENEMY.instantiate() as Node2D
 	e.call("setup", eid)
-	e.global_position = pos
+	e.position = pos   # 房间局部坐标（房间挂锚点下）
 	e.z_index = int(pos.y)
 	# 加进本房间节点：切换房间时 _room.queue_free() 会一并销毁，避免跨房叠加
 	add_child(e)
@@ -370,8 +390,8 @@ func _spawn_enemy(eid: String, pos: Vector2) -> void:
 func _spawn_boss(bid: String) -> void:
 	var b := load(BOSS_PATH).instantiate() as Node2D
 	b.call("setup", bid)
-	b.global_position = Vector2(0, -60)
-	b.z_index = int(b.global_position.y)
+	b.position = Vector2(0, -60)   # 房间局部坐标（房间挂锚点下）
+	b.z_index = int(b.position.y)
 	# 加进本房间节点：随房间销毁
 	add_child(b)
 
@@ -443,9 +463,20 @@ func _build_blocked() -> void:
 		add_child(poly)
 
 
-# 编辑器预览：独立打开 Room.tscn 时构建一个示例战斗房（墙/门/敌人可见）。
-# 当本节点被 Game 在编辑器里实例化并主动 setup() 时（parent 非 null），由 Game 驱动，不自动 build，避免重复生成。
+# 独立运行(F6)/编辑器打开房间场景：按场景导出属性(layer/room_id)构建该真实房间（地板/墙/门/禁区/驿站/敌人）。
+# 数据从 LevelData(class_name 全局类，编辑器/运行期均可安全访问)取，scene_img 由 tile_path 注入。
+# 被 Game 在运行时实例化并主动 setup() 时，setup 的 _setup_done 守卫保证不重复构建。
 func _ready() -> void:
+	if _rid == "" and room_id != "":
+		var L: Dictionary = LevelData.get_layer(layer)
+		var rooms_d: Dictionary = L.get("rooms", {}) as Dictionary
+		var data: Dictionary = (rooms_d.get(room_id, {}) as Dictionary).duplicate(true)
+		var tp: String = LevelData.tile_path(layer, room_id)
+		if tp != "":
+			data["scene_img"] = tp
+		setup(room_id, data, layer, get_parent(), get_tree().current_scene)
+		return
+	# 旧版示例预览：Room.tscn 无导出配置时的兜底
 	if Engine.is_editor_hint() and _rid == "" and get_parent() == null:
-		var data := {"type": "combat", "neighbors": ["r2", "r3"], "enemies": [["overtime_ghost", 1]]}
-		setup("preview", data, 1, get_parent(), get_tree().current_scene)
+		var data2 := {"type": "combat", "neighbors": ["r2", "r3"], "enemies": [["overtime_ghost", 1]]}
+		setup("preview", data2, 1, get_parent(), get_tree().current_scene)

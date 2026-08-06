@@ -1,0 +1,154 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://b416gqshfcoqe" path="res://src/rooms/worlds/Layer.gd" id="1"]
+
+[node name="Layer1" type="Node2D"]
+script = ExtResource("1")
+
+[node name="r1" type="Node2D" parent="."]
+position = Vector2(300.0, 1120.0)
+
+[node name="Ghost" type="Node2D" parent="r1"]
+groups=["layer_ghost"]
+
+[node name="Bg" type="ColorRect" parent="r1/Ghost"]
+size = Vector2(880, 500)
+position = Vector2(-440, -250)
+color = Color(0.25, 0.42, 0.72, 0.14)
+
+[node name="Title" type="Label" parent="r1/Ghost"]
+text = "r1 · 起点"
+position = Vector2(-56, -10)
+add_theme_font_size_override("font_size", 20)
+add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
+
+[node name="Frame" type="Line2D" parent="r1/Ghost"]
+points = PackedVector2Array(-440, -250, 440, -250, 440, 250, -440, 250, -440, -250)
+width = 3
+default_color = Color(0.65, 0.82, 1.0, 0.55)
+[node name="r2" type="Node2D" parent="."]
+position = Vector2(1200.0, 1120.0)
+
+[node name="Ghost" type="Node2D" parent="r2"]
+groups=["layer_ghost"]
+
+[node name="Bg" type="ColorRect" parent="r2/Ghost"]
+size = Vector2(880, 500)
+position = Vector2(-440, -250)
+color = Color(0.25, 0.42, 0.72, 0.14)
+
+[node name="Title" type="Label" parent="r2/Ghost"]
+text = "r2 · 战斗"
+position = Vector2(-56, -10)
+add_theme_font_size_override("font_size", 20)
+add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
+
+[node name="Frame" type="Line2D" parent="r2/Ghost"]
+points = PackedVector2Array(-440, -250, 440, -250, 440, 250, -440, 250, -440, -250)
+width = 3
+default_color = Color(0.65, 0.82, 1.0, 0.55)
+[node name="r3" type="Node2D" parent="."]
+position = Vector2(2280.0, 560.0)
+
+[node name="Ghost" type="Node2D" parent="r3"]
+groups=["layer_ghost"]
+
+[node name="Bg" type="ColorRect" parent="r3/Ghost"]
+size = Vector2(880, 500)
+position = Vector2(-440, -250)
+color = Color(0.25, 0.42, 0.72, 0.14)
+
+[node name="Title" type="Label" parent="r3/Ghost"]
+text = "r3 · 战斗"
+position = Vector2(-56, -10)
+add_theme_font_size_override("font_size", 20)
+add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
+
+[node name="Frame" type="Line2D" parent="r3/Ghost"]
+points = PackedVector2Array(-440, -250, 440, -250, 440, 250, -440, 250, -440, -250)
+width = 3
+default_color = Color(0.65, 0.82, 1.0, 0.55)
+[node name="r4" type="Node2D" parent="."]
+position = Vector2(2280.0, 1680.0)
+
+[node name="Ghost" type="Node2D" parent="r4"]
+groups=["layer_ghost"]
+
+[node name="Bg" type="ColorRect" parent="r4/Ghost"]
+size = Vector2(880, 500)
+position = Vector2(-440, -250)
+color = Color(0.25, 0.42, 0.72, 0.14)
+
+[node name="Title" type="Label" parent="r4/Ghost"]
+text = "r4 · 战斗"
+position = Vector2(-56, -10)
+add_theme_font_size_override("font_size", 20)
+add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
+
+[node name="Frame" type="Line2D" parent="r4/Ghost"]
+points = PackedVector2Array(-440, -250, 440, -250, 440, 250, -440, 250, -440, -250)
+width = 3
+default_color = Color(0.65, 0.82, 1.0, 0.55)
+[node name="r5" type="Node2D" parent="."]
+position = Vector2(3480.0, 1120.0)
+
+[node name="Ghost" type="Node2D" parent="r5"]
+groups=["layer_ghost"]
+
+[node name="Bg" type="ColorRect" parent="r5/Ghost"]
+size = Vector2(880, 500)
+position = Vector2(-440, -250)
+color = Color(0.25, 0.42, 0.72, 0.14)
+
+[node name="Title" type="Label" parent="r5/Ghost"]
+text = "r5 · 精英"
+position = Vector2(-56, -10)
+add_theme_font_size_override("font_size", 20)
+add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
+
+[node name="Frame" type="Line2D" parent="r5/Ghost"]
+points = PackedVector2Array(-440, -250, 440, -250, 440, 250, -440, 250, -440, -250)
+width = 3
+default_color = Color(0.65, 0.82, 1.0, 0.55)
+[node name="r6" type="Node2D" parent="."]
+position = Vector2(4680.0, 1120.0)
+
+[node name="Ghost" type="Node2D" parent="r6"]
+groups=["layer_ghost"]
+
+[node name="Bg" type="ColorRect" parent="r6/Ghost"]
+size = Vector2(880, 500)
+position = Vector2(-440, -250)
+color = Color(0.25, 0.42, 0.72, 0.14)
+
+[node name="Title" type="Label" parent="r6/Ghost"]
+text = "r6 · 驿站"
+position = Vector2(-56, -10)
+add_theme_font_size_override("font_size", 20)
+add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
+
+[node name="Frame" type="Line2D" parent="r6/Ghost"]
+points = PackedVector2Array(-440, -250, 440, -250, 440, 250, -440, 250, -440, -250)
+width = 3
+default_color = Color(0.65, 0.82, 1.0, 0.55)
+[node name="r7" type="Node2D" parent="."]
+position = Vector2(5700.0, 1232.0)
+
+[node name="Ghost" type="Node2D" parent="r7"]
+groups=["layer_ghost"]
+
+[node name="Bg" type="ColorRect" parent="r7/Ghost"]
+size = Vector2(880, 500)
+position = Vector2(-440, -250)
+color = Color(0.25, 0.42, 0.72, 0.14)
+
+[node name="Title" type="Label" parent="r7/Ghost"]
+text = "r7 · BOSS"
+position = Vector2(-56, -10)
+add_theme_font_size_override("font_size", 20)
+add_theme_color_override("font_color", Color(0.85, 0.92, 1.0))
+
+[node name="Frame" type="Line2D" parent="r7/Ghost"]
+points = PackedVector2Array(-440, -250, 440, -250, 440, 250, -440, 250, -440, -250)
+width = 3
+default_color = Color(0.65, 0.82, 1.0, 0.55)

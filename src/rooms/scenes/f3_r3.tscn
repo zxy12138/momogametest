@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1")
+layer = 3
+room_id = "r3"
+
+[node name="Floor" type="TextureRect" parent="."]

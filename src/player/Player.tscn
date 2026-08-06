@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://player001"]
 
 [ext_resource type="Script" uid="uid://bd8wellenpvvb" path="res://src/player/Player.gd" id="1"]
-[ext_resource type="Script" uid="uid://u6h75crmog54" path="res://src/weapons/Weapon.gd" id="2"]
+[ext_resource type="Script" path="res://src/weapons/WeaponSystem.gd" id="2"]
 
 [sub_resource type="CircleShape2D" id="circle_shape"]
 radius = 11.0

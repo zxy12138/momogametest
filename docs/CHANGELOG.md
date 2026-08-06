@@ -1153,3 +1153,122 @@ r4 → [r2, r5]
 
 ## 说明·2026-08-05 — 关于「拖入场景后游戏内动画不显示」
 RoomLayoutEditor 是**编辑器专用工具场景**，其下子节点（含拖入的素材）不会进入实际游戏；把生成的 `.tscn` 拖进 RoomLayoutEditor 不会在游戏里出现。正确做法：把素材从插件右栏（或 FileSystem）**拖进真正的玩法场景**（如一个 2D/游戏场景），实例化后 `AnimatedSprite2D.autoplay="default"` 会在进场景树时自动播放。如需「房间内装饰性动态素材」，应走 RoomManager 在运行期实例化，而非手动拖进工具场景。
+
+## 修改·2026-08-06（武器）— 8 把武器切片 + 占位特效 + 数据重构 + 数值表
+用户诉求：把 `Allweapons.png` 切出 8 把武器（法杖/剑/镰刀/弓/锤/鞭/枪/斧）替换旧 9+9 武器；每次选择武器随机生成 3 把悬浮玩家身旁、鼠标攻击有武器动作；8 种攻击形态各异；自由调攻击力写表；先生成特效素材后期替换。
+
+### 1. 切图（替换现有武器图标）
+- `tools/gen_weapon_assets.py`（新建，venv Pillow 12.3.0）：`Allweapons.png`(1408×768, 4×2 网格=352×384/格) → 按 alpha 自动裁边生成 8 张 `assets/weapons/icons/weapon_{staff,sword,scythe,bow,hammer,whip,spear,axe}.png`（250–320px 不等）。顺序严格对齐用户：第1行 法杖/剑/镰刀/弓，第2行 锤/鞭/枪/斧。
+
+### 2. 占位特效（后期替换真美术）
+- 同脚本生成 9 张占位 FX：`assets/weapons/fx/weapon_fx_{staff,bow,axe,sword,scythe,hammer,whip,spear}.png` + `weapon_fx_hit.png`（PIL 几何绘制：光弹/箭/飞旋斧/剑气弧/360环/砸地波/扇形/枪线）。文件名与 `Weapons.gd` 的 `fx` 路径一一对应。
+
+### 3. 数据重构 `src/data/Weapons.gd`
+- 旧 `DATA`（9 基础 + 9 升阶，含 moon/bubble/dual）整体替换为 **8 把基础武器、无升阶**。
+- 每把新增 `atk` 行为标签：`ranged_bolt`(法杖) / `melee_arc`(剑) / `melee_ring`(镰刀360°) / `ranged_arrow`(弓) / `melee_slam`(锤前方AOE) / `melee_fan`(鞭扇形更远) / `melee_line`(枪直线突刺) / `ranged_spin`(斧飞旋，攻速慢判定大)。
+- 新增 `fx` 路径字段、`pick_three(count=3)` 从 8 把随机抽不重复 3 把、`POOL` 全量数组。
+- 保留 `STARTERS`(staff/sword/scythe) / `SWAP_POOL`(其余5) / `get_weapon` / `can_upgrade` 兼容 `Game.gd`（仅用 STARTERS/SWAP_POOL/get_weapon，无悬空引用；旧 moon/bubble/dual/*_adv 全仓零引用）。
+
+### 4. 数值表（DPS 平衡 20–50）
+| 武器 | 行为 | 伤害 | 冷却 | 攻速 | DPS | 范围/角度 | 特殊 |
+|---|---|---|---|---|---|---|---|
+| 法杖 | 远程光弹 | 12 | 0.30 | 3.3 | 40 | 弹速420 穿透2 | — |
+| 剑 | 近战挥砍+剑气 | 15 | 0.30 | 3.3 | 50 | 弧95° 触达46 | combo3 |
+| 镰刀 | 近战360°环 | 11 | 0.55 | 1.8 | 20 | 全周 触达54 | 减速 |
+| 弓 | 远程箭 | 16 | 0.55 | 1.8 | 29 | 弹速560 穿透1 | — |
+| 锤 | 近战砸地AOE | 24 | 0.85 | 1.2 | 28 | 弧110° 触达50 AOE60 | 击退80 |
+| 鞭 | 近战扇形AOE | 13 | 0.45 | 2.2 | 29 | 弧70° 触达80(更远) | — |
+| 枪 | 近战直线突刺 | 18 | 0.40 | 2.5 | 45 | 弧30° 触达66(窄) | 突进 |
+| 斧 | 远程飞旋斧 | 20 | 0.70 | 1.4 | 29 | 弹速300 穿透3 AOE36(比弓大) | 旋转 |
+
+### 下一步（待用户确认攻击出手方式后实现）
+- 重写 `Weapon.gd` 为 Player 子节点「悬浮三武器」组件：3 把环绕武器各自贴图+攻击动画，鼠标攻击按选定模型触发对应 `atk` 行为（近战 360/fan/line/slam 用范围判定；远程 bolt/arrow/spin 用 Projectile，spin 加旋转）。
+- 升级 `Projectile.tscn` 支持 `spin`；`WeaponSelect` 改为开局随机 3 把；地面 `WeaponPickup` 改为替换 3 把中 1 把。
+
+### 验证
+- 切图/FX 已落盘，文件名与 `Weapons.gd` 路径一致；静态核对旧武器 id 全仓零引用，`Game.gd` 武器相关引用仍有效。沙箱无 Godot 二进制，图标裁切请于编辑器确认（重新打开项目触发 .import）。
+
+## 修改·2026-08-06（武器·续）— 悬浮三武器系统 + 8 种攻击行为
+用户确认：仅「主武器」出手攻击，另 2 把悬浮展示；地面拾取(F)替换主武器槽。
+
+### 1. 新组件 `src/weapons/WeaponSystem.gd`（挂在 Player 下的 "Weapon" 节点，替换原 Weapon.gd 脚本）
+- 3 槽 `loadout: Array[String]`，3 把图标 Sprite2D 缓慢环绕玩家（半径64，主武器高亮+放大，按下攻击时被冲推+缩放脉冲）。
+- 每帧由 `Player.gd` 的 `get_node("Weapon").call("process", delta, _aim, firing)` 驱动（签名不变，零改 Player.gd）。
+- 攻击分支按 `atk`：远程 `ranged_bolt/ranged_arrow` 发弹体；`ranged_spin`（斧）发自转弹体（Projectile 加 `spin` 自转）；近战 `melee_arc`(剑气弧)/`melee_ring`(镰刀360°)/`melee_slam`(锤前方AOE+击退)/`melee_fan`(鞭扇形)/`melee_line`(枪直线突刺+突进) 用范围判定 + 对应 `weapon_fx_*` 短暂特效。
+- 接口：`setup_loadout(ids)` / `get_active_id()` / `replace_active(wid)`；`Q` 或鼠标滚轮 `switch_weapon` 切换主武器。
+
+### 2. 数据/流程打通
+- `GameManager`：新增 `loadout: Array[String]` + `reset_run_loadout(ids)`（开局随机三把，主武器取第一把）。
+- `Game.gd`：`_spawn_starter_weapons` 改为把 `GameManager.loadout` 灌进 WeaponSystem（不再在地面摆 3 把）；`_pick_up_weapon` 改为替换主武器槽（旧主武器掉地可再拾）；新增 `_maybe_spawn_room_weapon`（每房间首次进入掉 1 把 SWAP_POOL 地面武器供替换）；客栈换武器 `_inn_swap` 改走 `_do_weapon_swap`（经 WeaponSystem.replace_active）。
+- `WeaponSelect.gd`：改为 `Weapons.pick_three()` 随机 3 张卡 + 「开始游戏」按钮 → `reset_run_loadout`。
+- `project.godot`：新增 `switch_weapon` 输入（Q + 滚轮上下）。
+
+### 3. 待实机验证（沙箱无 Godot）
+- F5：选武器界面随机 3 把 → 进游戏 3 把环绕；左键主武器按形态攻击（远程出弹/近战出弧或环或砸地波）；Q/滚轮切换主武器（图标高亮切换）；地面武器 F 替换主武器槽；每新房掉 1 把可捡。
+- 浮标图标缩放（0.26/0.19）与环绕半径(64)按手感微调即可。
+- `src/weapons/Weapon.gd` 已成孤儿脚本（不再被引用），保留待用，可后续删除。
+
+## 修改·2026-08-07 — 修 F5 编译报错
+用户报 3 类错误：
+1. **致命 Parser Error**：`WeaponSystem.gd` 用 `GameManager.get("skill_cd_mult", 1.0)` 等 4 处。`GameManager` 是 Autoload(Node)，`Object.get()` 在 GDScript 2.0 只接受 1 参；2 参形式是 `Dictionary.get(key, default)`。→ 改为直接属性访问 `GameManager.skill_cd_mult`/`atk_speed_mult`/`attack_mult`/`crit_dmg`（均在 GameManager 顶层定义）。
+2. **mouse_filter 枚举警告**（`INT_AS_ENUM_WITHOUT_MATCH`/`INT_AS_ENUM_WITHOUT_CAST`，报于 Game.gd:468/575）：`.gd` 里所有 `mouse_filter = 0/1/2` 整数赋值改为命名常量 `Control.MOUSE_FILTER_STOP`/`PASS`/`IGNORE`。涉及 `Game.gd`(190/363/372/468/575/586/700)、`MapUI.gd`(27/47)、`HUD.gd`(17/59/65/74)。`.tscn` 内的 `mouse_filter = 2` 是序列化数据不触发该警告，未动。**教训**：Godot 4.7.1 下 `Control.MouseFilter` 的 `0` 已非有效成员，裸整数赋值会被 strict 模式警告，须用命名枚举。
+3. 验证：`grep` 确认全仓无残留 `GameManager.get(` 2 参调用、无 `.gd` 内整数 `mouse_filter` 赋值。沙箱无 Godot 二进制，待用户 F5 复验。
+
+## 修改·2026-08-07（续）— 修第二轮编译报错（进关卡1才触发）
+用户报 4 项（1 硬错误 + 3 遮蔽警告）：
+1. **Parser Error「Cannot infer the type of path」**：`WeaponSystem.gd:174` `var path := FX + "weapon_fx_" + FXID[atk] + ".png"`。`FXID` 是未类型化 `const Dictionary` → `FXID[atk]` 为 Variant → 整式推断 Variant，`:=` 失败。改为 `var path: String = FX + "weapon_fx_" + String(FXID[atk]) + ".png"`。该脚本挂在 Player 的 Weapon 节点，Player 仅进战斗关卡实例化，故「进关卡1才报」。
+2. **SHADOWED_VARIABLE_BASE_CLASS**：`Game.gd:166/855` `var tr`（遮蔽 `Object.tr()`）→ 改名 `ct`；`Game.gd:610` `for name in picks`（遮蔽 `Node.name`）→ 改名 `afx`（lambda 内引用一并改）。
+3. 预防性核查：`RoomManager.gd:43` `String % Array` 推断 String、`RoomLayoutEditor.gd:108/428` 均 `-> String`，安全；`_button`/`_card`/`load_tex` 均有明确返回类型；`dir` 非 Node 成员无遮蔽。全仓无同类隐患。
+4. 验证：grep 无 `var tr` / `for name` / `var path :=`（Variant 源）残留。待用户 F5 复验。
+
+## 重构·2026-08-07（场景化关卡 + 武器回退）— 大版本
+用户诉求：①像普通 Godot 一样，所有关卡在场景里可见、连起来、用关卡名命名；②插件适配；③武器回到「地上随机 3 把 + F 选一把」。
+确认方案（AskUserQuestion 全选推荐）：每房独立场景实例化 / 每层一个世界场景 / 插件升级关卡总览 / 开局 3 选 1 + 每房掉 1~2 把可换。
+
+### Phase 1 场景化关卡
+- **RoomManager.gd**：`@export layer/room_id` 场景自描述；setup 形参 `floor_idx` + `_setup_done` 防重复构建（场景 _ready 自建后 Game 再 setup 直接返回）；编辑器预览跳过刷怪/装饰（防动态节点写进 .tscn）；`_ready` 按导出属性从 LevelData 构建真实房间（F6/编辑器打开即所见即所得）。**房间内容全部改局部坐标**（房间挂锚点下）：`_spawn_enemy/_spawn_boss/_spawn_decorations` 的 global_position→position。
+- **22 个房间场景** `src/rooms/scenes/f{层}_{房}.tscn`（层1/2: r1-r7，层3: r0-r7），`tools/gen_world_scenes.py` 解析 LevelData.gd 字面量生成（ext_resource 只写 path、不手写 uid）。
+- **3 个世界场景** `src/rooms/worlds/Layer{1,2,3}.tscn`：锚点（名=rid）按 pos 摆布（SPACING=6000×2240，否则归一化差 0.15 只 150px、房间框重叠）+ Ghost 占位框（group `layer_ghost`）+ 邻居连线；`Layer.gd` 运行时隐藏占位。
+- **Game.gd**：`_ensure_world()` 按层名实例化世界场景（切层自动重建）；`_swap` 在锚点下实例化房间场景，出生点局部→世界（`anchor.global_position + spawn_pos`）；`_update_camera` focus=当前房间 global_position（`center - focus*z`）；`_editor_build_preview` 显示整层 8 房+连线；`_spawn_next_door` 传送门跟房间位置；拾取物改挂 `$World` + `_swap` 显式清 group `weapon_pickup`；`spawn_enemy` 先 add_child 再设 global_position。
+- **坐标系统**：玩家/敌人/弹体/拾取物全走世界坐标；房间内门/禁区/敌人/背景全局部坐标（锚点变换）；WeaponSystem 攻击中心/判定用玩家与敌人 global_position（一致）。
+
+### Phase 2 武器回退（单武器 + 地面 3 选 1）
+- **WeaponSystem.gd**：`process` 空 loadout 直接 return（不自动补）；`_update_orbit` n==1 固定悬浮 (34,-40)；`replace_active` 空 loadout 时 `setup_loadout([wid])` 兜底（原实现 loadout 空时 `_active>=size` 直接 return → 首次拾取静默失效的坑）；8 形态攻击全保留。
+- **Game.gd**：`_spawn_starter_weapons` = 出生点地上随机 3 把（`Weapons.pick_three()`）+ `_starter_pickups` 记录，F 选定后其余 2 把消失；`_maybe_spawn_room_weapon` 每新房首进掉 1~2 把；`_pick_up_weapon` 开局清余。
+- **WeaponSelect** 已是孤儿场景（Main 无引用），保留不删。
+
+### Phase 3 插件关卡总览（待 Phase 1+2 实机验证后实施）
+- RoomLayoutEditor 加整层总览视图（房间框+连线+点击进房编辑）。当前插件仍可用（layouts/{层}_{房}.tres 数据流未变）。
+
+### 待实机验证（沙箱无 Godot，仅静态核对）
+1. F5 进 Game：世界场景整层预览（编辑器打开 Game.tscn 应见 8 房+连线）→ 开局地上 3 把武器 F 选 1 → 房间内容正常（背景/门/禁区/敌人）→ 过门切房（从对面门走出）→ 相机固定当前房。
+2. 切层（Boss 后传送门/开发者模式）：世界场景自动重建、层 2/3 房间正常。
+3. 编辑器打开 `src/rooms/worlds/Layer1.tscn` 看拓扑摆布；双击房间场景 F6 单跑。
+4. 风险点：VideoStreamPlayer 编辑器预览播放、世界场景坐标较大（6000 量级）不影响逻辑、`weapon_pickup` 组清理、开局拾取 replace_active 空栏兜底。
+
+## 修复·2026-08-07（进不了第一关 ×2 + 日志复制插件）
+用户 F5 报「无法进入第一关」，两类致命错误：
+1. **`Node not found: "Floor"`**：生成的房间场景缺 Floor 子节点（旧 Room.tscn 有）→ `_build_floor` 拿 null 后写 `visible` 崩。修复：`tools/gen_world_scenes.py` 模板补 Floor 节点并重生成 22 个场景；`RoomManager._build_floor` 加 `get_node_or_null` + 自建兜底防御。
+2. **`Parent path './Layer1/r7/Ghost' has vanished`**（实际 8 房全中）：.tscn 的 `parent` 必须相对场景根（`r1/Ghost`），生成时误写绝对路径（`Layer1/r1/Ghost`）。修复：生成脚本改相对路径并重生成 3 个世界场景。
+3. **新增 `addons/log_copy` 插件**：菜单「项目→工具→📋 复制最近日志到剪贴板」一键复制 `user://logs/godot.log` 末尾 800 行。手动路径：`%APPDATA%\Godot\app_userdata\梦境逐影 Dream Chaser\logs\godot.log`。
+4. 规范：房间/世界场景 ext_resource 从 .uid 读取真实 UID（RoomManager=uid://cf5xrf2cq4sgw、Layer=uid://b416gqshfcoqe），场景头不写 uid。
+
+## 调整·2026-08-07（5 项手感）
+1. **取消世界场景连线**：生成脚本不再输出邻居 Line2D，3 个世界场景重生成；Layer.gd 只隐藏 Ghost 占位框。
+2. **武器缩小**：悬浮武器 0.26/0.19→0.15/0.11；地面 WeaponPickup 0.8→0.55。
+3. **武器跟随鼠标**：单武器 sprite `rotation = aim.angle()` 每帧跟随瞄准。
+4. **攻击挥砍动画（纯运动，无素材）**：`_swing_t` 状态机 0.18s，武器沿 52px 半径弧线从 aim-1.6 摆到 aim+0.4。
+5. **仅大关起点选武器**：`_starter_rooms`（按 rid）在每层 start 房摆 3 把；删除 `_maybe_spawn_room_weapon`（普通/精英/驿站房不再掉武器）。
+
+## 调整·2026-08-07（第二轮手感 + 视频报错）
+1. **VideoStreamPlayer `!is_inside_tree()`**：RoomManager `call_deferred("play")` → `tree_entered` 信号连接（节点快速移除后 deferred 仍执行会报错）；RoomLayoutEditor 删冗余 call_deferred（autoplay 已可靠）。
+2. **地面武器**：WeaponPickup scale 0.55 → 0.35。
+3. **武器 360° 环绕**：单武器 `position = aim方向×46`（角色为中心圆周跟随鼠标）+ `rotation = aim.angle()`；挥砍弧半径 46。
+4. **攻击不切角色帧**：删 `player.call("play_attack")`，只保留武器挥砍。
+5. **玩家弹体朝向**：Projectile 玩家弹也 `rotation = direction.angle()`（原 from_player 不转向 → 箭横飞/箭头反）；spin 只转 Sprite。
+
+## 修复·2026-08-07（4 bug）
+1. **第一关背景没了**：RoomManager `tree_entered.connect` 写在 `add_child` 之后 → 错过同步信号，视频永不播放 → ogv 背景全黑。修复：connect 移到 add_child 之前。
+2. **地面武器仍大**：WeaponPickup scale 0.35 → 0.22（66px < 玩家 84px）。
+3. **未拾取武器过门回来消失**：`_starter_rooms` 改按层记录 + 摆时不标记；`_swap` 清 `_starter_pickups`；拾取选定后才标记该层已选。未拾取离开→回来重摆。
+4. **滤镜感**：视频黑屏 + 深蓝 clear color + Ghost 框叠加所致；视频修复后运行时正常（Ghost 按 group 隐藏，编辑器预览保留可视化）。

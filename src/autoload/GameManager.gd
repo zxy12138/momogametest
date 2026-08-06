@@ -24,6 +24,7 @@ var dream_eat_bonus := 0
 var extra_crit_flat := 0.0
 var extra_crit_dmg := 0
 var weapon_id := "staff"
+var loadout: Array[String] = []   ## 三槽武器栏（悬浮三武器）：开局随机 3 把，主武器=loadout[0]
 var weapon_swap_used := false
 var upgraded_done := false
 var dream_crystals := 0
@@ -72,6 +73,15 @@ func reset_run(wid: String) -> void:
 	compute_stats()
 	hp = max_hp
 	emit_signal("stats_changed")
+
+
+# 新游戏（选武器界面）：给定 3 把初始武器栏，主武器取第一把。
+func reset_run_loadout(ids: Array) -> void:
+	loadout.clear()
+	for x in ids:
+		loadout.append(String(x))
+	var first := loadout[0] if loadout.size() > 0 else "staff"
+	reset_run(first)
 
 
 # 死亡后保留：等级/经验/已解锁传送点/武器选择；重置：词条/梦晶/武器升阶

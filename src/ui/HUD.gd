@@ -14,7 +14,7 @@ const BAR_W := 220.0
 
 func _ready() -> void:
 	var root := Control.new()
-	root.mouse_filter = 2
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
 	_bar_bg(root, Vector2(16, 14), Vector2(BAR_W, 16), Color(0.25, 0.08, 0.12))
@@ -56,13 +56,13 @@ func _process(_d: float) -> void:
 
 func _bar_bg(parent: Control, pos: Vector2, size: Vector2, col: Color) -> void:
 	var r := ColorRect.new()
-	r.position = pos; r.size = size; r.color = col; r.mouse_filter = 2
+	r.position = pos; r.size = size; r.color = col; r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(r)
 
 
 func _bar_fill(parent: Control, pos: Vector2, size: Vector2, col: Color) -> ColorRect:
 	var r := ColorRect.new()
-	r.position = pos; r.size = size; r.color = col; r.mouse_filter = 2
+	r.position = pos; r.size = size; r.color = col; r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(r)
 	return r
 
@@ -71,6 +71,6 @@ func _text(parent: Control, t: String, pos: Vector2, size: int) -> Label:
 	var l := Label.new()
 	l.text = t; l.position = pos
 	l.add_theme_font_size_override("font_size", size)
-	l.mouse_filter = 2
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(l)
 	return l

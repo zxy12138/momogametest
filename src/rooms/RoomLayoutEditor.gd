@@ -191,7 +191,8 @@ func _build_bg() -> void:
 		vp.scale = base_scale
 		vp.z_index = -100
 		add_child(vp)
-		vp.call_deferred("play")
+		# autoplay=true 在节点入树时自动播放（可靠）；不再额外 call_deferred("play")，
+		# 避免节点快速移除后 deferred 调用触发 "!is_inside_tree()" 报错。
 		# 兜底：若同目录存在同名 .png 静帧（如 S_001_1.png），作为底图保留，
 		# 即便编辑器里视频偶发不渲染也能看到房间布局来对齐敌人/门/出生点。
 		var poster: String = path.get_basename() + ".png"
