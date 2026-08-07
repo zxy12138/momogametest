@@ -36,7 +36,7 @@ var visited := {}            # room_id -> true（当前层，可传送）
 var weak_window := false
 var birthday := false
 var input_locked := false   # 驿站/地图/死亡界面时锁输入
-var dev_mode := false        # 开发者模式：地图全显示+任意跳关（F2 切换）
+var dev_mode := false        # 开发者模式：地图内选层跳关（F2 切换；不再自动全开地图）
 
 # 新游戏开场序列（醒来独白 + 镜头拉近）触发开关。
 # 由 Main._new_game 置 true，经 Intro 一路带到 Game._ready，播放后清零。

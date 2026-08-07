@@ -1,19 +1,10 @@
-[gd_scene format=3 uid="uid://c6gxh52ok42wh"]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
-[ext_resource type="Texture2D" uid="uid://c2tjntt2wwqcr" path="res://assets/tiles/S_002_7.png" id="2_nyyrq"]
 
-[node name="Room" type="Node2D" unique_id=41215522]
+[node name="Room" type="Node2D"]
 script = ExtResource("1")
 layer = 2
 room_id = "r7"
 
-[node name="Floor" type="TextureRect" parent="." unique_id=1745037398]
-z_index = -4000
-offset_left = -440.0
-offset_top = -250.0
-offset_right = 440.0
-offset_bottom = 250.0
-texture = ExtResource("2_nyyrq")
-expand_mode = 1
-stretch_mode = 6
+[node name="Floor" type="TextureRect" parent="."]

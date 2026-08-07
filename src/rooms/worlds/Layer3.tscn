@@ -11,11 +11,6 @@ position = Vector2(0.0, 1120.0)
 [node name="Ghost" type="Node2D" parent="r0"]
 groups=["layer_ghost"]
 
-[node name="Bg" type="ColorRect" parent="r0/Ghost"]
-size = Vector2(880, 500)
-position = Vector2(-440, -250)
-color = Color(0.25, 0.42, 0.72, 0.14)
-
 [node name="Title" type="Label" parent="r0/Ghost"]
 text = "r0 · 起点"
 position = Vector2(-56, -10)
@@ -31,11 +26,6 @@ position = Vector2(720.0, 1120.0)
 
 [node name="Ghost" type="Node2D" parent="r1"]
 groups=["layer_ghost"]
-
-[node name="Bg" type="ColorRect" parent="r1/Ghost"]
-size = Vector2(880, 500)
-position = Vector2(-440, -250)
-color = Color(0.25, 0.42, 0.72, 0.14)
 
 [node name="Title" type="Label" parent="r1/Ghost"]
 text = "r1 · 战斗"
@@ -53,11 +43,6 @@ position = Vector2(1200.0, 1120.0)
 [node name="Ghost" type="Node2D" parent="r2"]
 groups=["layer_ghost"]
 
-[node name="Bg" type="ColorRect" parent="r2/Ghost"]
-size = Vector2(880, 500)
-position = Vector2(-440, -250)
-color = Color(0.25, 0.42, 0.72, 0.14)
-
 [node name="Title" type="Label" parent="r2/Ghost"]
 text = "r2 · 战斗"
 position = Vector2(-56, -10)
@@ -73,11 +58,6 @@ position = Vector2(2280.0, 560.0)
 
 [node name="Ghost" type="Node2D" parent="r3"]
 groups=["layer_ghost"]
-
-[node name="Bg" type="ColorRect" parent="r3/Ghost"]
-size = Vector2(880, 500)
-position = Vector2(-440, -250)
-color = Color(0.25, 0.42, 0.72, 0.14)
 
 [node name="Title" type="Label" parent="r3/Ghost"]
 text = "r3 · 战斗"
@@ -95,11 +75,6 @@ position = Vector2(2280.0, 1680.0)
 [node name="Ghost" type="Node2D" parent="r4"]
 groups=["layer_ghost"]
 
-[node name="Bg" type="ColorRect" parent="r4/Ghost"]
-size = Vector2(880, 500)
-position = Vector2(-440, -250)
-color = Color(0.25, 0.42, 0.72, 0.14)
-
 [node name="Title" type="Label" parent="r4/Ghost"]
 text = "r4 · 战斗"
 position = Vector2(-56, -10)
@@ -115,11 +90,6 @@ position = Vector2(3480.0, 1120.0)
 
 [node name="Ghost" type="Node2D" parent="r5"]
 groups=["layer_ghost"]
-
-[node name="Bg" type="ColorRect" parent="r5/Ghost"]
-size = Vector2(880, 500)
-position = Vector2(-440, -250)
-color = Color(0.25, 0.42, 0.72, 0.14)
 
 [node name="Title" type="Label" parent="r5/Ghost"]
 text = "r5 · 精英"
@@ -137,11 +107,6 @@ position = Vector2(4680.0, 1120.0)
 [node name="Ghost" type="Node2D" parent="r6"]
 groups=["layer_ghost"]
 
-[node name="Bg" type="ColorRect" parent="r6/Ghost"]
-size = Vector2(880, 500)
-position = Vector2(-440, -250)
-color = Color(0.25, 0.42, 0.72, 0.14)
-
 [node name="Title" type="Label" parent="r6/Ghost"]
 text = "r6 · 驿站"
 position = Vector2(-56, -10)
@@ -157,11 +122,6 @@ position = Vector2(5700.0, 1232.0)
 
 [node name="Ghost" type="Node2D" parent="r7"]
 groups=["layer_ghost"]
-
-[node name="Bg" type="ColorRect" parent="r7/Ghost"]
-size = Vector2(880, 500)
-position = Vector2(-440, -250)
-color = Color(0.25, 0.42, 0.72, 0.14)
 
 [node name="Title" type="Label" parent="r7/Ghost"]
 text = "r7 · BOSS"

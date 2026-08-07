@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="MapLayoutData" format=3 uid="uid://j4r5hxotxvf3"]
+
+[ext_resource type="Script" uid="uid://b052n5xxs3net" path="res://src/data/MapLayoutData.gd" id="1_05hgc"]
+
+[resource]
+script = ExtResource("1_05hgc")
+positions = {
+"f1-r1": Vector2(0.151865, 0.92066115),
+"f1-r2": Vector2(0.39431617, 0.3322314),
+"f1-r3": Vector2(0.4609236, 0.1107438),
+"f1-r4": Vector2(0.48756662, 0.73057854),
+"f1-r5": Vector2(0.660746, 0.48264462),
+"f1-r6": Vector2(0.75133216, 0.8892562),
+"f1-r7": Vector2(1, 0.8677686),
+"f2-r1": Vector2(0.14564832, 0.13553719),
+"f2-r2": Vector2(0, 0.4892562),
+"f2-r3": Vector2(0.40941384, 0.25123966),
+"f2-r4": Vector2(0.6465364, 0.8280992),
+"f2-r5": Vector2(0.77708703, 0.12231405),
+"f2-r6": Vector2(0.9795737, 0.28595042),
+"f2-r7": Vector2(0.41474244, 0.4842975),
+"f3-r0": Vector2(0.014209592, 0.71900827),
+"f3-r1": Vector2(0, 0.43636364),
+"f3-r2": Vector2(0.15541741, 0.4247934),
+"f3-r3": Vector2(0.3285968, 0.18512397),
+"f3-r4": Vector2(0.1447602, 0.89917356),
+"f3-r5": Vector2(0.38188276, 0.58677685),
+"f3-r6": Vector2(0.61101246, 0.8413223),
+"f3-r7": Vector2(0.6616341, 0.34710744)
+}

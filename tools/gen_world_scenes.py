@@ -95,18 +95,13 @@ def room_scene(fid, rid):
 
 
 def ghost_block(rid, title):
-    """锚点下的占位块：半透明底 + 边框 + 房间名。运行时由 Layer.gd 隐藏。
-    注意：.tscn 的 parent 必须是【相对场景根的路径】（不带根节点名），
+    """锚点下的占位块：边框 + 房间名（去掉 Bg 半透明蓝填充，避免编辑器里像盖了一层滤镜）。
+    运行时由 Layer.gd 隐藏。注意：.tscn 的 parent 必须是【相对场景根的路径】（不带根节点名），
     写成 "Layer1/r1/Ghost" 这类绝对路径会导致实例化报 "Parent path ... has vanished"。
     """
     return (
         '[node name="Ghost" type="Node2D" parent="%s"]\n'
         'groups=["layer_ghost"]\n'
-        "\n"
-        '[node name="Bg" type="ColorRect" parent="%s/Ghost"]\n'
-        'size = Vector2(880, 500)\n'
-        'position = Vector2(-440, -250)\n'
-        'color = Color(0.25, 0.42, 0.72, 0.14)\n'
         "\n"
         '[node name="Title" type="Label" parent="%s/Ghost"]\n'
         'text = "%s"\n'
@@ -118,7 +113,7 @@ def ghost_block(rid, title):
         'points = PackedVector2Array(-440, -250, 440, -250, 440, 250, -440, 250, -440, -250)\n'
         'width = 3\n'
         'default_color = Color(0.65, 0.82, 1.0, 0.55)\n'
-        "\n" % (rid, rid, rid, title, rid)
+        "\n" % (rid, rid, title, rid)
     )
 
 

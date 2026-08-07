@@ -280,8 +280,12 @@ func entry_door_position(target_rid: String) -> Vector2:
 
 
 ## 返回本房在 RoomLayout 中设置的角色出生点（房间局部坐标）；未设置(默认 ZERO)时返回 ZERO。
-## 用于让玩家在编辑器里自定义初始位置（Game._swap 首进/无来源房间时使用）。
+## 场景里可直接放一个名为 "Spawn" 的 Marker2D/Node2D 当出生点（优先，所见即所得）；
+## 没有则回退 RoomLayout.spawn_point（RoomLayoutEditor 拖的绿色菱形）。
 func spawn_point_position() -> Vector2:
+	var sp := get_node_or_null("Spawn") as Node2D
+	if sp != null:
+		return sp.position
 	if _layout != null:
 		return _layout.spawn_point
 	return Vector2.ZERO

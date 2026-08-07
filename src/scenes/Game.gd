@@ -600,7 +600,7 @@ func _build_inn_prompt() -> void:
 
 func _build_dev_label() -> void:
 	_dev_label = Label.new()
-	_dev_label.text = "开发者模式 ON · F12 切换 · M 看全图 · 地图内选层跳关"
+	_dev_label.text = "开发者模式 ON · 地图内选层跳关（F12 在地图界面临时全开）"
 	_dev_label.position = Vector2(20, get_window().get_visible_rect().size.y - 40)
 	_dev_label.add_theme_font_size_override("font_size", 13)
 	_dev_label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.7))
@@ -777,8 +777,7 @@ func _toggle_dev() -> void:
 	if _dev_label != null:
 		_dev_label.visible = GameManager.dev_mode
 	if GameManager.dev_mode:
-		MapData.reveal_all()
-		toast("开发者模式：开（按 M 看全图，地图内选层跳关）")
+		toast("开发者模式：开（地图内选层跳关）")
 	else:
 		toast("开发者模式：关")
 	var mu := get_node_or_null("MapUI")
@@ -969,7 +968,8 @@ func _spawn_starter_weapons() -> void:
 	if p == null:
 		return
 	var ids: Array = Weapons.pick_three()
-	var offs := [Vector2(-110.0, 30.0), Vector2(0.0, 55.0), Vector2(110.0, 30.0)]
+	# 三把武器围绕出生点（玩家）对称分布，整体居中（原 Y 全为正 → 整组偏下）
+	var offs := [Vector2(-110.0, -28.0), Vector2(0.0, 42.0), Vector2(110.0, -28.0)]
 	for i in ids.size():
 		var pk := _make_weapon_pickup(String(ids[i]), p.global_position + offs[i])
 		$World.add_child(pk)

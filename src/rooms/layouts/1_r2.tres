@@ -10,7 +10,6 @@
 [sub_resource type="Resource" id="Resource_dgav6"]
 script = ExtResource("1_qofnd")
 center = Vector2(0, 126.66669)
-points = PackedVector2Array()
 
 [sub_resource type="Resource" id="Resource_k85vj"]
 script = ExtResource("2_dgav6")

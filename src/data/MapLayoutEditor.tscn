@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bev2qh6bjce6u"]
+
+[ext_resource type="Script" uid="uid://dm2p2sxjem0u3" path="res://src/data/MapLayoutEditor.gd" id="1"]
+
+[node name="MapLayoutEditor" type="Node2D" unique_id=947523612]
+script = ExtResource("1")

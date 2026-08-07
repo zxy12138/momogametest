@@ -5,6 +5,11 @@ class_name Enemy
 
 const PROJ = preload("res://src/weapons/Projectile.tscn")
 
+## 场景里直接摆放怪物时填写的类型 id（如 "overtime_ghost" / "elite_996"）；
+## _ready 会自动按它 setup。动态刷怪由 RoomManager 在 add_child 前调 setup()，
+## 此时 _eid 已非空，_ready 不再重复 build（幂等）。
+@export var eid: String = ""
+
 var _data := {}
 var _eid := ""
 var hp := 30.0
@@ -62,9 +67,12 @@ func is_boss() -> bool:
 
 
 # 编辑器预览：独立打开 Enemy.tscn 时构建一个示例敌人精灵（idle 动画可见）。
+# 场景里直接摆放的敌人：Inspector 填 eid → _ready 自动 setup（编辑器/运行期一致）。
 # 被 Game/RoomManager 在编辑器里实例化时，setup() 已在 add_child 前调用，_eid 非空，此处跳过，避免重复 build。
 func _ready() -> void:
-	if Engine.is_editor_hint() and _eid == "":
+	if _eid == "" and eid != "":
+		setup(eid)
+	elif Engine.is_editor_hint() and _eid == "":
 		setup("overtime_ghost")
 
 
