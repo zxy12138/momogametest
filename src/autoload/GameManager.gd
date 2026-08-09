@@ -79,7 +79,7 @@ func reset_run(wid: String) -> void:
 func reset_run_loadout(ids: Array) -> void:
 	loadout.clear()
 	for x in ids:
-		loadout.append(String(x))
+		loadout.append(str(x))
 	var first := loadout[0] if loadout.size() > 0 else "staff"
 	reset_run(first)
 

@@ -65,15 +65,29 @@ const TILES = {
 	3: {"r0":"S_003_0", "r1":"S_003_1", "r2":"S_003_2", "r3":"S_003_3or4", "r4":"S_003_3or4", "r5":"S_003_5", "r6":"S_003_6", "r7":"S_003_7_1"},
 }
 
+## 强制静态背景的房间（{层: {房: true}}）：tile_path 跳过 .ogv 视频、只用同名 .png。
+## f1_r1 起点房（开场剧情房）按需求换回静态图，避免视频背景干扰。
+const STATIC_BG := {
+	1: {"r1": true},
+}
+
 static func tile_path(floor_idx, rid) -> String:
 	var layer_tiles: Dictionary = TILES.get(floor_idx, {})
 	var name: String = layer_tiles.get(rid, "")
 	if name == "":
 		return ""
+	var dirs: Array[String] = ["res://assets/tiles/Maps/", "res://assets/tiles/"]
+	# 强制静态背景房（STATIC_BG）：跳过 ogv 视频，只用同名 png（如 f1_r1 起点房）
+	var static_only: bool = STATIC_BG.get(floor_idx, {}).get(rid, false)
+	if static_only:
+		for base in dirs:
+			var png: String = base + name + ".png"
+			if ResourceLoader.exists(png):
+				return png
+		return ""
 	# 动态地图（.ogv Theora）优先：仅当该 ogv 已被 Godot 成功导入（ResourceLoader 可加载）才用，
 	# 否则退回同名的 .png。这样在 ogv 未导入前显示静态图，导入成功后自动升级为动态视频（自修复）。
 	# 跨 assets/tiles/ 与 assets/tiles/Maps/ 两目录查找；ogv 优先级高于同名 png，且不受目录顺序影响。
-	var dirs: Array[String] = ["res://assets/tiles/Maps/", "res://assets/tiles/"]
 	for base in dirs:
 		var ogv: String = base + name + ".ogv"
 		if ResourceLoader.exists(ogv):

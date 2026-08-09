@@ -32,7 +32,7 @@ var _swing_t := -1.0   # 挥砍动画进度：>=0 表示正在挥砍（0→1，�
 func setup_loadout(ids: Array) -> void:
 	_loadout.clear()
 	for x in ids:
-		_loadout.append(String(x))
+		_loadout.append(str(x))
 	if _loadout.is_empty():
 		_loadout = Weapons.pick_three()
 	_active = 0
@@ -176,7 +176,7 @@ func _melee_fx(w: Dictionary, center: Vector2, aim: Vector2, reach: float, aoe: 
 	var atk: String = w.get("atk", "")
 	if not FXID.has(atk):
 		return
-	var path: String = FX + "weapon_fx_" + String(FXID[atk]) + ".png"
+	var path: String = FX + "weapon_fx_" + str(FXID[atk]) + ".png"
 	var tex := GameManager.load_tex(path)
 	if tex == null:
 		return
@@ -271,5 +271,10 @@ func _rebuild_orbit() -> void:
 		if tex != null:
 			sp.texture = tex
 		sp.z_index = 9
+		# 武器自身椭圆阴影（子节点随 sprite 缩放；sprite 基准 0.15 缩放，故阴影倍率放大补偿）
+		var sh := HandleUtil.shadow_polygon(Vector2(3.6, 1.5))
+		sh.position = Vector2(0, 14)
+		sh.z_index = 8
+		sp.add_child(sh)
 		add_child(sp)
 		_orbit.append(sp)

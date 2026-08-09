@@ -66,26 +66,29 @@ func _ready() -> void:
 # UI 构建（左右双栏）
 # ----------------------------------------------------------------------------
 func _build_ui() -> void:
-	var hbox := HBoxContainer.new()
-	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(hbox)
+	# 自适应：根铺满父容器（Tab），内部用可拖拽的 VSplitContainer 上下两段独立 ScrollContainer——
+	# 拖动中间分割条即可调整「配置」与「素材库」的高度比例，宽窄 Dock 都不挤，绝不横滚。
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var root := VSplitContainer.new()
+	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(root)
 
-	# ---------- 左栏：配置 + 预览 ----------
+	# ---------- 第一段：配置 + 预览（独立滚动）----------
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.custom_minimum_size = Vector2(380.0, 460.0)
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_child(scroll)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size = Vector2(0.0, 220.0)
+	root.add_child(scroll)
 
-	var root := VBoxContainer.new()
-	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(root)
+	var cfg_box := VBoxContainer.new()
+	cfg_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(cfg_box)
 
-	root.add_child(_header("① 选择素材图片"))
+	cfg_box.add_child(_header("① 选择素材图片"))
 	var row1 := HBoxContainer.new()
-	root.add_child(row1)
+	cfg_box.add_child(row1)
 	_path_edit = LineEdit.new()
 	_path_edit.placeholder_text = "点击右侧按钮选择图片（序列帧大图或单图）"
 	_path_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -97,11 +100,11 @@ func _build_ui() -> void:
 	row1.add_child(_pick_btn)
 	_json_label = Label.new()
 	_json_label.text = "尚未选择图片"
-	root.add_child(_json_label)
+	cfg_box.add_child(_json_label)
 
-	root.add_child(_header("② 帧切分设置"))
+	cfg_box.add_child(_header("② 帧切分设置"))
 	_grid_box = VBoxContainer.new()
-	root.add_child(_grid_box)
+	cfg_box.add_child(_grid_box)
 	_auto_detect = CheckBox.new()
 	_auto_detect.text = "自动识别（像素透明间隔 / 图集 JSON）"
 	_auto_detect.button_pressed = true
@@ -157,16 +160,16 @@ func _build_ui() -> void:
 	_loop.button_pressed = true
 	ro2.add_child(_loop)
 
-	root.add_child(_header("③ 输出"))
+	cfg_box.add_child(_header("③ 输出"))
 	var rn := HBoxContainer.new()
-	root.add_child(rn)
+	cfg_box.add_child(rn)
 	rn.add_child(_label("素材名:"))
 	_name_edit = LineEdit.new()
 	_name_edit.placeholder_text = "留空则取图片文件名"
 	_name_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rn.add_child(_name_edit)
 	var ro3 := HBoxContainer.new()
-	root.add_child(ro3)
+	cfg_box.add_child(ro3)
 	ro3.add_child(_label("输出目录:"))
 	_output_edit = LineEdit.new()
 	_output_edit.text = DEFAULT_OUTPUT
@@ -176,17 +179,18 @@ func _build_ui() -> void:
 	_gen_btn = Button.new()
 	_gen_btn.text = "生成素材（.tres + .tscn）"
 	_gen_btn.pressed.connect(_generate)
-	root.add_child(_gen_btn)
+	cfg_box.add_child(_gen_btn)
 
 	_status = Label.new()
 	_status.text = "就绪"
-	root.add_child(_status)
+	cfg_box.add_child(_status)
 
-	root.add_child(_header("④ 预览（逐帧 / 播放）"))
+	cfg_box.add_child(_header("④ 预览（逐帧 / 播放）"))
 	var pv_panel := Panel.new()
-	pv_panel.custom_minimum_size = Vector2(0.0, 200.0)
 	pv_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root.add_child(pv_panel)
+	pv_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL   # 拉伸填满左栏剩余空间（利用下方留白）
+	pv_panel.custom_minimum_size = Vector2(0.0, 140.0)
+	cfg_box.add_child(pv_panel)
 	_preview_rect = TextureRect.new()
 	_preview_rect.position = Vector2(8.0, 8.0)
 	_preview_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -197,10 +201,10 @@ func _build_ui() -> void:
 	_preview_caption = Label.new()
 	_preview_caption.text = "（未选择图片 —— 点上方「选择图片」后这里显示预览）"
 	_preview_caption.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-	root.add_child(_preview_caption)
+	cfg_box.add_child(_preview_caption)
 
 	var ctrl := HBoxContainer.new()
-	root.add_child(ctrl)
+	cfg_box.add_child(ctrl)
 	_prev_btn = Button.new()
 	_prev_btn.text = "上一帧"
 	_prev_btn.pressed.connect(_on_prev_pressed)
@@ -224,19 +228,23 @@ func _build_ui() -> void:
 	_frame_slider.step = 1.0
 	_frame_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_frame_slider.value_changed.connect(_on_slider_changed)
-	root.add_child(_frame_slider)
+	cfg_box.add_child(_frame_slider)
 
 	_preview_timer = Timer.new()
 	_preview_timer.wait_time = 1.0 / 12.0
 	_preview_timer.timeout.connect(_on_preview_timeout)
 	add_child(_preview_timer)
 
-	# ---------- 右栏：素材库 ----------
+	# ---------- 第二段：素材库（独立滚动 + 可拖动分隔条调高）----------
+	_lib_scroll = ScrollContainer.new()
+	_lib_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_lib_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_lib_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_lib_scroll.custom_minimum_size = Vector2(0.0, 220.0)
+	root.add_child(_lib_scroll)
 	var lib_box := VBoxContainer.new()
-	lib_box.custom_minimum_size = Vector2(240.0, 0.0)
 	lib_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lib_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	hbox.add_child(lib_box)
+	_lib_scroll.add_child(lib_box)
 	lib_box.add_child(_header("⑤ 素材库（循环预览 · 可拖入场景）"))
 	var lib_top := HBoxContainer.new()
 	lib_box.add_child(lib_top)
@@ -245,14 +253,9 @@ func _build_ui() -> void:
 	_refresh_btn.text = "重新扫描"
 	_refresh_btn.pressed.connect(_scan_output)
 	lib_top.add_child(_refresh_btn)
-	_lib_scroll = ScrollContainer.new()
-	_lib_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_lib_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_lib_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lib_box.add_child(_lib_scroll)
 	_lib_list = VBoxContainer.new()
 	_lib_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_lib_scroll.add_child(_lib_list)
+	lib_box.add_child(_lib_list)
 	_lib_timer = Timer.new()
 	_lib_timer.wait_time = 1.0 / 12.0
 	_lib_timer.timeout.connect(_on_lib_timeout)

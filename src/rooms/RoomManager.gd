@@ -4,6 +4,8 @@ extends Node2D
 class_name RoomManager
 
 const ENEMY = preload("res://src/enemies/Enemy.tscn")
+# WeaponPickup 用 preload 拿脚本引用来 new()（避免解析期依赖全局 class_name 缓存，类型按 Node2D 处理）
+const WeaponPickupScript := preload("res://src/weapons/WeaponPickup.gd")
 # Boss 继承 Enemy，若用 preload 会在 RoomManager 解析期就加载 Boss.gd，
 # 此时 class_name Enemy 可能尚未注册，导致 "Could not find base class Enemy"。
 # 改为运行期 load()：进入 Boss 房时 Enemy 早已注册，可安全解析。
@@ -23,8 +25,19 @@ var _entities: Node = null
 var _game: Node = null
 var _floor: TextureRect
 var _prefab := false  # 是否使用美术预制整图作背景（v4.0 试用）
-var _layout: RoomLayout
 var _setup_done := false  # 防重复构建：房间场景 _ready 自建后，Game 再调 setup 直接返回
+
+# 场景手柄收集（房间场景 f{层}_{房}.tscn 里直接摆放的 @tool 手柄节点）：
+# 房间内容（门/禁区/敌人/出生点/武器/装饰）全部由手柄定义，不再读 layouts/*.tres（旧 RoomLayoutEditor 已移除）。
+var _door_handles: Array[DoorHandle] = []
+var _enemy_handles: Array[EnemyHandle] = []
+var _blocked_handles: Array[BlockedHandle] = []
+var _spawn_handles: Array[SpawnPointHandle] = []
+var _weapon_handles: Array[WeaponHandle] = []
+var _decoration_handles: Array[DecorationHandle] = []
+var _next_door_handles: Array[NextDoorHandle] = []
+var _boss_handles: Array[BossHandle] = []   ## Boss 房手柄（取代旧「运行时自动生成 boss」）
+var _next_doors: Array[Area2D] = []   ## 生成的下一层传送门（Boss 击败后 enable_next_door 启用）
 
 
 func setup(rid: String, data: Dictionary, floor_idx: int, entities: Node, game: Node) -> void:
@@ -36,26 +49,49 @@ func setup(rid: String, data: Dictionary, floor_idx: int, entities: Node, game: 
 	_layer = floor_idx
 	_entities = entities
 	_game = game
-	_layout = _load_layout()
+	_collect_handles()
 	_build_floor()
 	_build_walls()
-	_build_doors()
-	_build_blocked()
-	if _data.get("type", "") == "inn":
-		_build_inn()
-	# 编辑器预览只构建静态骨架（地板/墙/门/禁区/驿站）：避免刷怪把动态节点写进场景文件，
-	# 也避免 @tool 下 GameManager(placeholder) 被调用崩溃。运行期(F5/F6)才刷怪/装饰。
+	# 编辑器预览（F6 / 在编辑器里打开房间场景）：只构建地板/墙（房间骨架）。
+	# 门 / 禁区 / 驿站 / 敌人 / 装饰 / 武器 / 下一层门 全部由场景里的「手柄」可视化（Handles @tool 已自带可视化）；
+	# 运行期才生成真实碰撞 / Area2D / 实例。这样用户在编辑器里看到的「战斗」门/敌人/武器都是可拖动的场景节点，
+	# 而不是 RoomManager 程序生成、无法编辑的运行时节点。
 	if not Engine.is_editor_hint():
+		_build_doors()
+		_build_blocked()
 		_spawn_content()
 		_spawn_decorations()
+		_spawn_weapons()
+		_build_next_door()
 
 
-func _load_layout() -> RoomLayout:
-	# 按 层+rid 读取该房的布局 .tres；不存在则退回空布局（全用默认/随机）。
-	var path := "res://src/rooms/layouts/%d_%s.tres" % [_layer, _rid]
-	if FileAccess.file_exists(path):
-		return load(path) as RoomLayout
-	return RoomLayout.new()
+## 收集房间场景里的手柄节点（门/敌人/禁区/出生点/武器），供后续构建优先读取。
+func _collect_handles() -> void:
+	_door_handles.clear()
+	_enemy_handles.clear()
+	_blocked_handles.clear()
+	_spawn_handles.clear()
+	_weapon_handles.clear()
+	_decoration_handles.clear()
+	_next_door_handles.clear()
+	_boss_handles.clear()
+	for c in get_children():
+		if c is DoorHandle:
+			_door_handles.append(c)
+		elif c is EnemyHandle:
+			_enemy_handles.append(c)
+		elif c is BlockedHandle:
+			_blocked_handles.append(c)
+		elif c is SpawnPointHandle:
+			_spawn_handles.append(c)
+		elif c is WeaponHandle:
+			_weapon_handles.append(c)
+		elif c is DecorationHandle:
+			_decoration_handles.append(c)
+		elif c is NextDoorHandle:
+			_next_door_handles.append(c)
+		elif c is BossHandle:
+			_boss_handles.append(c)
 
 
 func _build_floor() -> void:
@@ -66,10 +102,9 @@ func _build_floor() -> void:
 		_floor.name = "Floor"
 		add_child(_floor)
 	var img: String = _data.get("scene_img", "")
-	# 背景基准变换（来自 RoomLayout 的 bg_offset/bg_scale 用于对齐美术整图；缺省 0/1 等同原行为）。
-	# 视频与图片两套背景套用同一变换，确保编辑器摆放与运行期渲染完全一致。
-	var base_pos := Vector2(-W / 2, -H / 2) + _layout.bg_offset
-	var base_scale := Vector2(_layout.bg_scale, _layout.bg_scale)
+	# 背景基准变换（背景整图与房间 880×500 对齐；视频与图片两套背景套用同一变换）
+	var base_pos := Vector2(-W / 2, -H / 2)
+	var base_scale := Vector2.ONE
 	if img != "":
 		# 预制整图方案（v4.0 试用）：直接用美术预制的一图一房背景，墙体烘焙在图内；
 		# 碰撞仍由 _build_walls 的无形墙负责，这里只做背景显示。
@@ -199,13 +234,15 @@ func _wall_seg(tex: Texture2D, cx: float, cy: float, w: float, h: float) -> Text
 
 func _build_doors() -> void:
 	var edges := [Vector2(0, -H / 2 + 26), Vector2(0, H / 2 - 26), Vector2(-W / 2 + 26, 0), Vector2(W / 2 - 26, 0)]
-	var door_map := {}
-	for d in _layout.doors:
-		door_map[d.target] = d.position
-	var arrows := ["↑", "↓", "←", "→"]
+	# 门位置：场景 DoorHandle（target=邻居 id）优先，否则用四边默认位置
 	var neigh: Array = _data.get("neighbors", [])
 	for i in mini(neigh.size(), edges.size()):
 		var nid: String = neigh[i]
+		var dpos: Vector2 = edges[i]
+		for h in _door_handles:
+			if h.target == nid:
+				dpos = h.position
+				break
 		var d := Area2D.new()
 		d.name = "Door_" + nid
 		d.collision_layer = 8
@@ -215,34 +252,29 @@ func _build_doors() -> void:
 		sh.size = Vector2(44, 44)
 		cs.shape = sh
 		d.add_child(cs)
-		d.position = door_map.get(nid, edges[i])
+		d.position = dpos
 		var cb := func(b: Node):
 			if b.is_in_group("player"):
 				if _game != null and _game.has_method("transition_to"):
 					_game.call("transition_to", nid)
 		d.connect("body_entered", cb)
 		add_child(d)
-		# 可见门框（贴图 T-003 开启动画门，取首帧静态显示）+ 方向箭头，给玩家清晰的出口指引
+		# 运行时门框贴图（玩家视觉）："↑ 战斗"等方向+类型标签由场景 DoorHandle 编辑器显示，
+		# 运行期不重复生成 Label（避免叠加）。
 		var door_tex := load("res://assets/tiles/T-003_door_frame_open_anim.png") as Texture2D
-		var ds := door_tex.get_size()
-		var dh := 96.0
-		var fw := ds.x / 4.0  # T-003 为 4 帧横排动画表，单帧宽 = 总宽/4
-		var dw := dh * fw / ds.y
-		var spr := Sprite2D.new()
-		spr.texture = door_tex
-		spr.hframes = 4
-		spr.frame = 0
-		spr.scale = Vector2(dw / fw, dh / ds.y)
-		spr.position = d.position
-		spr.z_index = 4
-		add_child(spr)
-		var lab := Label.new()
-		lab.text = arrows[i] + " " + _room_label(nid)
-		lab.position = d.position - Vector2(34, 14)
-		lab.add_theme_font_size_override("font_size", 22)
-		lab.add_theme_color_override("font_color", Color(0.85, 0.95, 1.0))
-		lab.z_index = 6
-		add_child(lab)
+		if door_tex != null:
+			var ds := door_tex.get_size()
+			var dh := 96.0
+			var fw := ds.x / 4.0  # T-003 为 4 帧横排动画表，单帧宽 = 总宽/4
+			var dw := dh * fw / ds.y
+			var spr := Sprite2D.new()
+			spr.texture = door_tex
+			spr.hframes = 4
+			spr.frame = 0
+			spr.scale = Vector2(dw / fw, dh / ds.y)
+			spr.position = d.position
+			spr.z_index = 4
+			add_child(spr)
 
 func _room_label(rid: String) -> String:
 	# 从 LevelData 全局类直接取房间类型（编辑器预览期 MapData 单例可能是 placeholder，
@@ -269,67 +301,218 @@ func entry_door_position(target_rid: String) -> Vector2:
 		Vector2(-W / 2.0 + 26.0, 0.0),
 		Vector2(W / 2.0 - 26.0, 0.0)
 	]
-	var door_map: Dictionary = {}
-	for d in _layout.doors:
-		door_map[d.target] = d.position
+	# 门位置：优先场景 DoorHandle，否则四边默认
+	var door_pos: Vector2 = Vector2.ZERO
+	for h in _door_handles:
+		if h.target == target_rid:
+			door_pos = h.position
+			break
 	var neigh: Array = _data.get("neighbors", [])
 	for i in mini(neigh.size(), edges.size()):
-		if String(neigh[i]) == target_rid:
-			return door_map.get(target_rid, edges[i])
+		if str(neigh[i]) == target_rid:
+			return door_pos if door_pos != Vector2.ZERO else edges[i]
 	return Vector2.ZERO
 
 
-## 返回本房在 RoomLayout 中设置的角色出生点（房间局部坐标）；未设置(默认 ZERO)时返回 ZERO。
-## 场景里可直接放一个名为 "Spawn" 的 Marker2D/Node2D 当出生点（优先，所见即所得）；
-## 没有则回退 RoomLayout.spawn_point（RoomLayoutEditor 拖的绿色菱形）。
+## 返回本房的角色出生点（房间局部坐标）；未设置(默认 ZERO)时返回 ZERO。
+## 优先读场景 SpawnPointHandle（新编辑方式），其次旧 "Spawn" 命名节点。
 func spawn_point_position() -> Vector2:
+	if _spawn_handles.size() > 0:
+		return _spawn_handles[0].position
 	var sp := get_node_or_null("Spawn") as Node2D
 	if sp != null:
 		return sp.position
-	if _layout != null:
-		return _layout.spawn_point
 	return Vector2.ZERO
 
-func _build_inn() -> void:
-	var pad := Area2D.new()
-	pad.name = "InnPad"
-	pad.collision_layer = 8
-	pad.collision_mask = 1
-	var cs := CollisionShape2D.new()
-	var sh := RectangleShape2D.new()
-	sh.size = Vector2(60, 60)
-	cs.shape = sh
-	pad.add_child(cs)
-	var cb := func(b: Node):
-		if b.is_in_group("player") and _game != null and _game.has_method("_on_inn_enter"):
-			_game.call("_on_inn_enter")
-	pad.connect("body_entered", cb)
-	var cbx := func(b: Node):
-		if b.is_in_group("player") and _game != null and _game.has_method("_on_inn_exit"):
-			_game.call("_on_inn_exit")
-	pad.connect("body_exited", cbx)
-	add_child(pad)
-	# 驿站地面贴图（T-050 休息站内景）+ 暖光标记
-	var inn_tex := load("res://assets/tiles/T-050_dream_rest_stop_interior.png") as Texture2D
-	var isz := inn_tex.get_size()
-	var iscale: float = 130.0 / max(isz.x, isz.y)
-	var decal := Sprite2D.new()
-	decal.texture = inn_tex
-	decal.scale = Vector2(iscale, iscale)
-	decal.position = Vector2(0, 0)
-	decal.z_index = -3000
-	add_child(decal)
-	var m := ColorRect.new()
-	m.size = Vector2(150, 150); m.position = Vector2(-75, -75)
-	m.color = Color(0.95, 0.85, 0.55, 0.35)
-	add_child(m)
-	var lab := Label.new()
-	lab.text = "驿站"
-	lab.position = Vector2(-22, -95)
-	lab.add_theme_font_size_override("font_size", 14)
-	lab.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
-	lab.z_index = 6
-	add_child(lab)
+
+## 玩家碰撞体半径（Player.tscn CircleShape2D radius=11）+ 5px 余量。
+## 出生点安全性检测必须用碰撞体级（采样中心+8 方向），否则点级"安全"的窄缝里玩家放不下。
+const _PLAYER_RADIUS := 16.0
+
+
+## 无门（跨层进入下一大关起点 / 地图跳转 / 首进 / 找不到来源门）时的【安全出生点】（房间局部坐标）。
+## 由 Game._swap 在「没有指回旧房的门」时调用——保证角色绝不会出生在禁区里卡死：
+##   ① 优先插件 SpawnPointHandle（/ 旧 "Spawn" 节点）配置的位置（碰撞体级安全才用）；
+##   ② 任意一扇门的位置（门口通常是安全通道，地图跳转到有门的房间时出生在门口最合理）；
+##   ③ 预置安全区：房间底部中间 (0, H/2-60)——迷宫类铺满禁区的房间通常底部有空地；
+##   ④ 以候选点为中心螺旋搜索（16px 步长、8 方向）最近的【碰撞体级】安全点；
+##   ⑤ 全房间网格扫描（16px 步长）——螺旋只测 45°×8 方向，缝隙不在其上会漏，扫描必有答案。
+func safe_spawn_position() -> Vector2:
+	var candidate: Vector2 = spawn_point_position()
+	if candidate != Vector2.ZERO and _is_spawn_safe(candidate):
+		return candidate
+	var door_pos := fallback_door_position()
+	if door_pos != Vector2.ZERO and _is_spawn_safe(door_pos):
+		return door_pos
+	var fallback := Vector2(W * 0.3, H * 0.5 - 60.0)   # 房间右下偏中（明显不在中心，避免"看起来在中心"误解）
+	if _is_spawn_safe(fallback):
+		return fallback
+	if candidate == Vector2.ZERO:
+		candidate = fallback
+	var max_r: int = int(max(W, H))
+	for radius in range(16, max_r, 16):
+		for k in 8:
+			var ang := deg_to_rad(45.0 * float(k))
+			var p := candidate + Vector2(cos(ang), sin(ang)) * float(radius)
+			if _is_spawn_safe(p):
+				return p
+	var gy_max: int = int(H * 0.5 - _PLAYER_RADIUS)
+	var gx_max: int = int(W * 0.5 - _PLAYER_RADIUS)
+	for gy in range(-gy_max, gy_max + 1, 16):
+		for gx in range(-gx_max, gx_max + 1, 16):
+			var gp := Vector2(float(gx), float(gy))
+			if _is_spawn_safe(gp):
+				return gp
+	return fallback
+
+
+## 返回本房任意一扇门的位置（第一个 DoorHandle；无手柄时回退第一个邻居的默认边位置）。
+## 门口通常是安全通道——地图跳转/无来源门时出生在门口比随机兜底更符合直觉。
+func fallback_door_position() -> Vector2:
+	if _door_handles.size() > 0:
+		return _door_handles[0].position
+	var neigh: Array = _data.get("neighbors", [])
+	if neigh.size() > 0:
+		return entry_door_position(str(neigh[0]))
+	return Vector2.ZERO
+
+
+## 出生点安全性校验（碰撞体级）：整个玩家圆形碰撞体（半径 _PLAYER_RADIUS）必须落在
+## 房间边界内，且中心 + 8 个方向采样点全部不在任何禁区内部——保证玩家真的站得下。
+func _is_spawn_safe(pos: Vector2) -> bool:
+	if pos.x < -W * 0.5 + _PLAYER_RADIUS or pos.x > W * 0.5 - _PLAYER_RADIUS \
+			or pos.y < -H * 0.5 + _PLAYER_RADIUS or pos.y > H * 0.5 - _PLAYER_RADIUS:
+		return false
+	var offs: Array[Vector2] = [
+		Vector2.ZERO,
+		Vector2(_PLAYER_RADIUS, 0.0),
+		Vector2(-_PLAYER_RADIUS, 0.0),
+		Vector2(0.0, _PLAYER_RADIUS),
+		Vector2(0.0, -_PLAYER_RADIUS),
+		Vector2(_PLAYER_RADIUS * 0.7, _PLAYER_RADIUS * 0.7),
+		Vector2(-_PLAYER_RADIUS * 0.7, _PLAYER_RADIUS * 0.7),
+		Vector2(_PLAYER_RADIUS * 0.7, -_PLAYER_RADIUS * 0.7),
+		Vector2(-_PLAYER_RADIUS * 0.7, -_PLAYER_RADIUS * 0.7),
+	]
+	for s in offs:
+		var sp := pos + s
+		for h in _blocked_handles:
+			if _point_in_blocked(sp, h):
+				return false
+	return true
+
+
+## 点是否落在单个禁区内部：把点变换到禁区局部坐标系（逆旋转）后做包含测试。
+func _point_in_blocked(p: Vector2, h: BlockedHandle) -> bool:
+	var local := p - h.position
+	var rot := -deg_to_rad(h.rotation_deg)
+	local = Vector2(
+		local.x * cos(rot) - local.y * sin(rot),
+		local.x * sin(rot) + local.y * cos(rot)
+	)
+	if h.shape_type == 0:
+		# 矩形模式：AABB 包含测试
+		var hw: float = h.rect_size.x * 0.5
+		var hh: float = h.rect_size.y * 0.5
+		return absf(local.x) <= hw and absf(local.y) <= hh
+	# 多边形模式：优先读子 PolygonPointHandle，子点缺失时回退 points 备份
+	var pts := h.collect_polygon_points()
+	if pts.size() < 3 and h.points.size() >= 3:
+		pts = h.points
+	if pts.size() < 3:
+		return false
+	return _point_in_polygon(local, pts)
+
+
+## 射线法：点是否在多边形内部（顶点为相对中心的局部坐标）。
+func _point_in_polygon(p: Vector2, pts: PackedVector2Array) -> bool:
+	var inside := false
+	var n: int = pts.size()
+	var j := n - 1
+	for i in n:
+		var a := pts[i]
+		var b := pts[j]
+		if (a.y > p.y) != (b.y > p.y):
+			var x_int: float = a.x + (p.y - a.y) * (b.x - a.x) / (b.y - a.y)
+			if p.x < x_int:
+				inside = not inside
+		j = i
+	return inside
+
+
+## 场景 WeaponHandle → 地面武器：位置/数量/大小取自手柄，但【武器种类进游戏随机】——
+## 手柄在编辑器里显示一种武器样子作为"掉落位"预览；运行期从 8 把武器池随机抽（不重复优先），
+## 保证每次进房掉落的武器组合不同。大小取手柄 display_scale，位置=手柄位置。
+func _spawn_weapons() -> void:
+	if _weapon_handles.size() == 0:
+		return
+	var pool: Array = Weapons.POOL.duplicate()
+	for h in _weapon_handles:
+		if pool.is_empty():
+			pool = Weapons.POOL.duplicate()
+		var wid: String = str(pool[randi() % pool.size()])
+		pool.erase(wid)
+		var pk: Node2D = WeaponPickupScript.new()
+		pk.set("weapon_id", wid)
+		pk.set("display_scale", h.display_scale)
+		pk.position = h.position
+		add_child(pk)
+		if _game != null and _game.has_method("register_pickup"):
+			_game.call("register_pickup", pk)
+
+
+## 场景 NextDoorHandle → 下一层传送门（初始隐藏+禁用；Boss 击败后 Game 调 enable_next_door 启用）。
+func _build_next_door() -> void:
+	_next_doors.clear()
+	for h in _next_door_handles:
+		var next: int = h.next_layer if h.next_layer > 0 else _layer + 1
+		var d := Area2D.new()
+		d.name = "NextDoor"
+		d.collision_layer = 8
+		d.collision_mask = 1
+		d.position = h.position
+		var cs := CollisionShape2D.new()
+		var sh := RectangleShape2D.new()
+		sh.size = Vector2(48, 48)
+		cs.shape = sh
+		d.add_child(cs)
+		var cb := func(b: Node):
+			if b.is_in_group("player") and _game != null and _game.has_method("_go_next_layer"):
+				_game.call("_go_next_layer", next)
+		d.connect("body_entered", cb)
+		d.monitoring = false
+		d.visible = false
+		add_child(d)
+		_next_doors.append(d)
+		# 可见门框 + 标签（挂在传送门下，随 d 一起显示/隐藏）
+		var door_tex := load("res://assets/tiles/T-003_door_frame_open_anim.png") as Texture2D
+		if door_tex != null:
+			var ds := door_tex.get_size()
+			var dh := 96.0
+			var fw := ds.x / 4.0
+			var dw := dh * fw / ds.y
+			var spr := Sprite2D.new()
+			spr.texture = door_tex
+			spr.hframes = 4
+			spr.frame = 0
+			spr.scale = Vector2(dw / fw, dh / ds.y)
+			spr.z_index = 4
+			d.add_child(spr)
+		var lab := Label.new()
+		lab.text = "↑ 下一层"
+		lab.position = Vector2(-34, -14)
+		lab.add_theme_font_size_override("font_size", 22)
+		lab.add_theme_color_override("font_color", Color(1.0, 0.95, 0.7))
+		lab.z_index = 6
+		d.add_child(lab)
+
+
+## Boss 击败后启用本房所有下一层传送门（由 Game.on_boss_defeated 调用）。
+func enable_next_door() -> void:
+	for d in _next_doors:
+		if is_instance_valid(d):
+			d.monitoring = true
+			d.visible = true
 
 
 func _spawn_content() -> void:
@@ -337,49 +520,55 @@ func _spawn_content() -> void:
 	if type == "boss":
 		var cleared: bool = GameManager.boss_cleared.get(_layer, false)
 		if not cleared:
-			_start_boss_intro()
+			# Boss 不再自动生成：由场景 BossHandle 决定（插件摆放，3 种可选）。
+			# 每个手柄生成一个 Boss（位置=手柄位置），保留入场图/计时逻辑（数据驱动）。
+			for h in _boss_handles:
+				_start_boss_intro(h.boss_id(), h.position)
 		return
 	# 起点房(start)现在也从 enemy_placements 刷怪（满足「起始场景也能刷怪」需求）；
 	# 驿站(inn)仍不刷，保持为安全休整区。
 	if type == "inn":
 		return
-	# 拖入式敌人放置：按 RoomLayout.enemy_placements 实例化（取代原 LevelData.enemies 数据驱动刷怪）。
-	# 普通/精英房重进即刷新——玩家在编辑器里摆放的敌人每次进房都会重新出现。
-	for def in _layout.enemy_placements:
-		var eid: String = def.enemy_id
+	# 拖入式敌人放置：全部由场景 EnemyHandle 定义（旧 .tres 数据体系已移除）。
+	# 普通/精英房重进即刷新——玩家在房间场景里摆放的敌人每次进房都会重新出现。
+	for h in _enemy_handles:
+		var eid: String = h.enemy_id()
 		if eid == "" or eid in Enemies.BOSS:
 			continue
-		var pos: Vector2 = def.pos
-		_spawn_enemy(eid, pos)
-		# 精英怪分身（按数据 clone_count）
-		var ed: Dictionary = Enemies.get_enemy(eid)
-		if ed != null and ed.get("clone_count", 0) > 0:
-			for c in int(ed["clone_count"]):
-				_spawn_enemy(eid, pos + Vector2(randf_range(-90.0, 90.0), randf_range(-90.0, 90.0)))
+		var hpos: Vector2 = h.position
+		_spawn_enemy(eid, hpos)
+		var hed: Dictionary = Enemies.get_enemy(eid)
+		if hed != null and hed.get("clone_count", 0) > 0:
+			for c in int(hed["clone_count"]):
+				_spawn_enemy(eid, hpos + Vector2(randf_range(-90.0, 90.0), randf_range(-90.0, 90.0)))
 
 
 ## 装饰性动态素材：所有房间类型（含 inn/boss）都实例化，独立于 _spawn_content 的刷怪逻辑。
-## 数据来自 RoomLayout.decorations（编辑器里从序列帧插件拖入生成）；随房间销毁，不跨房叠加。
+## 由场景 DecorationHandle 定义；随房间销毁，不跨房叠加。
 func _spawn_decorations() -> void:
-	for def in _layout.decorations:
-		if def.scene_path == "" or not ResourceLoader.exists(def.scene_path):
-			continue
-		var ps := load(def.scene_path) as PackedScene
-		if ps == null:
-			push_error("RoomManager: 装饰场景加载失败 %s" % def.scene_path)
-			continue
-		var inst := ps.instantiate() as Node2D
-		if inst == null:
-			continue
-		inst.position = def.pos   # 房间局部坐标（房间实例挂在锚点下，全局由锚点变换）
-		inst.z_index = int(def.pos.y)
-		# 还原编辑器里的视觉调整：缩放/旋转/翻转，保证运行期与编辑器预览一致。
-		# Node2D 只有 rotation(弧度)，用 deg_to_rad 把数据里的 rotation_deg 转回。
-		inst.scale = def.scale_xy
-		inst.rotation = deg_to_rad(def.rotation_deg)
-		inst.flip_h = def.flip_h
-		inst.flip_v = def.flip_v
-		add_child(inst)
+	for h in _decoration_handles:
+		_spawn_decoration(h.scene_path, h.position, h.scale_xy, h.rotation_deg, h.flip_h, h.flip_v)
+
+
+func _spawn_decoration(path: String, pos: Vector2, scale_xy: Vector2, rot_deg: float, flip_h: bool, flip_v: bool) -> void:
+	if path == "" or not ResourceLoader.exists(path):
+		return
+	var ps := load(path) as PackedScene
+	if ps == null:
+		push_error("RoomManager: 装饰场景加载失败 %s" % path)
+		return
+	var inst := ps.instantiate() as Node2D
+	if inst == null:
+		return
+	inst.position = pos   # 房间局部坐标（房间实例挂在锚点下，全局由锚点变换）
+	inst.z_index = int(pos.y)
+	# 还原编辑器里的视觉调整：缩放/旋转/翻转，保证运行期与编辑器预览一致。
+	# Node2D 只有 rotation(弧度)，用 deg_to_rad 把数据里的 rotation_deg 转回。
+	inst.scale = scale_xy
+	inst.rotation = deg_to_rad(rot_deg)
+	inst.flip_h = flip_h
+	inst.flip_v = flip_v
+	add_child(inst)
 
 
 func _spawn_enemy(eid: String, pos: Vector2) -> void:
@@ -391,10 +580,10 @@ func _spawn_enemy(eid: String, pos: Vector2) -> void:
 	add_child(e)
 
 
-func _spawn_boss(bid: String) -> void:
+func _spawn_boss(bid: String, pos: Vector2) -> void:
 	var b := load(BOSS_PATH).instantiate() as Node2D
 	b.call("setup", bid)
-	b.position = Vector2(0, -60)   # 房间局部坐标（房间挂锚点下）
+	b.position = pos   # 房间局部坐标（房间挂锚点下；位置由场景 BossHandle 决定）
 	b.z_index = int(b.position.y)
 	# 加进本房间节点：随房间销毁
 	add_child(b)
@@ -402,67 +591,87 @@ func _spawn_boss(bid: String) -> void:
 # Boss 房入场：先显示「入场图」(boss_intro_img，如 S_003_7)，播放入场动画（计时 boss_intro_time 秒），
 # 动画结束再切换为正式地图 (scene_img，如 S_003_7_1) 并开始 boss 战。
 # 仅当房间带 boss_intro_img 且未清空时生效；普通 boss 房（无该字段）intro 为空则直接出 boss。
-func _start_boss_intro() -> void:
-	var bid: String = _data.get("boss", "b_director")
+func _start_boss_intro(bid: String, pos: Vector2) -> void:
 	var intro: String = _data.get("boss_intro_img", "")
 	var real: String = _data.get("scene_img", "")
 	var intro_time: float = float(_data.get("boss_intro_time", 0.0))
-	# 编辑器预览：直接出 boss，避免 @tool 下计时器行为异常
-	if Engine.is_editor_hint():
-		_spawn_boss(bid)
-		return
 	# 进入时先显示入场图（如 S_003_7）
 	if intro != "" and _floor != null:
 		_floor.texture = load(intro) as Texture2D
 	if intro_time <= 0.0:
-		_spawn_boss(bid)
+		_spawn_boss(bid, pos)
 		return
 	var timer := get_tree().create_timer(intro_time)
 	timer.timeout.connect(func():
 		if is_instance_valid(_floor) and real != "":
 			_floor.texture = load(real) as Texture2D
-		_spawn_boss(bid)
+		_spawn_boss(bid, pos)
 	)
 
 
-# 禁区/不可走区域：在 RoomLayout.blocked 中定义，生成无形碰撞墙 + 半透明红色可视。
-# 支持矩形(shape_type=0)与多边形(shape_type=1)；rotation_deg 让形状任意旋转对齐倾斜障碍。
+# 禁区/不可走区域：生成无形碰撞墙 + 半透明红色可视。
+# 由场景 BlockedHandle 定义（支持矩形 shape_type=0 与多边形 shape_type=1；rotation_deg 任意旋转）。
 func _build_blocked() -> void:
-	for i in _layout.blocked.size():
-		var rd: RectDef = _layout.blocked[i]
-		var is_poly: bool = (rd.shape_type == 1 and rd.points.size() >= 3)
+	var centers: Array[Vector2] = []
+	var sizes: Array[Vector2] = []
+	var pts_list: Array[PackedVector2Array] = []
+	var rots: Array[float] = []
+	var is_polys: Array[bool] = []
+	for h in _blocked_handles:
+		var hp: bool = h.shape_type == 1
+		if hp:
+			# 多边形模式：优先读子 PolygonPointHandle 节点位置（PS 风格拖点），回退旧 points
+			var pts_from_children: PackedVector2Array = h.collect_polygon_points()
+			if pts_from_children.size() >= 3:
+				hp = true
+				pts_list.append(pts_from_children)
+			else:
+				hp = h.points.size() >= 3
+				pts_list.append(h.points)
+		else:
+			pts_list.append(PackedVector2Array())
+		centers.append(h.position)
+		sizes.append(h.rect_size)
+		rots.append(h.rotation_deg)
+		is_polys.append(hp)
+	for i in centers.size():
+		var center: Vector2 = centers[i]
+		var size: Vector2 = sizes[i]
+		var pts: PackedVector2Array = pts_list[i]
+		var rot_deg: float = rots[i]
+		var is_poly: bool = is_polys[i]
 		var sb := StaticBody2D.new()
 		sb.name = "Blocked_%d" % i
 		sb.collision_layer = 16
 		if is_poly:
 			# 多边形碰撞：用 CollisionPolygon2D 节点直接吃局部顶点（比 PolygonShape2D 更稳，且不依赖 Shape 子类解析）。
 			var cp := CollisionPolygon2D.new()
-			cp.polygon = rd.points          # 多边形顶点为相对 center 的局部坐标
-			cp.position = rd.center
-			cp.rotation = deg_to_rad(rd.rotation_deg)
+			cp.polygon = pts          # 多边形顶点为相对 center 的局部坐标
+			cp.position = center
+			cp.rotation = deg_to_rad(rot_deg)
 			sb.add_child(cp)
 		else:
 			var cs := CollisionShape2D.new()
 			var rsh: RectangleShape2D = RectangleShape2D.new()
-			rsh.size = rd.size
+			rsh.size = size
 			cs.shape = rsh
-			cs.position = rd.center
-			cs.rotation = deg_to_rad(rd.rotation_deg)
+			cs.position = center
+			cs.rotation = deg_to_rad(rot_deg)
 			sb.add_child(cs)
 		add_child(sb)
 		# 半透明红色可视：与碰撞形状套用同一变换(center+rotation)，所见即所得。
-		var pts: PackedVector2Array
+		var vis_pts: PackedVector2Array
 		if is_poly:
-			pts = rd.points
+			vis_pts = pts
 		else:
-			var hw: float = rd.size.x / 2.0
-			var hh: float = rd.size.y / 2.0
-			pts = PackedVector2Array([Vector2(-hw, -hh), Vector2(hw, -hh), Vector2(hw, hh), Vector2(-hw, hh)])
+			var hw: float = size.x / 2.0
+			var hh: float = size.y / 2.0
+			vis_pts = PackedVector2Array([Vector2(-hw, -hh), Vector2(hw, -hh), Vector2(hw, hh), Vector2(-hw, hh)])
 		var poly := Polygon2D.new()
-		poly.polygon = pts
+		poly.polygon = vis_pts
 		poly.color = Color(0.8, 0.2, 0.2, 0.35)
-		poly.position = rd.center
-		poly.rotation = deg_to_rad(rd.rotation_deg)
+		poly.position = center
+		poly.rotation = deg_to_rad(rot_deg)
 		poly.z_index = -5
 		add_child(poly)
 
@@ -479,8 +688,3 @@ func _ready() -> void:
 		if tp != "":
 			data["scene_img"] = tp
 		setup(room_id, data, layer, get_parent(), get_tree().current_scene)
-		return
-	# 旧版示例预览：Room.tscn 无导出配置时的兜底
-	if Engine.is_editor_hint() and _rid == "" and get_parent() == null:
-		var data2 := {"type": "combat", "neighbors": ["r2", "r3"], "enemies": [["overtime_ghost", 1]]}
-		setup("preview", data2, 1, get_parent(), get_tree().current_scene)

@@ -1,10 +1,239 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://djkwggijq8g4x"]
 
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
+[ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://dla3sbt15mcfs" path="res://assets/tiles/S_001_2.png" id="2_wfmob"]
+[ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_bmpyr"]
+[ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="5_x6t6f"]
 
-[node name="Room" type="Node2D"]
+[node name="Room" type="Node2D" unique_id=2108999853]
 script = ExtResource("1")
-layer = 1
 room_id = "r2"
 
-[node name="Floor" type="TextureRect" parent="."]
+[node name="Floor" type="TextureRect" parent="." unique_id=980457234]
+z_index = -4000
+offset_left = -440.0
+offset_top = -250.0
+offset_right = 440.0
+offset_bottom = 250.0
+texture = ExtResource("2_wfmob")
+expand_mode = 1
+stretch_mode = 6
+metadata/_edit_lock_ = true
+
+[node name="Door_r1" type="Node2D" parent="." unique_id=1984182860]
+position = Vector2(-4, -123)
+script = ExtResource("2")
+target = "r1"
+
+[node name="Door_r3" type="Node2D" parent="." unique_id=1719872043]
+position = Vector2(356, 0)
+script = ExtResource("2")
+target = "r3"
+
+[node name="Door_r4" type="Node2D" parent="." unique_id=835136831]
+position = Vector2(-414, 0)
+script = ExtResource("2")
+target = "r4"
+
+[node name="Blocked" type="Node2D" parent="." unique_id=184238432]
+position = Vector2(-260, 116)
+script = ExtResource("4_bmpyr")
+points = PackedVector2Array(-68, -11, 612, -11, 710, 72, -180, 72)
+
+[node name="@Node2D@39363" type="Node2D" parent="Blocked" unique_id=1968257710]
+position = Vector2(-68, -11)
+script = ExtResource("5_x6t6f")
+
+[node name="@Node2D@39366" type="Node2D" parent="Blocked" unique_id=504286265]
+position = Vector2(612, -11)
+script = ExtResource("5_x6t6f")
+idx = 1
+
+[node name="@Node2D@39369" type="Node2D" parent="Blocked" unique_id=1738454851]
+position = Vector2(710, 72)
+script = ExtResource("5_x6t6f")
+idx = 2
+
+[node name="@Node2D@94746" type="Node2D" parent="Blocked" unique_id=935535691]
+position = Vector2(-180, 72)
+script = ExtResource("5_x6t6f")
+idx = 3
+
+[node name="Blocked_2" type="Node2D" parent="." unique_id=10126822]
+position = Vector2(434, -145)
+script = ExtResource("4_bmpyr")
+points = PackedVector2Array(3.673819e-15, -63, 2.0000076, 81, -92.00001, 108, -89.99999, 44.999996)
+
+[node name="@Node2D@39918" type="Node2D" parent="Blocked_2" unique_id=1646217479]
+position = Vector2(3.673819e-15, -63)
+script = ExtResource("5_x6t6f")
+
+[node name="@Node2D@39921" type="Node2D" parent="Blocked_2" unique_id=1290704400]
+position = Vector2(2.0000076, 81)
+script = ExtResource("5_x6t6f")
+idx = 1
+
+[node name="@Node2D@39924" type="Node2D" parent="Blocked_2" unique_id=1540901459]
+position = Vector2(-92.00001, 108)
+script = ExtResource("5_x6t6f")
+idx = 2
+
+[node name="@Node2D@553207" type="Node2D" parent="Blocked_2" unique_id=1421575295]
+position = Vector2(-89.99999, 44.999996)
+script = ExtResource("5_x6t6f")
+idx = 3
+
+[node name="Blocked_3" type="Node2D" parent="." unique_id=1950885654]
+position = Vector2(-133.09625, -37.166737)
+script = ExtResource("4_bmpyr")
+points = PackedVector2Array(101.09625, -170.83327, 107.09625, -64.83327, -194.90375, -66.83327, -298.90375, -170.83327)
+
+[node name="@Node2D@40889" type="Node2D" parent="Blocked_3" unique_id=2139281540]
+position = Vector2(101.09625, -170.83327)
+script = ExtResource("5_x6t6f")
+
+[node name="@Node2D@40892" type="Node2D" parent="Blocked_3" unique_id=956216422]
+position = Vector2(107.09625, -64.83327)
+script = ExtResource("5_x6t6f")
+idx = 1
+
+[node name="@Node2D@40895" type="Node2D" parent="Blocked_3" unique_id=1028152228]
+position = Vector2(-194.90375, -66.83327)
+script = ExtResource("5_x6t6f")
+idx = 2
+
+[node name="@Node2D@355673" type="Node2D" parent="Blocked_3" unique_id=295160831]
+position = Vector2(-298.90375, -170.83327)
+script = ExtResource("5_x6t6f")
+idx = 3
+
+[node name="Blocked_4" type="Node2D" parent="." unique_id=1817426022]
+position = Vector2(96, -128)
+script = ExtResource("4_bmpyr")
+points = PackedVector2Array(336, -80, 248, 28, -70, 26, -70, -79.99999)
+
+[node name="@Node2D@42532" type="Node2D" parent="Blocked_4" unique_id=400571465]
+position = Vector2(336, -80)
+script = ExtResource("5_x6t6f")
+
+[node name="@Node2D@42535" type="Node2D" parent="Blocked_4" unique_id=679253384]
+position = Vector2(248, 28)
+script = ExtResource("5_x6t6f")
+idx = 1
+
+[node name="@Node2D@42538" type="Node2D" parent="Blocked_4" unique_id=420352299]
+position = Vector2(-70, 26)
+script = ExtResource("5_x6t6f")
+idx = 2
+
+[node name="@Node2D@448018" type="Node2D" parent="Blocked_4" unique_id=197006578]
+position = Vector2(-70, -79.99999)
+script = ExtResource("5_x6t6f")
+idx = 3
+
+[node name="Blocked_5" type="Node2D" parent="." unique_id=255171034]
+position = Vector2(160, 56)
+script = ExtResource("4_bmpyr")
+points = PackedVector2Array(186.14082, -28.449604, 286.1408, -8.449604, 290.14084, 128.5504, 186.14082, 42.550396)
+
+[node name="@Node2D@634137" type="Node2D" parent="Blocked_5" unique_id=1074238313]
+position = Vector2(186.14082, -28.449604)
+script = ExtResource("5_x6t6f")
+
+[node name="@Node2D@634140" type="Node2D" parent="Blocked_5" unique_id=1360872519]
+position = Vector2(286.1408, -8.449604)
+script = ExtResource("5_x6t6f")
+idx = 1
+
+[node name="@Node2D@634143" type="Node2D" parent="Blocked_5" unique_id=1631228079]
+position = Vector2(290.14084, 128.5504)
+script = ExtResource("5_x6t6f")
+idx = 2
+
+[node name="@Node2D@646004" type="Node2D" parent="Blocked_5" unique_id=1083270515]
+position = Vector2(186.14082, 42.550396)
+script = ExtResource("5_x6t6f")
+idx = 3
+
+[node name="Blocked_6" type="Node2D" parent="." unique_id=378599540]
+position = Vector2(-280, 60)
+script = ExtResource("4_bmpyr")
+points = PackedVector2Array(-48, -28, -47.999992, 45, -152, 104, -152, -27)
+
+[node name="@Node2D@747959" type="Node2D" parent="Blocked_6" unique_id=1511056733]
+position = Vector2(-48, -28)
+script = ExtResource("5_x6t6f")
+
+[node name="@Node2D@747962" type="Node2D" parent="Blocked_6" unique_id=1660770477]
+position = Vector2(-47.999992, 45)
+script = ExtResource("5_x6t6f")
+idx = 1
+
+[node name="@Node2D@747965" type="Node2D" parent="Blocked_6" unique_id=417931250]
+position = Vector2(-152, 104)
+script = ExtResource("5_x6t6f")
+idx = 2
+
+[node name="@Node2D@755447" type="Node2D" parent="Blocked_6" unique_id=970204965]
+position = Vector2(-152, -27)
+script = ExtResource("5_x6t6f")
+idx = 3
+
+[node name="Blocked_7" type="Node2D" parent="." unique_id=1804277743]
+position = Vector2(-61.245636, -68.043465)
+script = ExtResource("4_bmpyr")
+points = PackedVector2Array(-266.75436, 31.043465, -266.75436, -33.956535, -370.75436, -138.95654, -370.75436, 4.0434647)
+
+[node name="@Node2D@749826" type="Node2D" parent="Blocked_7" unique_id=581393167]
+position = Vector2(-266.75436, 31.043465)
+script = ExtResource("5_x6t6f")
+
+[node name="@Node2D@749829" type="Node2D" parent="Blocked_7" unique_id=942384999]
+position = Vector2(-266.75436, -33.956535)
+script = ExtResource("5_x6t6f")
+idx = 1
+
+[node name="@Node2D@749832" type="Node2D" parent="Blocked_7" unique_id=1882987975]
+position = Vector2(-370.75436, -138.95654)
+script = ExtResource("5_x6t6f")
+idx = 2
+
+[node name="@Node2D@763408" type="Node2D" parent="Blocked_7" unique_id=102989867]
+position = Vector2(-370.75436, 4.0434647)
+script = ExtResource("5_x6t6f")
+idx = 3
+
+[node name="Blocked_8" type="Node2D" parent="." unique_id=823241310]
+position = Vector2(-136.79811, -56.361977)
+script = ExtResource("4_bmpyr")
+points = PackedVector2Array(240.79811, 54.361977, 240.79811, 72.36198, 212.79811, 100.36198, 184.79811, 81.36198, 184.79811, 61.361977, 212.79811, 32.361977)
+
+[node name="@Node2D@1303043" type="Node2D" parent="Blocked_8" unique_id=978991345]
+position = Vector2(240.79811, 54.361977)
+script = ExtResource("5_x6t6f")
+
+[node name="@Node2D@1303046" type="Node2D" parent="Blocked_8" unique_id=670282853]
+position = Vector2(240.79811, 72.36198)
+script = ExtResource("5_x6t6f")
+idx = 1
+
+[node name="@Node2D@1303049" type="Node2D" parent="Blocked_8" unique_id=604283725]
+position = Vector2(212.79811, 100.36198)
+script = ExtResource("5_x6t6f")
+idx = 2
+
+[node name="@Node2D@1315456" type="Node2D" parent="Blocked_8" unique_id=1283780622]
+position = Vector2(184.79811, 81.36198)
+script = ExtResource("5_x6t6f")
+idx = 3
+
+[node name="@Node2D@1444421" type="Node2D" parent="Blocked_8" unique_id=855675106]
+position = Vector2(184.79811, 61.361977)
+script = ExtResource("5_x6t6f")
+idx = 4
+
+[node name="@Node2D@1631796" type="Node2D" parent="Blocked_8" unique_id=746151703]
+position = Vector2(212.79811, 32.361977)
+script = ExtResource("5_x6t6f")
+idx = 5

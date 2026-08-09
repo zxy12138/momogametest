@@ -1272,3 +1272,176 @@ RoomLayoutEditor 是**编辑器专用工具场景**，其下子节点（含拖�
 2. **地面武器仍大**：WeaponPickup scale 0.35 → 0.22（66px < 玩家 84px）。
 3. **未拾取武器过门回来消失**：`_starter_rooms` 改按层记录 + 摆时不标记；`_swap` 清 `_starter_pickups`；拾取选定后才标记该层已选。未拾取离开→回来重摆。
 4. **滤镜感**：视频黑屏 + 深蓝 clear color + Ghost 框叠加所致；视频修复后运行时正常（Ghost 按 group 隐藏，编辑器预览保留可视化）。
+
+## 修复·2026-08-08（Tween Infinite loop，3 次报错）
+- `WeaponPickup` 浮动动画 `get_tree().create_tween()`（独立 Tween）+ `set_loops(-1)`：切房清理后 Tween 目标 `_spr` 失效仍存活 → 每帧立即完成 + 无限重启 → `Infinite loop detected`（3 把武器=3 次）。修复：改节点方法 `create_tween()`（绑定节点、销毁自动 kill）。`Pickup.gd`（set_loops(3)）同类顺改。
+
+## 功能·2026-08-08（房间布局编辑器大插件 + 武器阴影）
+用户需求：武器加阴影；门/敌人/禁区/出生点/武器全做成可拖放控件；做一个类似序列帧插件的大插件，直接在 f1_r1.tscn 等房间场景里编辑（替代 RoomLayoutEditor 独立工具场景）；保留全部功能（含装饰）；武器可定义位置+大小。
+- **手柄节点 `src/rooms/handles/`（7 文件）**：HandleUtil（椭圆阴影）、DoorHandle、EnemyHandle、BlockedHandle、SpawnPointHandle、WeaponHandle（weapon_id + display_scale）、DecorationHandle。全部 @tool：编辑器可视化可拖、运行期隐藏、可视化子节点不写进场景。
+- **RoomManager 手柄优先**（`_collect_handles`）：门/禁区/敌人/出生点/装饰/武器优先读场景手柄，无手柄回退 layouts/*.tres（双向兼容）。新增 `_spawn_weapons()` 生成地面武器（display_scale 生效）+ `Game.register_pickup`。
+- **武器阴影**：WeaponPickup 脚下椭圆阴影 + `@export display_scale`（0.22 默认）；悬浮武器 sprite 加阴影。
+- **Dock 插件 `addons/room_layout_dock/`**：右侧 Dock（DOCK_SLOT_RIGHT_UL）+ 工具菜单入口；面板检测当前房间场景，6 个按钮一键加手柄（owner=root 可保存），实时计数。已注册 project.godot。
+
+## 修复·2026-08-08（Nonexistent 'String' constructor 狂刷 3 万条）
+- **根因**：`RoomDockPanel._update_info` 每帧执行 `String(root.get("layer"))` —— `Node.get()` 返回 Variant，GDScript 4.7 把 `String(Variant)` 当"调用 String 构造函数"→ 报错狂刷。
+- **修复**：转字符串一律用全局函数 `str()`（Variant 安全）。清理 6 文件：RoomDockPanel（源头）、EnemyHandle、WeaponHandle、Game.gd×5、WeaponSystem×2、GameManager。**规则：Variant 参数（.get/.call/Dict 索引/Array 元素/keys()）转字符串用 str()，不用 String()**。
+
+## 重构·2026-08-08（删旧 RoomLayoutEditor + 整合多功能插件 + 修手柄下拉）
+1. **重名冲突修复**：旧 `src/rooms/BlockedHandle.gd` 与新手柄 class_name 冲突（hides a global script class）→ 删除旧文件，新手柄唯一。
+2. **删除旧 RoomLayoutEditor 体系**：`src/rooms/` 下全部工具类（BlockedHandle/DoorDef/EnemyPlacement/EnemyPlacementDef/EnemyTypeCount/RectDef/DecorationPlacement/RoomLayout/RoomLayoutEditor.gd/.tscn）+ Room.tscn + sprite.png + **layouts/*.tres 全删**。RoomManager 移除所有 .tres 回退逻辑（_load_layout/_layout），**房间内容 100% 由场景手柄定义**，旧编辑全部清空、用新插件重摆。Game.gd 删孤儿 const ROOM。
+3. **@export_enum 下拉修复**：`@export_enum` 与 get/set 互斥（配了 Inspector 下拉失效→无法选择）。EnemyHandle/WeaponHandle 改纯 @export_enum + `_process` 检测变化刷新可视化。
+4. **整合插件 `addons/dream_editor/`（v1.1）**：TabContainer 双 Tab——「房间布局」（复用 RoomDockPanel）+「素材库」（复用 SeqFramePanel）。project.godot 停用 sequence_frame_manager/room_layout_dock（目录保留供 preload），启用 dream_editor。Dock 右上 + 工具菜单入口。
+
+## 需求·2026-08-08（武器/传送门可视化 + 布局自适应 + 怪物选择 + 命名）
+1. **武器全可视化**：删除 Game 程序随机生成 3 把（_spawn_starter_weapons 及 _starter_* 逻辑），武器完全由房间场景 WeaponHandle 定义（RoomManager._spawn_weapons）。
+2. **下一层传送门可视化**：新建 NextDoorHandle（门框+↑下一层，next_layer 可配）；RoomManager._build_next_door 生成传送门（初始隐藏，Boss 击败后 enable_next_door 启用）；删旧 _spawn_next_door 程序生成。
+3. **素材库自适应**：SeqFramePanel HBox→HSplitContainer（可拖分隔条）+ 根 FULL_RECT + 预览区 EXPAND_FILL 利用下方空间。
+4. **怪物/武器类型选择**：String+@export_enum 下拉不可靠 → 改 int+@export_enum + enemy_id()/weapon_id() 方法（IDS[clampi(idx)]），Inspector 下拉稳定可选。
+5. **手柄命名合理化**：添加时按类型命名（Door/Enemy/Blocked/Spawn/Weapon_{id}/Decoration/NextDoor + 序号去重）；按钮两行 7 个（含下一层门）；计数含传送门。
+
+## 修复·2026-08-08（素材库布局/敌人选择/武器随机/手柄贴图/战斗残留）
+1. **素材库 UI 显示一点点**：DreamEditorPanel 的 TabContainer 用 `set_anchors_and_offsets_preset(FULL_RECT)` 对容器子节点无效 → 高度坍缩。改 `size_flags_h/v = SIZE_EXPAND_FILL`，素材库/房间布局两 Tab 正常撑满。
+2. **敌人类型选择（面板直达）**：RoomDockPanel 新增「敌人类型/武器类型」两个下拉行（中文名+id 列表），`+敌人/+武器` 直接用下拉选中的类型；选中场景手柄时下拉自动同步、改下拉即写回（实时刷新样子）。不再需要去 Inspector 找属性。
+3. **武器/怪物在场景中显示样子**：根因是 @tool 编辑器预览期 `GameManager`(autoload) 是 placeholder 实例，`load_tex()` 调用崩/返回 null → 手柄空白。改手柄内直接用全局函数 `load()`（Weapons/Enemies 是 class_name 全局类，安全）：武器显示图标贴图；敌人显示 idle 序列帧第一帧（Sprite2D+hframes+scale 0.45，对齐运行期）+ 半透明底框。
+4. **进游戏武器随机**：RoomManager._spawn_weapons 从 `Weapons.POOL` 随机抽（不重复优先）——手柄只定义掉落位（位置/数量/大小），武器种类每次进房随机。
+5. **删除"战斗"残留**：RoomManager._ready 删掉旧 Room.tscn 时代的"示例战斗房预览"兜底（room_id 为空时编辑器会构建 type=combat 示例房）。
+
+## 修复·2026-08-08（门可视化编辑/禁区多边形拖点/素材库自适应）
+1. **门可编辑**：RoomManager.setup 守卫调整——编辑器预览只构建地板/墙，门/禁区/驿站全部由场景手柄决定（运行期才生成 Area2D）。之前编辑器预览程序生成"战斗"门，用户无法编辑移动，现在用户加 DoorHandle 直接在 SceneTree 拖到想要位置。
+2. **禁区 PS 风格多边形**：新建 `PolygonPointHandle.gd`（紫色十字+编号，子节点可拖）。BlockedHandle 多边形模式顶点=子 PolygonPointHandle 位置（首次添加自动建 3 个默认点）。RoomDockPanel 选中禁区显示 +顶点 / -顶点 / 切换矩形/多边形 按钮（至少留 3 个点）。RoomManager._build_blocked 用 `collect_polygon_points()` 收集子节点位置。
+3. **素材库 UI 自适应**：SeqFramePanel 去掉 HSplitContainer，改成根 VBoxContainer 上下两段独立 ScrollContainer（配置上 / 素材库下）。横竖屏都正常，整体只在垂直方向滚动（不再"只能滚轮看不全"）。
+
+## 修复·2026-08-08（插件消失/下一关门预置）
+1. **插件整个消失**：上一轮 `root.add_child(` → `cfg_box.add_child(` 全局替换误伤父级行 → `cfg_box.add_child(scroll)`+`scroll.add_child(cfg_box)` 循环父子 → SeqFramePanel._build_ui 抛错 → DreamEditorPanel._ready 中断 → 整个 Dock 插件消失。修复：改回 `root.add_child(scroll)`。
+2. **下一关门场景化**：NextDoorHandle 预置进 f1_r7.tscn（next_layer=2）/ f2_r7.tscn（next_layer=3），默认位置 (0,-210)（房间顶部）。打开 Boss 房场景即可看到"↑ 下一层"门框并拖动定位。层3 Boss 通关走结局不摆。
+
+## 修复·2026-08-08（门标签场景化）
+1. **DoorHandle 增强**：编辑器里显示箭头（按位置自动推断↑↓←→）+ 目标房类型（"↑ 战斗"，查 LevelData）+ target id 副标签（彩色描边）。运行期隐藏。
+2. **DoorHandle 预置 18 个场景**：用 tools/inject_doors.py 解析 LevelData.LAYERS，按 neighbors + edges 默认位置（top/bottom/left/right）注入 DoorHandle 节点。Boss 房跳过。
+3. **RoomManager 运行时去掉 Label 拼接**：原本 `_build_doors` 运行时拼接「↑ 战斗」 Label（用户看到的"3 个默认场景中没有"就是这个）。删除 `arrows[]` 数组 + `lab` 生成代码，标签由场景 DoorHandle 负责，运行期只生成门框贴图 + Area2D。
+
+## 修复·2026-08-08（f1_r1 补门/素材库可拖拽高度）
+1. **f1_r1 补 DoorHandle**：inject_doors.py 用 `'DoorHandle' in content` 检测误判——`NextDoorHandle.gd` 含 "DoorHandle" 子串 → f1_r1 被跳过。改检测为精确路径/节点名，手动补注入 Door_r2（target=r2，layer=1，位置 (0,-224)）。
+2. **素材库可拖拽**：SeqFramePanel 根 VBoxContainer → VSplitContainer（上下两段独立 ScrollContainer，中间分割条可拖动调整「配置」/「素材库」高度比例）；素材库段 min height 160→220（默认显示更多素材，直观）。
+
+## 修改·2026-08-08（f1_r1 背景换回静态）
+- LevelData 新增 `STATIC_BG := {1: {"r1": true}}`；`tile_path()` 对静态房跳过 .ogv 视频、只用同名 .png（S_001_1.png）。所有注入 scene_img 的调用点（MapData.load_layer / RoomManager._ready / Game 编辑器预览）统一走 tile_path，一处生效。
+
+## 优化·2026-08-09（禁区多边形默认4点/居中到中心）
+1. **默认 4 个点**：BlockedHandle 默认从等边三角形(3点)改为正方形 4 点（边长 120），方便拖成矩形/多边形（_MIN_POINTS 仍 3，允许删成三角形）。
+2. **居中到中心**：新增 `BlockedHandle.center_to_polygon_center()` —— 中心手柄移到顶点几何中心（父 position += 偏移、顶点 -= 偏移，图形世界位置不变不跳）。RoomDockPanel 禁区操作行加「居中到中心」按钮（选中禁区时显示）。
+
+## 新增·2026-08-09（画布绘制禁区 + 模板库）
+1. **画布绘制禁区**：RoomDockPanel「绘制: 多边形/矩形/关闭」三态开关 → plugin.gd `_forward_canvas_input` 捕获画布鼠标：
+   - 多边形：左键逐点加点（实时折线预览），**点回起始顶点闭合生成**（PS 钢笔风格，<12px）；右键删点；Esc 取消；画完保持模式可连续画
+   - 矩形：左键拖拽画框（ReferenceRect 预览），松开生成
+   - 坐标转换：`SubViewport.canvas_transform.affine_inverse()`；只在房间场景生效
+2. **禁区模板库**：内置 6 个模板（矩形/立柱/斜墙/L形/U形门洞/三角），点击直接生成到场景中心再整体拖动。
+3. **插件引用注入**：DreamEditorPanel.set_plugin 转发 EditorPlugin → RoomDockPanel（绘制模式等插件级能力）。
+
+## 变更·2026-08-09（移除绘制/模板 → 黑白图导入禁区）
+1. **移除未生效功能**：画布绘制模式（多边形/矩形开关，plugin.gd _forward_canvas_input）+ 禁区模板库全部移除，插件恢复简单版。
+2. **黑白图导入生成禁区**：RoomDockPanel 加「导入禁区图（黑白）」按钮 → 文件选择器选 PNG → 自动拉伸铺满 880×500 房间 → 采样网格（8px 一格）→ 亮度<128=禁区 → 行扫描黑色段 → 垂直合并相邻段 → 每个矩形生成一个 BlockedHandle(矩形模式)。黑=禁区、白=可行走，生成后可手动微调顶点/位置。
+
+## 优化·2026-08-09（黑白图生成改多边形模式）
+- 黑白图生成的禁区原为矩形模式（shape_type=0），"+ 顶点 / - 顶点"只对多边形生效 → 改为多边形模式：每个矩形段生成 4 个 PolygonPointHandle 顶点（四角），选中后支持加/减/拖顶点、居中到中心。
+
+## 修复·2026-08-09（黑白图形状错乱：8 点叠加）
+1. **根因**：BlockedHandle._ready 编辑器下自动补默认 4 点；黑白图生成器 add_child(h) 触发 _ready（角点还没加）→ 自动 4 点 + 手动 4 角点 = 8 点叠加，形状错乱。
+2. **修复**：BlockedHandle 加 `@export auto_seed_points: bool = true`，_ready 仅当 `shape_type==1 and auto_seed_points` 才自动补点；黑白图生成器置 false。+ 禁区按钮（默认 true）不受影响。
+3. **加点优化**：add_polygon_point 默认位置从随机(±60)改为几何中心（顶点平均），新点落在形状内、拖出即可，不破坏外围。
+
+## 新增·2026-08-09（路径输入 + 导入撤销）
+1. **路径输入框**：「文件夹:」LineEdit（默认 res://assets/tiles/）+「…」浏览按钮；「导入禁区图」打开选择器时默认定位到输入路径（DirAccess 校验存在才设置）。
+2. **Ctrl+Z 撤销导入**：黑白图导入节点用 EditorInterface.get_undo_redo() 包裹（create_action + do=挂载/undo=摘除），导入错了 Ctrl+Z 撤销、Ctrl+Y 重做。undo 用 remove_child 保留引用供 redo。
+
+## 修复·2026-08-09（撤销栈 API 用错导致插件编译失败）
+- **报错**：`Static function "get_undo_redo()" not found in base "GDScriptNativeClass"` + 连锁编译失败（DreamEditorPanel/plugin.gd 无法加载 → 插件整体失效）。
+- **根因**：`get_undo_redo()` 是 **EditorPlugin 的实例方法**，不是 EditorInterface 的方法；在 RoomDockPanel（非 EditorPlugin）里 `EditorInterface.get_undo_redo()` 静态调用不存在 → 编译报错。
+- **修复**：改用 **`EditorUndoRedoManager` 单例**（Godot 4.2+ 内置，插件面板可直接静态调用）：`create_action / add_do_method / add_undo_method / commit_action`。
+- 其他 `EditorInterface.get_selection()/get_base_control()/get_edited_scene_root()` 是其真实方法，静态调用正常，无需改。
+
+## 修复·2026-08-09（撤销管理器取实例，插件恢复加载）
+- **报错**：`Cannot call non-static function "create_action()" on the class "EditorUndoRedoManager" directly` → EditorUndoRedoManager 不是自动单例，create_action 等是**实例方法**。
+- **修复**：恢复「插件引用注入」链路——plugin.gd `_enter_tree` 注入 `set_plugin(self)` → DreamEditorPanel 转发 → RoomDockPanel `_plugin.get_undo_redo_manager()` 取实例（EditorPlugin 4.2+ 方法）再 create_action/add_do/add_undo/commit。无插件引用时兜底直接挂载（仅不可撤销）。
+- **教训沉淀**：编辑器撤销栈正确取法 = EditorPlugin.get_undo_redo_manager()（实例）；`EditorInterface.get_undo_redo()` 不存在、`EditorUndoRedoManager.xxx()` 静态调用也不合法。
+
+## 修复·2026-08-09（撤销 API 第三次修正：4.7 用 EditorPlugin.get_undo_redo）
+- **报错**：`Nonexistent function 'get_undo_redo_manager' in base 'EditorPlugin'` → Godot 4.3/4.4 已移除 EditorUndoRedoManager 与 get_undo_redo_manager()，4.7 不再存在。
+- **修复**：改用 `EditorPlugin.get_undo_redo() -> UndoRedo`（4.7 唯一正确方式）：`var ur: UndoRedo = _plugin.get_undo_redo()` 再 create_action/add_do/add_undo/commit。
+- **最终教训**：编辑器撤销栈在 Godot 4.7 = `EditorPlugin.get_undo_redo()` 实例方法（返回 UndoRedo）。EditorInterface.get_undo_redo() 不存在；EditorUndoRedoManager 类与 get_undo_redo_manager() 已在 4.4+ 移除。
+
+## 修复·2026-08-09（撤销 API 第四次修正：get_undo_redo 返回 EditorUndoRedoManager）
+- **报错**：`Cannot assign EditorUndoRedoManager to ur with type UndoRedo` + `add_do_method expected at most 1, argument should be Callable` + 混入旧缓存报错（get_undo_redo_manager）。
+- **查证官方文档（Godot 4.5/4.7）**：`EditorPlugin.get_undo_redo()` 返回 **EditorUndoRedoManager**（不是 UndoRedo）；其 `add_do_method(object, method, ...)` 用 object+方法名（非 Callable）。
+- **修复**：`var ur: EditorUndoRedoManager = _plugin.get_undo_redo()` + `ur.add_do_method(self, "_attach_imported_nodes", nodes)`（object+method 形式）。**此前判断"EditorUndoRedoManager 在 4.4+ 移除"错误，予以更正**。
+- 其他工具脚本取撤销栈：`Engine.get_singleton("EditorInterface").get_editor_undo_redo()`（论坛验证）。
+
+## 改造·2026-08-09（删驿站/Boss 改插件/禁区隐藏开关）
+1. **删除驿站互动**：Game.gd 删全部驿站代码（驿站面板/进出触发/提示/武器交换/升阶），RoomManager 删 _build_inn；inn 房间类型保留（地图照常显示）。
+2. **Boss 改插件手柄**：新建 BossHandle.gd（3 种 boss 下拉：b_director/b_train/b_fear，贴图+名字可视化）。RoomManager 删自动 boss 生成，改为收集 BossHandle 按手柄生成（保留已清空不刷+入场图）。RoomDockPanel 加 Boss 下拉+按钮+选中同步。预置 f1_r7/f2_r7/f3_r7 各对应一个 Boss。
+3. **禁区可见性开关**：RoomDockPanel 加「隐藏禁区可视化（测试）」CheckBox，递归隐藏当前场景所有 BlockedHandle（仅编辑器显示，不影响碰撞）。
+
+## 修复·2026-08-09（禁区红框不显示：开关污染场景）
+- **根因**：旧「隐藏禁区可视化」开关直接改 BlockedHandle.visible=false → Ctrl+S 保存后 visible=false 写进 .tscn → 该房间禁区永久隐藏。
+- **修复**：改用类级静态标志 `BlockedHandle.s_hidden_all`（_redraw 开头检查，true 时不绘制红框；不改 visible 不污染场景）；RoomDockPanel 开关只设标志+刷新。_ready 编辑器下强制 visible=true（修复已保存污染）。F5/F6 新进程不受静态标志影响。
+
+## 修复·2026-08-09（红框仍不显示：黑白图导入子顶点 owner 未设导致保存丢失）
+- **根因**：黑白图导入生成 BlockedHandle 时，PolygonPointHandle **子节点的 owner 未设置**（只设了父 BlockedHandle）→ Ctrl+S 保存后**子顶点全部丢失**（points 字段保存了）→ 重开 `collect_polygon_points()` 空 → `_redraw` 的 `pts.size()<3` return → 红框不显示。f2_r1/f2_r2/f3_r0 等房间受影响。
+- **修复（3 处）**：
+  1. `_attach_imported_nodes` 子节点也设 owner（防未来丢失）
+  2. `_redraw` 子节点 <3 且有 points 时用 points 兜底绘制（红框恢复）
+  3. `_ready` 子点丢失但有 points 时自动从 points 恢复子节点（绕开 auto_seed=false）
+- RoomManager._build_blocked 运行期碰撞已有 points 兜底，不受影响。
+
+## 新增·2026-08-09（无门安全出生点：跨层不再卡禁区）
+- **问题**：跨层进入下一大关起点房（f2_r1/f3_r0）没有「指回旧房 r7 的门」→ entry_door_position 返回 ZERO → 旧逻辑出生在房间中心 (0,0)。这两个起点房无 SpawnPointHandle 且黑白图导入密布禁区 → 角色出生即卡死。
+- **修复（4 处）**：
+  1. `RoomManager.safe_spawn_position()`：优先插件 SpawnPointHandle → 校验「房间边界内(24px 边距) + 不在任何禁区内部（矩形 AABB / 多边形射线法，支持 rotation_deg，子点缺失回退 points 备份）」→ 无效时以候选点为中心**螺旋搜索最近安全点**（16px 步长、45°×8 方向）→ 全失败回退 (0, H/2-60)。
+  2. `Game._swap` 无门分支改调 `safe_spawn_position()`（替代 spawn_point_position），并加**最终 clamp**（出生点永不出房间）。
+  3. `tools/inject_spawns.py` 预置 SpawnPointHandle 到 f2_r1/f3_r0（默认 (0,40)，运行期 safe_spawn_position 自动避让禁区）。
+  4. `RoomDockPanel.+ 出生点` 防重复：房间已有 SpawnPointHandle 时选中并提示，不重复创建。
+
+## 修复·2026-08-09（f3_r0 无效果：Spawn 被覆盖 + 迷宫禁区 + 全房间扫描兜底）
+1. **根因**：① 上一轮注入 f3_r0 的 SpawnPointHandle 被用户 Ctrl+S **保存覆盖丢失**（编辑器内存旧场景覆盖磁盘新文件；f2_r1 的 Spawn 幸存）；② f3_r0 有 **71 个 BlockedHandle 铺满全房**（y -194..+202、x ±440，迷宫状），Spawn (0,40) 与房间中心 (0,0) 均在禁区内部 → 旧逻辑出生即卡死。
+2. **修复**：① `safe_spawn_position` 新增**全房间网格扫描兜底**（螺旋搜索只探测 45°×8 方向，迷宫缝隙不在其上会漏；16px 逐行扫描保证找到任意可走格）；② 重新注入 f3_r0 的 Spawn（(0,40)，运行期自动避让禁区）。
+3. **验证**：新增 `tools/sim_spawn_check.py`（纯 Python 模拟 GDScript 射线法，解析 f3_r0 71 个禁区）→ 确认 Spawn (0,40) 不安全、中心 (0,0) 不安全、螺旋搜索命中安全缝隙 (11,51)、默认点 (0,190) 安全。全链路正确。
+
+## 修复·2026-08-09（仍中间出生：点级检测 → 碰撞体级 + 底部安全区优先）
+1. **真根因**：safe_spawn_position 的 `_is_spawn_safe` 只做**点级**检测。f3_r0 迷宫缝隙（8~16px）"点安全"但**玩家圆形碰撞体（CircleShape2D radius=11）放不下** → 螺旋搜索优先命中 Spawn 点旁 16px 窄缝 (11,51)，"在中间出生"仍卡；而底部 (0,190) 大片空地没被优先选择。
+2. **修复**：① `const _PLAYER_RADIUS := 16.0`（11+5 余量）；② `_is_spawn_safe` 碰撞体级（中心+8 方向采样全不在禁区）；③ 选择策略：Spawn 位置(碰撞体安全) → **底部预置安全区 (0,H/2-60)** → 螺旋(碰撞体级) → 全房间扫描(碰撞体级)。
+3. **验证（sim_spawn_check.py 升级）**：f3_r0 出生 (0,190) ✓；f2_r1 用户 Spawn (-243,98) 安全 → 出生 Spawn 位置 ✓；用户后拖 f3_r0 Spawn 到 (113,195)（安全）→ 新逻辑精确出生该处 ✓。
+4. **用户仍"中间出生"**：磁盘代码/场景全对 → 陈旧 .godot 缓存/未重启。操作：关 Godot → 删 .godot → 重开 → F5。
+
+## 修复·2026-08-09（地图任意跳转出生点：门优先 + 全 22 房验证）
+1. **链路查证**：MapUI 全开地图跳转 `_on_room_pressed("f3-r0")` → `transition_to("f3-r0")` → 切层 → `_swap`，与 f2_r7 正常流程（`_go_next_layer` → `transition_to("r0")`）在出生逻辑上**无差异**（都走 from_door=false → safe_spawn_position）。"地图跳转在中间出生"= 旧代码/旧缓存路径（旧 Game 无门时用 spawn_point_position → 无 Spawn 房返回 (0,0) 中间；或 Spawn 在 (0,40) 中间禁区）。
+2. **增强**：`safe_spawn_position` 优先级插入「任意一扇门」——新增 `RoomManager.fallback_door_position()`（返回第一个 DoorHandle 位置；Boss 房无 DoorHandle → ZERO 跳过）。地图跳转到有门的房间现在**出生在门口**（安全通道），比底部/螺旋兜底更符合直觉。
+3. **全量验证**：新增 `tools/check_all_spawns.py`（纯 Python 遍历 22 个房间 .tscn，支持多边形 points + 矩形 rect_size + 科学计数法）：**全部房间均有安全出生点**——Spawn 手柄（f1_r1/f2_r1/f3_r0）/ 门口（f1_r2/f2_r5/f3_r1/f3_r2 等）/ 螺旋安全点（f1_r3/r4/r5/f2_r6）/ 底部（f3_r7 等）。
+4. **解析坑**：ext_resource 行 path 在 id 之前（正则先 path 后 id）；points/position 含科学计数法（3.673819e-15）需 `[eE][-+]?\d+` 支持；`"DoorHandle.gd" in path` 会误判 NextDoorHandle（仅检查脚本，运行期 `c is DoorHandle` 类型判断不受影响）。
+
+## 修复·2026-08-09（出生"还在中间" = 相机锁定房间中心错觉）
+- **根因**：`_update_camera` 用 `focus = _room.global_position`（房间锚点 = 房间中心）作为相机焦点——玩家位置不影响画面中心，玩家在屏幕上的位置 = player - 房间中心 + 屏幕中心。无论 Spawn/门/兜底出生，**画面始终以房间中心 (0,0) 为视觉中心**，玩家视觉位置总是接近屏幕中央（用户感觉"出生位置没生效"）。
+- **修复**：
+  1. `_swap` 末尾加 `_cam_lock_until_ms = Time.get_ticks_msec() + 500` + `toast("出生 门/安全点(x, y)")`；
+  2. `_update_camera` 加 `if Time.get_ticks_msec() < _cam_lock_until_ms: return` 守卫——出生后 500ms 相机不动，玩家可见在真实位置（屏幕偏移），500ms 后平滑追踪；
+  3. `inject_spawns.py` 改全量注入——给所有 22 房间（除 f1_r1/f2_r1/f3_r0 已有）注入默认 SpawnPointHandle (0,40)，SceneTree 左侧可见可拖。
+- **验证**：`check_all_spawns.py` 全 22 房间均有安全出生点。
+
+## 新增·2026-08-09（f1_r2 灯管漏电感独立闪烁）
+- **资源**：`Artssucai/S_001_2_light_Mask.png` (1376×768) → `assets/tiles/S_001_2_light_Mask.png`。3 个灯管黑矩形位置（mask→房间映射：room = mask*(880/1376)-440, mask*(500/768)-250）：灯 A (1,211) region=(621,702,137,13)、灯 B (233,-201) region=(988,69,129,13)、灯 C (-216,-202) region=(287,69,129,12)。
+- **脚本**：`src/fx/LightFlicker.gd`（@tool Sprite2D）— modulate.a 多频叠加：快速(sin×9.1) + 慢速基线(sin×1.7) + 偶发全暗(`step(0.88, sin(×0.62))` 漏电熄灯)。每灯独立 seed_offset (0.0/1.7/3.3) 错开相位避免同步。
+- **场景**：f1_r2.tscn 注入 3 个 Node2D（Light_A/B/C）+ 子 Sprite2D（texture=mask、region_enabled=true、region_rect、scale=0.64）。SceneTree 左侧可见，@tool 实时闪烁预览。
+- **工具**：`tools/inject_lights_f1_r2.py`。
+
+## 回滚·2026-08-09（按用户指令：删灯光 + 回调出生点 + 重新检查）
+- **回滚（tools/rollback_last.py 一键执行）**：
+  1. 灯光：删 f1_r2.tscn 的 Light_A/B/C 节点 + ext_resource，删 mask 图片与 .import，删 `src/fx/LightFlicker.gd`，删 `tools/inject_lights_f1_r2.py`；
+  2. 出生点：删 inject_spawns.py v2 注入的 19 个 Spawn（id="7_spawn_N", N>=1）+ ext_resource，保留 f1_r1/f2_r1/f3_r0 原有；
+  3. Game.gd：删 `_cam_lock_until_ms` 变量、`_update_camera` 锁定守卫、`_swap` 末尾 toast/锁定赋值。
+- **重新诊断**：模拟 f3_r0 Spawn (52,201) 碰撞体级安全应返回该点（玩家屏幕偏右下），但用户截图显示接近中央——加 **print DEBUG** 让用户运行期看 Godot 输出面板的实际 spawn_pos/player.global_position/focus 值，**确认 spawn_pos 是否真的生效**。
+- **兜底点偏右下**：`safe_spawn_position` fallback 从 `(0, 190)` 改为 `(W*0.3, H*0.5-60) = (264, 140)`，明显不在中心。
+
+## 修复·2026-08-09（f1_r2 解析错误 + 出生"在中心"真根因）
+1. **f1_r2.tscn 解析错误**：rollback_last.py 删 ext_resource 但节点块没删干净（有 unique_id 正则未匹配）→ Light_A/B/C/Spawn 引用不存在的 mask_1/lflk_1/7_spawn_1 → 解析崩溃。修复：截断尾部残留节点块，47 节点 + 5 ext_resource，引用完整。
+2. **出生"在中心"真根因（rid 跨层撞名）**：`Game._swap` 门查找 `entry_door_position(prev_rid)`——用户从 f1_r1（rid="r1"）跳 f3_r0 时 prev_rid="r1"，f3_r0 恰好有 `Door_r1`（target="r1" 指向层3的 r1）→ 误匹配 → 出生在门位置 (96,-21)（屏幕中央偏右）。从 f2_r7 跳正常（prev_rid="r7" 无匹配门）。**修复**：加 `_crossed_layer` 标志（`_switch_floor`/`_go_next_layer`/`_enter_completed_state` 置 true，`_swap` 守卫 + 消费）——跨层跳转不用 prev_rid 查门，同层过门不受影响。

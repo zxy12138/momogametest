@@ -1,10 +1,375 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://brhbyrgturn4b"]
 
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
+[ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://br7xu8uye5q8n" path="res://assets/tiles/S_002_3ro4.png" id="2_617d8"]
+[ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_ln65o"]
 
-[node name="Room" type="Node2D"]
+[node name="Room" type="Node2D" unique_id=1252208605]
 script = ExtResource("1")
 layer = 2
 room_id = "r3"
 
-[node name="Floor" type="TextureRect" parent="."]
+[node name="Floor" type="TextureRect" parent="." unique_id=139127184]
+z_index = -4000
+offset_left = -440.0
+offset_top = -250.0
+offset_right = 440.0
+offset_bottom = 250.0
+texture = ExtResource("2_617d8")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Door_r2" type="Node2D" parent="." unique_id=1716156614]
+position = Vector2(0, -224)
+script = ExtResource("2")
+target = "r2"
+layer = 2
+
+[node name="Door_r5" type="Node2D" parent="." unique_id=968917055]
+position = Vector2(0, 224)
+script = ExtResource("2")
+target = "r5"
+layer = 2
+
+[node name="Blocked" type="Node2D" parent="." unique_id=277977852]
+position = Vector2(0, -234)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-440, -16, 440, -16, 440, 16, -440, 16)
+auto_seed_points = false
+
+[node name="@Node2D@241359" type="Node2D" parent="." unique_id=1978952546]
+position = Vector2(-384, -214)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-56, -4, 56, -4, 56, 4, -56, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241372" type="Node2D" parent="." unique_id=688041187]
+position = Vector2(0, -214)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-296, -4, 296, -4, 296, 4, -296, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241385" type="Node2D" parent="." unique_id=577486336]
+position = Vector2(380, -214)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-60, -4, 60, -4, 60, 4, -60, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241398" type="Node2D" parent="." unique_id=1209501598]
+position = Vector2(-388, -206)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-52, -4, 52, -4, 52, 4, -52, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241411" type="Node2D" parent="." unique_id=94452513]
+position = Vector2(0, -206)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-280, -4, 280, -4, 280, 4, -280, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241424" type="Node2D" parent="." unique_id=763108929]
+position = Vector2(388, -206)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-52, -4, 52, -4, 52, 4, -52, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241437" type="Node2D" parent="." unique_id=88248206]
+position = Vector2(-392, -194)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-48, -8, 48, -8, 48, 8, -48, 8)
+auto_seed_points = false
+
+[node name="@Node2D@241450" type="Node2D" parent="." unique_id=27566472]
+position = Vector2(-4, -198)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-268, -4, 268, -4, 268, 4, -268, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241463" type="Node2D" parent="." unique_id=929036283]
+position = Vector2(392, -198)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-48, -4, 48, -4, 48, 4, -48, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241476" type="Node2D" parent="." unique_id=1336698466]
+position = Vector2(0, -186)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-264, -8, 264, -8, 264, 8, -264, 8)
+auto_seed_points = false
+
+[node name="@Node2D@241489" type="Node2D" parent="." unique_id=1023769276]
+position = Vector2(396, -182)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-44, -12, 44, -12, 44, 12, -44, 12)
+auto_seed_points = false
+
+[node name="@Node2D@241502" type="Node2D" parent="." unique_id=107873713]
+position = Vector2(-396, -166)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-44, -20, 44, -20, 44, 20, -44, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241515" type="Node2D" parent="." unique_id=346352422]
+position = Vector2(-4, -174)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-260, -4, 260, -4, 260, 4, -260, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241528" type="Node2D" parent="." unique_id=1488336075]
+position = Vector2(0, -162)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-256, -8, 256, -8, 256, 8, -256, 8)
+auto_seed_points = false
+
+[node name="@Node2D@241541" type="Node2D" parent="." unique_id=476302096]
+position = Vector2(400, -162)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-40, -8, 40, -8, 40, 8, -40, 8)
+auto_seed_points = false
+
+[node name="@Node2D@241554" type="Node2D" parent="." unique_id=1953434262]
+position = Vector2(4, -142)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-260, -12, 260, -12, 260, 12, -260, 12)
+auto_seed_points = false
+
+[node name="@Node2D@241567" type="Node2D" parent="." unique_id=762200899]
+position = Vector2(396, -134)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-44, -20, 44, -20, 44, 20, -44, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241580" type="Node2D" parent="." unique_id=978683210]
+position = Vector2(-392, -130)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-48, -16, 48, -16, 48, 16, -48, 16)
+auto_seed_points = false
+
+[node name="@Node2D@241593" type="Node2D" parent="." unique_id=862899596]
+position = Vector2(0, -102)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-264, -28, 264, -28, 264, 28, -264, 28)
+auto_seed_points = false
+
+[node name="@Node2D@241606" type="Node2D" parent="." unique_id=587551746]
+position = Vector2(-400, -102)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-40, -12, 40, -12, 40, 12, -40, 12)
+auto_seed_points = false
+
+[node name="@Node2D@241619" type="Node2D" parent="." unique_id=959887245]
+position = Vector2(400, -102)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-40, -12, 40, -12, 40, 12, -40, 12)
+auto_seed_points = false
+
+[node name="@Node2D@241632" type="Node2D" parent="." unique_id=1761771474]
+position = Vector2(-404, -70)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-36, -20, 36, -20, 36, 20, -36, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241645" type="Node2D" parent="." unique_id=942825394]
+position = Vector2(404, -70)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-36, -20, 36, -20, 36, 20, -36, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241658" type="Node2D" parent="." unique_id=267465644]
+position = Vector2(-4, -70)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-268, -4, 268, -4, 268, 4, -268, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241671" type="Node2D" parent="." unique_id=1868540479]
+position = Vector2(0, -58)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-272, -8, 272, -8, 272, 8, -272, 8)
+auto_seed_points = false
+
+[node name="@Node2D@241684" type="Node2D" parent="." unique_id=1398361557]
+position = Vector2(-408, -26)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-32, -24, 32, -24, 32, 24, -32, 24)
+auto_seed_points = false
+
+[node name="@Node2D@241697" type="Node2D" parent="." unique_id=855126049]
+position = Vector2(4, -46)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-276, -4, 276, -4, 276, 4, -276, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241710" type="Node2D" parent="." unique_id=964033470]
+position = Vector2(408, -30)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-32, -20, 32, -20, 32, 20, -32, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241723" type="Node2D" parent="." unique_id=1051542691]
+position = Vector2(-264, -38)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241736" type="Node2D" parent="." unique_id=1661048163]
+position = Vector2(272, -22)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-8, -20, 8, -20, 8, 20, -8, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241749" type="Node2D" parent="." unique_id=2101264504]
+position = Vector2(-268, -30)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241762" type="Node2D" parent="." unique_id=1651316590]
+position = Vector2(-272, -6)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-8, -20, 8, -20, 8, 20, -8, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241775" type="Node2D" parent="." unique_id=895389466]
+position = Vector2(412, 10)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-28, -20, 28, -20, 28, 20, -28, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241788" type="Node2D" parent="." unique_id=215732035]
+position = Vector2(-412, 22)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-28, -24, 28, -24, 28, 24, -28, 24)
+auto_seed_points = false
+
+[node name="@Node2D@241801" type="Node2D" parent="." unique_id=22943094]
+position = Vector2(276, 6)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-4, -8, 4, -8, 4, 8, -4, 8)
+auto_seed_points = false
+
+[node name="@Node2D@241814" type="Node2D" parent="." unique_id=257625281]
+position = Vector2(-276, 22)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-4, -8, 4, -8, 4, 8, -4, 8)
+auto_seed_points = false
+
+[node name="@Node2D@241827" type="Node2D" parent="." unique_id=603066500]
+position = Vector2(280, 46)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-8, -32, 8, -32, 8, 32, -8, 32)
+auto_seed_points = false
+
+[node name="@Node2D@241840" type="Node2D" parent="." unique_id=1033073274]
+position = Vector2(-280, 46)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-8, -16, 8, -16, 8, 16, -8, 16)
+auto_seed_points = false
+
+[node name="@Node2D@241853" type="Node2D" parent="." unique_id=1788876216]
+position = Vector2(416, 50)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-24, -20, 24, -20, 24, 20, -24, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241866" type="Node2D" parent="." unique_id=11171261]
+position = Vector2(-416, 70)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-24, -24, 24, -24, 24, 24, -24, 24)
+auto_seed_points = false
+
+[node name="@Node2D@241879" type="Node2D" parent="." unique_id=2007700232]
+position = Vector2(-276, 70)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-4, -8, 4, -8, 4, 8, -4, 8)
+auto_seed_points = false
+
+[node name="@Node2D@241892" type="Node2D" parent="." unique_id=1514745250]
+position = Vector2(-224, 74)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241905" type="Node2D" parent="." unique_id=1299088563]
+position = Vector2(420, 90)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-20, -20, 20, -20, 20, 20, -20, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241918" type="Node2D" parent="." unique_id=676371033]
+position = Vector2(-248, 86)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-32, -8, 32, -8, 32, 8, -32, 8)
+auto_seed_points = false
+
+[node name="@Node2D@241931" type="Node2D" parent="." unique_id=2003107832]
+position = Vector2(60, 90)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-228, -12, 228, -12, 228, 12, -228, 12)
+auto_seed_points = false
+
+[node name="@Node2D@241944" type="Node2D" parent="." unique_id=1263492408]
+position = Vector2(-420, 114)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-20, -20, 20, -20, 20, 20, -20, 20)
+auto_seed_points = false
+
+[node name="@Node2D@241957" type="Node2D" parent="." unique_id=396526134]
+position = Vector2(-252, 98)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-36, -4, 36, -4, 36, 4, -36, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241970" type="Node2D" parent="." unique_id=1548150569]
+position = Vector2(-248, 106)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-24, -4, 24, -4, 24, 4, -24, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241983" type="Node2D" parent="." unique_id=1506325099]
+position = Vector2(28, 106)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-196, -4, 196, -4, 196, 4, -196, 4)
+auto_seed_points = false
+
+[node name="@Node2D@241996" type="Node2D" parent="." unique_id=1502408591]
+position = Vector2(424, 130)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-16, -20, 16, -20, 16, 20, -16, 20)
+auto_seed_points = false
+
+[node name="@Node2D@242009" type="Node2D" parent="." unique_id=1352112095]
+position = Vector2(-424, 158)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-16, -24, 16, -24, 16, 24, -16, 24)
+auto_seed_points = false
+
+[node name="@Node2D@242022" type="Node2D" parent="." unique_id=57999562]
+position = Vector2(428, 170)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-12, -20, 12, -20, 12, 20, -12, 20)
+auto_seed_points = false
+
+[node name="@Node2D@242035" type="Node2D" parent="." unique_id=2141916020]
+position = Vector2(-428, 206)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-12, -24, 12, -24, 12, 24, -12, 24)
+auto_seed_points = false
+
+[node name="@Node2D@242048" type="Node2D" parent="." unique_id=740570866]
+position = Vector2(432, 210)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-8, -20, 8, -20, 8, 20, -8, 20)
+auto_seed_points = false
+
+[node name="@Node2D@242061" type="Node2D" parent="." unique_id=1311663172]
+position = Vector2(-432, 242)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-8, -12, 8, -12, 8, 12, -8, 12)
+auto_seed_points = false
+
+[node name="@Node2D@242074" type="Node2D" parent="." unique_id=1628912288]
+position = Vector2(436, 242)
+script = ExtResource("4_ln65o")
+points = PackedVector2Array(-4, -12, 4, -12, 4, 12, -4, 12)
+auto_seed_points = false

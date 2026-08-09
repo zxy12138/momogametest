@@ -2,7 +2,6 @@
 @tool
 extends Node2D
 
-const ROOM = preload("res://src/rooms/Room.tscn")
 const WORLD_DIR := "res://src/rooms/worlds/"
 const ROOM_DIR := "res://src/rooms/scenes/"
 const ENEMY = preload("res://src/enemies/Enemy.tscn")
@@ -15,18 +14,15 @@ const EPILOGUE = preload("res://src/scenes/Epilogue.tscn")
 const WeaponPickupScript := preload("res://src/weapons/WeaponPickup.gd")
 
 var _room: Node = null
+var _crossed_layer := false   ## 跨层标志：_switch_floor/_go_next_layer 置 true；_swap 消费后置 false。跨层时 rid 撞名不能用 prev_rid 查门
 var _world: Node2D = null   ## 当前层世界场景实例（Layer1/2/3.tscn，内含房间锚点+连线）
 var _transitioning := false
 var _layer_w := 880.0
 var _layer_h := 500.0
 var _toast: Label = null
-var _inn_open := false
-var _inn_panel_ref: Control = null
-var _inn_near := false
 var _pause_open := false
 var _pause_overlay: Control = null
 var _dev_label: Label = null
-var _inn_prompt: Label = null
 var _ui_layer: CanvasLayer = null
 
 # 相机：本 Godot 版本 Camera2D.current / make_current() 均不可靠（不接管视口），
@@ -44,8 +40,6 @@ var _prologue_bubble: Control = null
 var _prologue_end_timer: SceneTreeTimer = null
 var _near_pickup: Node2D = null
 var _pickups: Array[Node2D] = []
-var _starter_rooms: Dictionary = {}          ## 已【拾取选定】过武器的层（layer_key→true）；未拾取离开→回来重摆
-var _starter_pickups: Array[Node2D] = []     ## 选武器 3 把拾取物引用（F 选定后清除其余两把）
 var _pickup_panel: Panel = null
 var _pickup_label: Label = null
 const _PICKUP_RADIUS := 64.0
@@ -86,7 +80,6 @@ func _ready() -> void:
 	add_child(ui)
 	_ui_layer = ui
 	_build_toast()
-	_build_inn_prompt()
 	_build_dev_label()
 	_build_pickup_prompt()
 	transition_to(LevelData.start_room(1), true)
@@ -119,17 +112,17 @@ func _editor_build_preview() -> void:
 	var rooms_d: Dictionary = (LevelData.get_layer(1).get("rooms", {}) as Dictionary)
 	var start: String = LevelData.start_room(1)
 	for rid in rooms_d.keys():
-		var anchor := world.get_node_or_null(String(rid)) as Node2D
+		var anchor := world.get_node_or_null(str(rid)) as Node2D
 		if anchor == null:
 			continue
-		var room := (load(ROOM_DIR + "f1_%s.tscn" % String(rid)) as PackedScene).instantiate() as Node2D
+		var room := (load(ROOM_DIR + "f1_%s.tscn" % str(rid)) as PackedScene).instantiate() as Node2D
 		anchor.add_child(room)
-		var rd: Dictionary = (rooms_d[String(rid)] as Dictionary).duplicate(true)
-		var tp: String = LevelData.tile_path(1, String(rid))
+		var rd: Dictionary = (rooms_d[str(rid)] as Dictionary).duplicate(true)
+		var tp: String = LevelData.tile_path(1, str(rid))
 		if tp != "":
 			rd["scene_img"] = tp
-		room.call("setup", String(rid), rd, 1, anchor, self)
-		if String(rid) == start:
+		room.call("setup", str(rid), rd, 1, anchor, self)
+		if str(rid) == start:
 			_room = room
 	var p := get_node_or_null("World/Player")
 	if p != null and _room != null:
@@ -252,11 +245,8 @@ func _swap(rid: String) -> void:
 		_room = null
 	# 房间切换时清空场景内武器拾取物（它们随房间销毁，数组引用需同步清掉）
 	_pickups.clear()
-	_starter_pickups.clear()   # 开局 3 把引用同步清空：未拾取就离开 → 回起点房会重新摆出
 	_near_pickup = null
 	_update_pickup_prompt("")
-	_inn_near = false
-	show_inn_prompt(false)
 	MapData.enter_room(rid)
 	GameManager.current_room = rid
 	# 场景化：在「当前层世界场景」的锚点（节点名=rid）下实例化该房间场景 f{层}_{rid}.tscn。
@@ -278,27 +268,37 @@ func _swap(rid: String) -> void:
 	# 首进 / 无来源 / 找不到对应门时回退默认出生点。以下坐标均为房间局部坐标，最后转成世界坐标。
 	var spawn_pos: Vector2 = Vector2.ZERO
 	var from_door := false
-	if prev_rid != "" and prev_rid != rid:
+	# 只有「同层过门」才查门；跨层跳转（地图/传送门）时 prev_rid 是其他层的房，
+	# 而 rid 在各层重复（f1_r1 / f3_r1 都叫 r1）——prev_rid 会误匹配本层同名 target 的门，
+	# 导致出生点落在错误的门上（例如从 f1_r1 跳 f3_r0 时误命中 f3_r0 的 Door_r1，出生在门位置而非出生点）。
+	if prev_rid != "" and prev_rid != rid and not _crossed_layer:
 		var dp: Variant = room.call("entry_door_position", prev_rid)
 		if dp is Vector2 and dp != Vector2.ZERO:
 			spawn_pos = dp
 			from_door = true
+	_crossed_layer = false   # 消费跨层标志
 	if not from_door:
-		# 优先用编辑器里自定义的出生点（RoomLayout.spawn_point）；未设置则回退默认点。
-		var sp: Variant = room.call("spawn_point_position")
+		# 无门（跨层进入下一大关起点 / 首进 / 找不到来源门）→ 用【安全出生点】：
+		# RoomManager.safe_spawn_position 优先插件 SpawnPointHandle 配置的位置，
+		# 并校验「房间边界内 + 不在禁区内部」，无效时自动螺旋搜索最近安全点，
+		# 保证角色绝不会出生在禁区（dead zone）里卡死。
+		var sp: Variant = room.call("safe_spawn_position")
 		if sp is Vector2 and sp != Vector2.ZERO:
 			spawn_pos = sp
 		elif type == "boss":
 			spawn_pos = Vector2(0, _layer_h / 2 - 60)
 		else:
-			spawn_pos = Vector2(0, 0)
+			spawn_pos = Vector2(0, _layer_h / 2 - 60)
+	# 最终防线：clamp 到房间内（防任何数据异常把出生点推出房间；门位置的偏移量 70px 不受影响）
+	spawn_pos.x = clampf(spawn_pos.x, -_layer_w * 0.5 + 24.0, _layer_w * 0.5 - 24.0)
+	spawn_pos.y = clampf(spawn_pos.y, -_layer_h * 0.5 + 24.0, _layer_h * 0.5 - 24.0)
 	if from_door and spawn_pos.length() > 1.0:
 		spawn_pos += (Vector2.ZERO - spawn_pos).normalized() * 70.0
 	p.global_position = anchor.global_position + spawn_pos
 	p.reset_ult()
-	# 只有每个大关的起点房（start）才摆出 3 把武器供 F 选择；普通/精英/驿站房不再掉落。
-	if MapData.room(rid).get("type", "") == "start" and not GameManager.prologue_pending:
-		_spawn_starter_weapons()
+	# DEBUG：打印真实出生坐标 + 房间锚点 + 玩家最终位置，方便排查"在中心"问题
+	print("[SPAWN DEBUG] rid=%s from_door=%s spawn_pos=%s anchor.global_position=%s player.global_position=%s focus=%s" % [rid, from_door, spawn_pos, anchor.global_position, p.global_position, _room.global_position if _room else Vector2.ZERO])
+	# 武器掉落完全由房间场景里的 WeaponHandle 定义（RoomManager._spawn_weapons），程序不再随机生成。
 
 
 ## 确保当前层世界场景已实例化（名字按层）。切层时名字变化 → 自动销毁旧实例重建。
@@ -330,6 +330,7 @@ func _room_anchor(rid: String) -> Node2D:
 # 合并地图跨层跳转：直接加载目标层并把该房标为 CURRENT。
 # 与 _go_next_layer（固定 +1、走门逻辑）区分，不破坏正常逐层玩法。
 func _switch_floor(target: int, room: String) -> void:
+	_crossed_layer = true   # 跨层标记：_swap 里不用 prev_rid 查门（rid 撞名会误匹配本层门）
 	GameManager.layer_index = target
 	MapData.load_layer(target)
 	GameManager.emit_signal("stats_changed")
@@ -347,7 +348,10 @@ func on_boss_defeated(layer: int, _boss: Node) -> void:
 	SaveManager.save_game()
 	toast("Boss 净化！梦境归于宁静")
 	if layer < 3:
-		_spawn_next_door(layer + 1)
+		# 启用场景里 NextDoorHandle 生成的下一层传送门（位置由用户在房间场景里摆放）
+		if _room != null and is_instance_valid(_room) and _room.has_method("enable_next_door"):
+			_room.call("enable_next_door")
+		toast("通往下一层梦境的传送门已开启")
 	else:
 		# 第3层Boss：进入结局剧情场景（Epilogue），
 		# 剧情播完后再回到 Game 时会进入「通关状态」UI。
@@ -367,6 +371,7 @@ func _goto_epilogue() -> void:
 # 通关状态：从 Epilogue 返回。跳到第3层 r7（已清的 Boss 房）+ 显示通关覆盖层。
 func _enter_completed_state() -> void:
 	_completed_state_active = true
+	_crossed_layer = true   # 从 Epilogue 返回，非过门进入——不用 prev_rid 查门
 	GameManager.layer_index = 3
 	# 防御：boss_cleared[3] 可能因为「继续」/手动改存档而未置位，这里兜底置上，
 	# 避免 RoomManager._spawn_content 又把 Boss 重新刷出来。
@@ -382,7 +387,6 @@ func _enter_completed_state() -> void:
 	add_child(ui)
 	_ui_layer = ui
 	_build_toast()
-	_build_inn_prompt()
 	_build_dev_label()
 	_build_pickup_prompt()
 	transition_to("r7", true)
@@ -426,52 +430,8 @@ func _show_completion_overlay() -> void:
 	_completion_overlay = c
 
 
-func _spawn_next_door(next_layer: int) -> void:
-	var d := Area2D.new()
-	d.name = "NextDoor"
-	d.collision_layer = 8
-	d.collision_mask = 1
-	var cs := CollisionShape2D.new()
-	var sh := RectangleShape2D.new()
-	sh.size = Vector2(48, 48)
-	cs.shape = sh
-	d.add_child(cs)
-	# 传送门放在当前房间实例的门口（房间局部坐标 → 世界坐标；房间挂锚点下）
-	var base := Vector2.ZERO
-	if _room != null and is_instance_valid(_room):
-		base = _room.global_position
-	d.position = base + Vector2(0, -_layer_h / 2 + 40)
-	var cb := func(b: Node):
-		if b.is_in_group("player"):
-			_go_next_layer(next_layer)
-	d.connect("body_entered", cb)
-	$World.add_child(d)
-	# 下一层传送门可见指示
-	# 下一层传送门可见门框（贴图 T-003 开启动画门，取首帧静态显示）
-	var door_tex := load("res://assets/tiles/T-003_door_frame_open_anim.png") as Texture2D
-	var ds := door_tex.get_size()
-	var dh := 96.0
-	var fw := ds.x / 4.0
-	var dw := dh * fw / ds.y
-	var spr := Sprite2D.new()
-	spr.texture = door_tex
-	spr.hframes = 4
-	spr.frame = 0
-	spr.scale = Vector2(dw / fw, dh / ds.y)
-	spr.position = d.position
-	spr.z_index = 4
-	$World.add_child(spr)
-	var lab := Label.new()
-	lab.text = "↑ 下一层"
-	lab.position = d.position - Vector2(34, 14)
-	lab.add_theme_font_size_override("font_size", 22)
-	lab.add_theme_color_override("font_color", Color(1.0, 0.95, 0.7))
-	lab.z_index = 6
-	$World.add_child(lab)
-	toast("通往下一层梦境的传送门已开启")
-
-
 func _go_next_layer(next: int) -> void:
+	_crossed_layer = true   # 跨层标记：_swap 里不用 prev_rid 查门（rid 撞名会误匹配本层门）
 	GameManager.layer_index = next
 	MapData.load_layer(next)
 	GameManager.emit_signal("stats_changed")
@@ -491,112 +451,6 @@ func spawn_enemy(eid: String, pos: Vector2) -> void:
 		$World.add_child(e)
 	e.global_position = pos
 
-
-# ============ 驿站 ============
-func open_inn() -> void:
-	if _inn_open:
-		return
-	_inn_open = true
-	_set_gm_locked(true)
-	_inn_panel_ref = _inn_panel()
-	_ui_layer.add_child(_inn_panel_ref)
-	show_inn_prompt(false)
-
-
-func _inn_panel() -> Control:
-	var c := Control.new()
-	c.name = "InnPanel"
-	c.mouse_filter = Control.MOUSE_FILTER_STOP
-	c.position = get_window().get_visible_rect().size / 2 - Vector2(150, 90)
-	var bg := ColorRect.new()
-	bg.size = Vector2(300, 180)
-	bg.color = Color(0.12, 0.10, 0.20, 0.96)
-	c.add_child(bg)
-	c.add_child(_label("梦境驿站 · 24h 便利店", Vector2(20, 8), 16))
-
-	var opts := []
-	if GameManager.level >= 8 and Weapons.can_upgrade(GameManager.weapon_id) and not GameManager.upgraded_done:
-		opts.append(["武器升阶", func():
-			GameManager.upgrade_weapon()
-			toast("武器已升阶！")
-			_close_inn(c)])
-	if GameManager.level >= 4 and not GameManager.weapon_swap_used:
-		opts.append(["更换武器", func(): _inn_swap(c)])
-	if GameManager.dream_crystals >= 15:
-		opts.append(["梦晶·临时暴击 +5%（15 晶）", func():
-			GameManager.add_crystals(-15)
-			GameManager.add_affix("致命感知")
-			toast("暴击率提升！")
-			_close_inn(c)])
-	opts.append(["离开驿站", func(): _close_inn(c)])
-
-	var y := 36
-	for o in opts:
-		var b := _button(o[0], Vector2(20, y), Vector2(260, 22))
-		b.connect("pressed", o[1])
-		c.add_child(b)
-		y += 30
-	return c
-
-
-func _inn_swap(panel: Control) -> void:
-	for ch in panel.get_children():
-		panel.remove_child(ch)
-		ch.queue_free()
-	panel.add_child(_label("选择新武器（仅一次）：", Vector2(20, 8), 15))
-	var pool := Weapons.SWAP_POOL
-	var y := 34
-	for wid in pool:
-		var w: Dictionary = Weapons.get_weapon(wid)
-		var b := _button(w["name"], Vector2(20, y), Vector2(260, 22))
-		b.connect("pressed", func():
-			_do_weapon_swap(wid)
-			_close_inn(panel))
-		panel.add_child(b)
-		y += 28
-
-
-func _close_inn(panel: Control) -> void:
-	_inn_open = false
-	_set_gm_locked(false)
-	panel.queue_free()
-	_inn_panel_ref = null
-
-
-func _do_weapon_swap(wid: String) -> void:
-	var p: Node2D = $World/Player
-	var sys := p.get_node_or_null("Weapon")
-	if sys != null and sys.has_method("replace_active"):
-		sys.call("replace_active", wid)
-	else:
-		GameManager.swap_weapon(wid)
-	var w: Dictionary = Weapons.get_weapon(wid)
-	if not w.is_empty():
-		toast("已更换：" + w["name"])
-
-
-func _on_inn_enter() -> void:
-	_inn_near = true
-	show_inn_prompt(true)
-
-func _on_inn_exit() -> void:
-	_inn_near = false
-	show_inn_prompt(false)
-
-func show_inn_prompt(v: bool) -> void:
-	if _inn_prompt != null:
-		_inn_prompt.visible = v
-
-func _build_inn_prompt() -> void:
-	_inn_prompt = Label.new()
-	_inn_prompt.text = "按 F 开启驿站"
-	_inn_prompt.position = Vector2(20, 52)
-	_inn_prompt.add_theme_font_size_override("font_size", 16)
-	_inn_prompt.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
-	_inn_prompt.z_index = 100
-	_inn_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_inn_prompt.visible = false
-	_ui_layer.add_child(_inn_prompt)
 
 func _build_dev_label() -> void:
 	_dev_label = Label.new()
@@ -683,22 +537,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		_return_menu()
 		return
 	if event.is_action_pressed("ui_cancel"):
-		if _inn_open and _inn_panel_ref != null:
-			_close_inn(_inn_panel_ref)
+		# 地图开着时，ESC 直接返回（关地图），而不是再弹暂停菜单
+		var mu: Node = get_node_or_null("MapUI")
+		if mu != null and mu.has_method("is_open") and mu.call("is_open"):
+			mu.call("close_map")
+		elif _pause_open:
+			_close_pause()
 		else:
-			# 地图开着时，ESC 直接返回（关地图），而不是再弹暂停菜单
-			var mu: Node = get_node_or_null("MapUI")
-			if mu != null and mu.has_method("is_open") and mu.call("is_open"):
-				mu.call("close_map")
-			elif _pause_open:
-				_close_pause()
-			else:
-				_open_pause()
+			_open_pause()
 	elif event.is_action_pressed("interact"):
 		if _near_pickup != null and not _is_gm_locked():
 			_pick_up_weapon(_near_pickup)
-		elif _inn_near and not _inn_open and not _pause_open:
-			open_inn()
 	elif event.is_action_pressed("dev"):
 		_toggle_dev()
 
@@ -844,12 +693,12 @@ func _end_prologue() -> void:
 		if _prologue_end_timer.is_connected("timeout", _end_prologue):
 			_prologue_end_timer.timeout.disconnect(_end_prologue)
 		_prologue_end_timer = null
-	# 序列/对话结束：移除对话框，解锁输入，生成起始武器。相机继续由 _update_camera 居中跟随。
+	# 序列/对话结束：移除对话框，解锁输入。相机继续由 _update_camera 居中跟随。
+	# 起始武器由房间场景里的 WeaponHandle 定义（RoomManager._spawn_weapons 生成）。
 	if is_instance_valid(_prologue_bubble):
 		_prologue_bubble.queue_free()
 		_prologue_bubble = null
 	_set_gm_locked(false)
-	_spawn_starter_weapons()
 
 
 func _player_camera() -> Camera2D:
@@ -922,7 +771,7 @@ func _physics_process(_delta: float) -> void:
 			best = pk
 	_near_pickup = best
 	if best != null:
-		_update_pickup_prompt(String(best.call("prompt_text")))
+		_update_pickup_prompt(str(best.call("prompt_text")))
 	else:
 		_update_pickup_prompt("")
 
@@ -953,30 +802,6 @@ func _update_pickup_prompt(text: String) -> void:
 		_pickup_panel.visible = true
 
 
-# 开场结束后 / 进入起始房时，在房间里摆出初始武器供选择。
-# 已装备的那把不再摆地上（避免重复）；其余照常出现，保证「其余武器始终可换」。
-func _spawn_starter_weapons() -> void:
-	# 每个大关起点房(start)：出生点周围地上随机摆 3 把，F 拾取选定（拾取后其余两把消失）。
-	# 按【层】记录：只有真正拾取选定后才标记该层已选（_pick_up_weapon 里标记）；
-	# 未拾取就离开 → _swap 清空 _starter_pickups → 回到起点房会重新摆出（武器不消失）。
-	var layer_key: int = GameManager.layer_index
-	if _starter_rooms.has(layer_key):
-		return
-	if _starter_pickups.size() > 0:
-		return   # 上一批还在地上（刚摆过），避免重复叠加
-	var p: Node2D = $World/Player
-	if p == null:
-		return
-	var ids: Array = Weapons.pick_three()
-	# 三把武器围绕出生点（玩家）对称分布，整体居中（原 Y 全为正 → 整组偏下）
-	var offs := [Vector2(-110.0, -28.0), Vector2(0.0, 42.0), Vector2(110.0, -28.0)]
-	for i in ids.size():
-		var pk := _make_weapon_pickup(String(ids[i]), p.global_position + offs[i])
-		$World.add_child(pk)
-		_pickups.append(pk)
-		_starter_pickups.append(pk)
-
-
 func _make_weapon_pickup(wid: String, pos: Vector2) -> Node2D:
 	var pk: Node2D = WeaponPickupScript.new()
 	pk.set("weapon_id", wid)
@@ -984,11 +809,17 @@ func _make_weapon_pickup(wid: String, pos: Vector2) -> Node2D:
 	return pk
 
 
+## 房间场景里 WeaponHandle 生成的地面武器登记进可拾取列表（RoomManager 调用）。
+func register_pickup(pk: Node2D) -> void:
+	if is_instance_valid(pk) and not _pickups.has(pk):
+		_pickups.append(pk)
+
+
 # 按 F 拾取/交换武器：若已持有武器，则旧武器掉到脚下（短暂免疫，避免瞬间又换回）。
 func _pick_up_weapon(pk: Node2D) -> void:
 	if not is_instance_valid(pk):
 		return
-	var wid: String = String(pk.get("weapon_id"))
+	var wid: String = str(pk.get("weapon_id"))
 	var p: Node2D = $World/Player
 	var sys := p.get_node_or_null("Weapon")
 	if sys != null and sys.has_method("get_active_id"):
@@ -1005,13 +836,6 @@ func _pick_up_weapon(pk: Node2D) -> void:
 	var w: Dictionary = Weapons.get_weapon(wid)
 	if not w.is_empty():
 		toast("装备：" + w["name"])
-	# 开局 3 选 1：拾取选定后其余两把消失，并标记该层起点已选过武器（之后回起点房不再重摆）
-	if _starter_pickups.size() > 0:
-		for spk in _starter_pickups:
-			if is_instance_valid(spk) and spk != pk:
-				spk.queue_free()
-		_starter_pickups.clear()
-		_starter_rooms[GameManager.layer_index] = true
 	_pickups.erase(pk)
 	pk.queue_free()
 

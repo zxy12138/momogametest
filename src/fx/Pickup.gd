@@ -24,8 +24,9 @@ func _ready() -> void:
 		sp.texture = GameManager.load_tex("res://assets/fx/FX-022_dream_crystal_currency.png")
 	body_entered.connect(_on_body_entered)
 	add_to_group("pickup")
-	# 落地轻微漂浮动画（磁吸启动前）
-	_float_tween = get_tree().create_tween()
+	# 落地轻微漂浮动画（磁吸启动前）。用节点 create_tween()（绑定本节点，销毁自动清理，
+	# 避免 get_tree().create_tween() 独立 tween 在节点被切房清理后残留失效目标）。
+	_float_tween = create_tween()
 	_float_tween.set_loops(3)
 	_float_tween.tween_property(self, "position:y", position.y - 3.0, 0.5)
 	_float_tween.chain().tween_property(self, "position:y", position.y, 0.5)
