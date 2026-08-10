@@ -18,15 +18,16 @@ offset_bottom = 250.0
 texture = ExtResource("2_u7h05")
 expand_mode = 1
 stretch_mode = 6
+metadata/_edit_lock_ = true
 
 [node name="Door_r5" type="Node2D" parent="." unique_id=1918628560]
-position = Vector2(-270, -114)
+position = Vector2(-426, 89)
 script = ExtResource("2")
 target = "r5"
 layer = 3
 
 [node name="Door_r7" type="Node2D" parent="." unique_id=1480093681]
-position = Vector2(-3, 30)
+position = Vector2(-6, -10)
 script = ExtResource("2")
 target = "r7"
 layer = 3

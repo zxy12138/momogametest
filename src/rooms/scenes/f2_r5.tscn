@@ -1,29 +1,38 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://v5urm0l0u83x"]
 
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://dn5o2g0w3tq24" path="res://assets/tiles/S_002_5.png" id="2_jrcp5"]
 
-[node name="Room" type="Node2D"]
+[node name="Room" type="Node2D" unique_id=1060390638]
 script = ExtResource("1")
 layer = 2
 room_id = "r5"
 
-[node name="Floor" type="TextureRect" parent="."]
+[node name="Floor" type="TextureRect" parent="." unique_id=1320264361]
+z_index = -4000
+offset_left = -440.0
+offset_top = -250.0
+offset_right = 440.0
+offset_bottom = 250.0
+texture = ExtResource("2_jrcp5")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="Door_r3" type="Node2D" parent="."]
+[node name="Door_r3" type="Node2D" parent="." unique_id=224919459]
+position = Vector2(-402, 63)
 script = ExtResource("2")
-position = Vector2(0.0, -224.0)
 target = "r3"
 layer = 2
 
-[node name="Door_r4" type="Node2D" parent="."]
+[node name="Door_r4" type="Node2D" parent="." unique_id=820929222]
+position = Vector2(399, 69)
 script = ExtResource("2")
-position = Vector2(0.0, 224.0)
 target = "r4"
 layer = 2
 
-[node name="Door_r6" type="Node2D" parent="."]
+[node name="Door_r6" type="Node2D" parent="." unique_id=1918762466]
+position = Vector2(1, -27)
 script = ExtResource("2")
-position = Vector2(-414.0, 0.0)
 target = "r6"
 layer = 2

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clh1p202g0ijt"
-path="res://.godot/imported/Gemini_Generated_Image_mkbs0umkbs0umkbs.png-67882351e29f90a33954beb037cc7e51.ctex"
+uid="uid://cmk2bb74kj5g8"
+path="res://.godot/imported/momo_happy.png-14c2c4e8dc624604ff32c155d84a44ce.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Artssucai/Gemini_Generated_Image_mkbs0umkbs0umkbs.png"
-dest_files=["res://.godot/imported/Gemini_Generated_Image_mkbs0umkbs0umkbs.png-67882351e29f90a33954beb037cc7e51.ctex"]
+source_file="res://Artssucai/Live2d/momo_happy.png"
+dest_files=["res://.godot/imported/momo_happy.png-14c2c4e8dc624604ff32c155d84a44ce.ctex"]
 
 [params]
 
