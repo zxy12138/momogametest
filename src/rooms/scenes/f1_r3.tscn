@@ -26,7 +26,7 @@ script = ExtResource("2")
 target = "r2"
 
 [node name="Door_r5" type="Node2D" parent="." unique_id=1384057285]
-position = Vector2(0, 224)
+position = Vector2(-217, 232)
 script = ExtResource("2")
 target = "r5"
 

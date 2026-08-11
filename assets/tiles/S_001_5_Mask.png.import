@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cwyqufehey1n6"
-path="res://.godot/imported/S_001_5 Mask.png-525a04abf040b2f831d37c7fdb5ffc38.ctex"
+uid="uid://hatqubpw63ic"
+path="res://.godot/imported/S_001_5_Mask.png-8c181791bf23de48f94423e30e407f57.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/tiles/S_001_5 Mask.png"
-dest_files=["res://.godot/imported/S_001_5 Mask.png-525a04abf040b2f831d37c7fdb5ffc38.ctex"]
+source_file="res://assets/tiles/S_001_5_Mask.png"
+dest_files=["res://.godot/imported/S_001_5_Mask.png-8c181791bf23de48f94423e30e407f57.ctex"]
 
 [params]
 

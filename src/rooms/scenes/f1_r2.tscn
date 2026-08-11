@@ -27,12 +27,12 @@ script = ExtResource("2")
 target = "r1"
 
 [node name="Door_r3" type="Node2D" parent="." unique_id=1719872043]
-position = Vector2(356, 0)
+position = Vector2(-372, -4)
 script = ExtResource("2")
 target = "r3"
 
 [node name="Door_r4" type="Node2D" parent="." unique_id=835136831]
-position = Vector2(-414, 0)
+position = Vector2(372, -1)
 script = ExtResource("2")
 target = "r4"
 

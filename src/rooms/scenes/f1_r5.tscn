@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://d1fna2f4jdaqi" path="res://assets/tiles/S_001_5.png" id="2_uskxu"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_ndmri"]
+[ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="5_ndmri"]
 
 [node name="Room" type="Node2D" unique_id=1681451724]
 script = ExtResource("1")
@@ -20,1087 +21,2841 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="Door_r3" type="Node2D" parent="." unique_id=1942259024]
-position = Vector2(0, -224)
+position = Vector2(-252, -226)
 script = ExtResource("2")
 target = "r3"
 
 [node name="Door_r4" type="Node2D" parent="." unique_id=2102650473]
-position = Vector2(-5, 74)
+position = Vector2(251, -219)
 script = ExtResource("2")
 target = "r4"
 
 [node name="Door_r6" type="Node2D" parent="." unique_id=276165038]
-position = Vector2(-419, 230)
+position = Vector2(-4, 234)
 script = ExtResource("2")
 target = "r6"
 
-[node name="Blocked" type="Node2D" parent="." unique_id=589301138]
-position = Vector2(-224, -246)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(432, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_2" type="Node2D" parent="." unique_id=446731431]
-position = Vector2(247, -243)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(313.65, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_3" type="Node2D" parent="." unique_id=1664288725]
-position = Vector2(-220, -230)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(440, 24)
-points = PackedVector2Array()
-
-[node name="Blocked_4" type="Node2D" parent="." unique_id=749811034]
-position = Vector2(282, -225)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(381.72, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_5" type="Node2D" parent="." unique_id=981125349]
-position = Vector2(-224, -214)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(432, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_6" type="Node2D" parent="." unique_id=1774955087]
-position = Vector2(285, -211)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(392, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_7" type="Node2D" parent="." unique_id=268215529]
-position = Vector2(-220, -202)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(440, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_8" type="Node2D" parent="." unique_id=1296434302]
-position = Vector2(281, -206)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(384, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_9" type="Node2D" parent="." unique_id=808533106]
-position = Vector2(274, -200)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(376, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_10" type="Node2D" parent="." unique_id=1278520457]
-position = Vector2(-224, -190)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(432, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_11" type="Node2D" parent="." unique_id=259287005]
-position = Vector2(271, -191)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(368, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_12" type="Node2D" parent="." unique_id=2028359407]
-position = Vector2(-232, -178)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(416, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_14" type="Node2D" parent="." unique_id=525567089]
-position = Vector2(268, -182)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(344, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_15" type="Node2D" parent="." unique_id=2016934437]
-position = Vector2(276, -158)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(328, 40)
-points = PackedVector2Array()
-
-[node name="Blocked_16" type="Node2D" parent="." unique_id=914328905]
-position = Vector2(-248, -150)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(384, 40)
-points = PackedVector2Array()
-
-[node name="Blocked_17" type="Node2D" parent="." unique_id=566981319]
-position = Vector2(272, -134)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(336, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_18" type="Node2D" parent="." unique_id=2017609875]
-position = Vector2(-244, -126)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(392, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_19" type="Node2D" parent="." unique_id=900764359]
-position = Vector2(268, -126)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(344, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_20" type="Node2D" parent="." unique_id=310233101]
-position = Vector2(-264, -94)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(352, 56)
-points = PackedVector2Array()
-
-[node name="Blocked_21" type="Node2D" parent="." unique_id=1808702692]
-position = Vector2(264, -118)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(352, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_22" type="Node2D" parent="." unique_id=108573947]
-position = Vector2(260, -102)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(360, 24)
-points = PackedVector2Array()
-
-[node name="Blocked_23" type="Node2D" parent="." unique_id=1932879555]
-position = Vector2(96, -86)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_24" type="Node2D" parent="." unique_id=1430362371]
-position = Vector2(276, -66)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(328, 48)
-points = PackedVector2Array()
-
-[node name="Blocked_25" type="Node2D" parent="." unique_id=2110424770]
-position = Vector2(-64, -70)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_26" type="Node2D" parent="." unique_id=1474317247]
-position = Vector2(-244, -62)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(392, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_27" type="Node2D" parent="." unique_id=570708088]
-position = Vector2(-280, -54)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(320, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_28" type="Node2D" parent="." unique_id=699226267]
-position = Vector2(-72, -42)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(64, 32)
-points = PackedVector2Array()
-
-[node name="Blocked_29" type="Node2D" parent="." unique_id=1880699545]
-position = Vector2(-288, -46)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(304, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_30" type="Node2D" parent="." unique_id=56362094]
-position = Vector2(-300, -38)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(280, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_31" type="Node2D" parent="." unique_id=1181366334]
-position = Vector2(52, -38)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_32" type="Node2D" parent="." unique_id=221260533]
-position = Vector2(284, -38)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(312, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_33" type="Node2D" parent="." unique_id=1464362264]
-position = Vector2(-304, -30)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(272, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_34" type="Node2D" parent="." unique_id=448366777]
-position = Vector2(52, -30)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(24, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_35" type="Node2D" parent="." unique_id=223624559]
-position = Vector2(160, -30)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_36" type="Node2D" parent="." unique_id=1384983025]
-position = Vector2(320, -30)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(240, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_37" type="Node2D" parent="." unique_id=1837637490]
-position = Vector2(-324, -22)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(232, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_38" type="Node2D" parent="." unique_id=1857154936]
-position = Vector2(-180, -22)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(24, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_39" type="Node2D" parent="." unique_id=2126739444]
-position = Vector2(-76, -22)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(56, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_40" type="Node2D" parent="." unique_id=1955654254]
-position = Vector2(56, -22)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_41" type="Node2D" parent="." unique_id=531602948]
-position = Vector2(336, -22)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(208, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_42" type="Node2D" parent="." unique_id=1475012327]
-position = Vector2(-336, -14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(208, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_43" type="Node2D" parent="." unique_id=437880787]
-position = Vector2(-184, -14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_44" type="Node2D" parent="." unique_id=43434063]
-position = Vector2(-80, -14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_45" type="Node2D" parent="." unique_id=478442784]
-position = Vector2(60, -14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(40, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_46" type="Node2D" parent="." unique_id=1356923276]
-position = Vector2(112, -14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_47" type="Node2D" parent="." unique_id=1607630834]
-position = Vector2(172, -14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_48" type="Node2D" parent="." unique_id=1533137933]
-position = Vector2(220, -14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_49" type="Node2D" parent="." unique_id=694331069]
-position = Vector2(236, -14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_50" type="Node2D" parent="." unique_id=1295757918]
-position = Vector2(344, -14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(192, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_51" type="Node2D" parent="." unique_id=914718557]
-position = Vector2(-340, -6)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(200, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_52" type="Node2D" parent="." unique_id=2046902964]
-position = Vector2(-188, -6)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(40, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_53" type="Node2D" parent="." unique_id=1904325603]
-position = Vector2(-100, -6)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(24, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_54" type="Node2D" parent="." unique_id=1608018872]
-position = Vector2(60, -6)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(56, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_55" type="Node2D" parent="." unique_id=2079882042]
-position = Vector2(116, -6)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(40, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_56" type="Node2D" parent="." unique_id=526022750]
-position = Vector2(160, -6)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_57" type="Node2D" parent="." unique_id=606553419]
-position = Vector2(320, -6)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(240, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_58" type="Node2D" parent="." unique_id=1288317902]
-position = Vector2(-336, 2)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(208, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_59" type="Node2D" parent="." unique_id=1599738609]
-position = Vector2(-172, 2)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_60" type="Node2D" parent="." unique_id=861421177]
-position = Vector2(-108, 2)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(40, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_61" type="Node2D" parent="." unique_id=673287279]
-position = Vector2(88, 2)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(112, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_62" type="Node2D" parent="." unique_id=1540279922]
-position = Vector2(296, 2)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(288, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_63" type="Node2D" parent="." unique_id=260822639]
-position = Vector2(-332, 10)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(216, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_64" type="Node2D" parent="." unique_id=240627064]
-position = Vector2(-108, 14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(72, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_65" type="Node2D" parent="." unique_id=654289442]
-position = Vector2(100, 10)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(104, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_66" type="Node2D" parent="." unique_id=8696734]
-position = Vector2(240, 10)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(144, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_67" type="Node2D" parent="." unique_id=618997200]
-position = Vector2(380, 14)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(120, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_68" type="Node2D" parent="." unique_id=2031631912]
-position = Vector2(-376, 18)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(128, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_69" type="Node2D" parent="." unique_id=587821790]
-position = Vector2(-268, 18)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(40, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_70" type="Node2D" parent="." unique_id=593259151]
-position = Vector2(120, 18)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(64, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_71" type="Node2D" parent="." unique_id=1132888598]
-position = Vector2(216, 18)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(64, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_72" type="Node2D" parent="." unique_id=498432529]
-position = Vector2(288, 18)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_73" type="Node2D" parent="." unique_id=189494426]
-position = Vector2(-384, 26)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(112, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_74" type="Node2D" parent="." unique_id=1991591883]
-position = Vector2(-276, 26)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_75" type="Node2D" parent="." unique_id=933314650]
-position = Vector2(-112, 26)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(48, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_76" type="Node2D" parent="." unique_id=1874552648]
-position = Vector2(-76, 26)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_77" type="Node2D" parent="." unique_id=1509263695]
-position = Vector2(124, 26)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(56, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_78" type="Node2D" parent="." unique_id=132246025]
-position = Vector2(216, 26)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_79" type="Node2D" parent="." unique_id=301486092]
-position = Vector2(376, 26)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(128, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_80" type="Node2D" parent="." unique_id=116537584]
-position = Vector2(-396, 34)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(88, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_81" type="Node2D" parent="." unique_id=17241802]
-position = Vector2(-336, 38)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_82" type="Node2D" parent="." unique_id=112434321]
-position = Vector2(-120, 34)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_83" type="Node2D" parent="." unique_id=257603045]
-position = Vector2(132, 34)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(40, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_84" type="Node2D" parent="." unique_id=1398551124]
-position = Vector2(372, 38)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(136, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_85" type="Node2D" parent="." unique_id=177197393]
-position = Vector2(-404, 42)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(72, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_86" type="Node2D" parent="." unique_id=1069401749]
-position = Vector2(-124, 42)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_87" type="Node2D" parent="." unique_id=1896344127]
-position = Vector2(132, 46)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_88" type="Node2D" parent="." unique_id=2116828766]
-position = Vector2(160, 46)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_89" type="Node2D" parent="." unique_id=656023014]
-position = Vector2(-412, 54)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(56, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_90" type="Node2D" parent="." unique_id=1562245836]
-position = Vector2(-332, 50)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(24, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_91" type="Node2D" parent="." unique_id=30742309]
-position = Vector2(360, 54)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(160, 16)
-points = PackedVector2Array()
-
-[node name="Blocked_92" type="Node2D" parent="." unique_id=584282370]
-position = Vector2(-336, 58)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_93" type="Node2D" parent="." unique_id=1163220176]
-position = Vector2(-300, 58)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(24, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_94" type="Node2D" parent="." unique_id=894896002]
-position = Vector2(160, 58)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_95" type="Node2D" parent="." unique_id=2015871807]
-position = Vector2(-408, 82)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(64, 40)
-points = PackedVector2Array()
-
-[node name="Blocked_96" type="Node2D" parent="." unique_id=1115936132]
-position = Vector2(-340, 66)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_97" type="Node2D" parent="." unique_id=2007632765]
-position = Vector2(-304, 66)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(48, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_98" type="Node2D" parent="." unique_id=1460475015]
-position = Vector2(368, 66)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(144, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_99" type="Node2D" parent="." unique_id=1092688526]
-position = Vector2(-308, 90)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(72, 40)
-points = PackedVector2Array()
-
-[node name="Blocked_100" type="Node2D" parent="." unique_id=1242766999]
-position = Vector2(380, 102)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(120, 64)
-points = PackedVector2Array()
-
-[node name="Blocked_101" type="Node2D" parent="." unique_id=1968145585]
-position = Vector2(196, 90)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_102" type="Node2D" parent="." unique_id=359045935]
-position = Vector2(236, 90)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_103" type="Node2D" parent="." unique_id=1209579040]
-position = Vector2(68, 98)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(24, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_104" type="Node2D" parent="." unique_id=1892963500]
-position = Vector2(220, 98)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(88, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_105" type="Node2D" parent="." unique_id=1257170832]
-position = Vector2(-416, 106)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(48, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_106" type="Node2D" parent="." unique_id=528443425]
-position = Vector2(76, 106)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(56, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_107" type="Node2D" parent="." unique_id=200487844]
-position = Vector2(228, 106)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(120, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_108" type="Node2D" parent="." unique_id=2056980345]
-position = Vector2(-424, 114)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_109" type="Node2D" parent="." unique_id=1365711662]
-position = Vector2(-316, 114)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(56, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_110" type="Node2D" parent="." unique_id=2102154817]
-position = Vector2(80, 114)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(80, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_111" type="Node2D" parent="." unique_id=970050648]
-position = Vector2(228, 114)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(136, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_112" type="Node2D" parent="." unique_id=528769496]
-position = Vector2(-432, 122)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_113" type="Node2D" parent="." unique_id=835572142]
-position = Vector2(-312, 122)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
-
-[node name="Blocked_114" type="Node2D" parent="." unique_id=880820751]
+[node name="Blocked" type="Node2D" parent="." unique_id=1377708582]
+position = Vector2(-392, -246)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-48, -4, 48, -4, 48, 4, -48, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945333" type="Node2D" parent="Blocked" unique_id=625206870]
+position = Vector2(-48, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945334" type="Node2D" parent="Blocked" unique_id=1787642054]
+position = Vector2(48, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945335" type="Node2D" parent="Blocked" unique_id=956057246]
+position = Vector2(48, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945336" type="Node2D" parent="Blocked" unique_id=636240351]
+position = Vector2(-48, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945797" type="Node2D" parent="." unique_id=1991428976]
+position = Vector2(12, -246)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-132, -4, 132, -4, 132, 4, -132, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945337" type="Node2D" parent="@Node2D@8945797" unique_id=338109534]
+position = Vector2(-132, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945338" type="Node2D" parent="@Node2D@8945797" unique_id=1940893244]
+position = Vector2(132, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945339" type="Node2D" parent="@Node2D@8945797" unique_id=715264304]
+position = Vector2(132, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945340" type="Node2D" parent="@Node2D@8945797" unique_id=226977508]
+position = Vector2(-132, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945810" type="Node2D" parent="." unique_id=1879287452]
+position = Vector2(404, -246)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-36, -4, 36, -4, 36, 4, -36, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945341" type="Node2D" parent="@Node2D@8945810" unique_id=827644212]
+position = Vector2(-36, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945342" type="Node2D" parent="@Node2D@8945810" unique_id=653441012]
+position = Vector2(36, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945343" type="Node2D" parent="@Node2D@8945810" unique_id=649259425]
+position = Vector2(36, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945344" type="Node2D" parent="@Node2D@8945810" unique_id=1943883154]
+position = Vector2(-36, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945823" type="Node2D" parent="." unique_id=1445012409]
+position = Vector2(-384, -238)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-56, -4, 56, -4, 56, 4, -56, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945345" type="Node2D" parent="@Node2D@8945823" unique_id=354107875]
+position = Vector2(-56, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945346" type="Node2D" parent="@Node2D@8945823" unique_id=1567288822]
+position = Vector2(56, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945347" type="Node2D" parent="@Node2D@8945823" unique_id=930026112]
+position = Vector2(56, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945348" type="Node2D" parent="@Node2D@8945823" unique_id=1874225014]
+position = Vector2(-56, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945836" type="Node2D" parent="." unique_id=1388927533]
+position = Vector2(8, -230)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-128, -12, 128, -12, 128, 12, -128, 12)
+auto_seed_points = false
+
+[node name="@Node2D@8945349" type="Node2D" parent="@Node2D@8945836" unique_id=391542621]
+position = Vector2(-128, -12)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945350" type="Node2D" parent="@Node2D@8945836" unique_id=624454336]
+position = Vector2(128, -12)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945351" type="Node2D" parent="@Node2D@8945836" unique_id=996390763]
+position = Vector2(128, 12)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945352" type="Node2D" parent="@Node2D@8945836" unique_id=632223816]
+position = Vector2(-128, 12)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945849" type="Node2D" parent="." unique_id=1160612569]
+position = Vector2(400, -238)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-40, -4, 40, -4, 40, 4, -40, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945353" type="Node2D" parent="@Node2D@8945849" unique_id=1444674619]
+position = Vector2(-40, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945354" type="Node2D" parent="@Node2D@8945849" unique_id=982371571]
+position = Vector2(40, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945355" type="Node2D" parent="@Node2D@8945849" unique_id=419712927]
+position = Vector2(40, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945356" type="Node2D" parent="@Node2D@8945849" unique_id=1139002970]
+position = Vector2(-40, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945862" type="Node2D" parent="." unique_id=521924361]
+position = Vector2(-380, -230)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-60, -4, 60, -4, 60, 4, -60, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945357" type="Node2D" parent="@Node2D@8945862" unique_id=1543081681]
+position = Vector2(-60, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945358" type="Node2D" parent="@Node2D@8945862" unique_id=728617988]
+position = Vector2(60, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945359" type="Node2D" parent="@Node2D@8945862" unique_id=405916911]
+position = Vector2(60, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945360" type="Node2D" parent="@Node2D@8945862" unique_id=104210731]
+position = Vector2(-60, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945875" type="Node2D" parent="." unique_id=248317749]
+position = Vector2(396, -230)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-44, -4, 44, -4, 44, 4, -44, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945361" type="Node2D" parent="@Node2D@8945875" unique_id=1396514575]
+position = Vector2(-44, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945362" type="Node2D" parent="@Node2D@8945875" unique_id=1338521110]
+position = Vector2(44, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945363" type="Node2D" parent="@Node2D@8945875" unique_id=695289124]
+position = Vector2(44, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945364" type="Node2D" parent="@Node2D@8945875" unique_id=1698707654]
+position = Vector2(-44, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945888" type="Node2D" parent="." unique_id=1290398900]
+position = Vector2(-372, -222)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-68, -4, 68, -4, 68, 4, -68, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945365" type="Node2D" parent="@Node2D@8945888" unique_id=526845717]
+position = Vector2(-68, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945366" type="Node2D" parent="@Node2D@8945888" unique_id=831633483]
+position = Vector2(68, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945367" type="Node2D" parent="@Node2D@8945888" unique_id=1162620116]
+position = Vector2(68, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945368" type="Node2D" parent="@Node2D@8945888" unique_id=1281758856]
+position = Vector2(-68, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945901" type="Node2D" parent="." unique_id=1630527416]
+position = Vector2(384, -222)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-56, -4, 56, -4, 56, 4, -56, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945369" type="Node2D" parent="@Node2D@8945901" unique_id=649093071]
+position = Vector2(-56, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945370" type="Node2D" parent="@Node2D@8945901" unique_id=476088464]
+position = Vector2(56, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945371" type="Node2D" parent="@Node2D@8945901" unique_id=1317755657]
+position = Vector2(56, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945372" type="Node2D" parent="@Node2D@8945901" unique_id=1344091447]
+position = Vector2(-56, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945914" type="Node2D" parent="." unique_id=2057246042]
+position = Vector2(-368, -214)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-72, -4, 72, -4, 72, 4, -72, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945373" type="Node2D" parent="@Node2D@8945914" unique_id=242498906]
+position = Vector2(-72, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945374" type="Node2D" parent="@Node2D@8945914" unique_id=232983395]
+position = Vector2(72, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945375" type="Node2D" parent="@Node2D@8945914" unique_id=84614278]
+position = Vector2(72, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945376" type="Node2D" parent="@Node2D@8945914" unique_id=1482146302]
+position = Vector2(-72, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945927" type="Node2D" parent="." unique_id=572754329]
+position = Vector2(12, -214)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-124, -4, 124, -4, 124, 4, -124, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945377" type="Node2D" parent="@Node2D@8945927" unique_id=734753275]
+position = Vector2(-124, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945378" type="Node2D" parent="@Node2D@8945927" unique_id=545347678]
+position = Vector2(124, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945379" type="Node2D" parent="@Node2D@8945927" unique_id=614992003]
+position = Vector2(124, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945380" type="Node2D" parent="@Node2D@8945927" unique_id=1927616039]
+position = Vector2(-124, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945940" type="Node2D" parent="." unique_id=510529984]
+position = Vector2(380, -214)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-60, -4, 60, -4, 60, 4, -60, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945381" type="Node2D" parent="@Node2D@8945940" unique_id=96041155]
+position = Vector2(-60, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945382" type="Node2D" parent="@Node2D@8945940" unique_id=1138388426]
+position = Vector2(60, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945383" type="Node2D" parent="@Node2D@8945940" unique_id=1359109001]
+position = Vector2(60, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945384" type="Node2D" parent="@Node2D@8945940" unique_id=1351838595]
+position = Vector2(-60, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945953" type="Node2D" parent="." unique_id=1093867771]
+position = Vector2(-360, -206)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-80, -4, 80, -4, 80, 4, -80, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945385" type="Node2D" parent="@Node2D@8945953" unique_id=1650711148]
+position = Vector2(-80, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945386" type="Node2D" parent="@Node2D@8945953" unique_id=1019824030]
+position = Vector2(80, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945387" type="Node2D" parent="@Node2D@8945953" unique_id=1701797372]
+position = Vector2(80, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945388" type="Node2D" parent="@Node2D@8945953" unique_id=1294493674]
+position = Vector2(-80, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945966" type="Node2D" parent="." unique_id=1884596267]
+position = Vector2(16, -206)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-120, -4, 120, -4, 120, 4, -120, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945389" type="Node2D" parent="@Node2D@8945966" unique_id=1472184672]
+position = Vector2(-120, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945390" type="Node2D" parent="@Node2D@8945966" unique_id=1490988394]
+position = Vector2(120, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945391" type="Node2D" parent="@Node2D@8945966" unique_id=369847156]
+position = Vector2(120, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945392" type="Node2D" parent="@Node2D@8945966" unique_id=214737637]
+position = Vector2(-120, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945979" type="Node2D" parent="." unique_id=695560503]
+position = Vector2(376, -206)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-64, -4, 64, -4, 64, 4, -64, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945393" type="Node2D" parent="@Node2D@8945979" unique_id=1729073919]
+position = Vector2(-64, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945394" type="Node2D" parent="@Node2D@8945979" unique_id=1954216690]
+position = Vector2(64, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945395" type="Node2D" parent="@Node2D@8945979" unique_id=665483859]
+position = Vector2(64, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945396" type="Node2D" parent="@Node2D@8945979" unique_id=1459914728]
+position = Vector2(-64, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8945992" type="Node2D" parent="." unique_id=170796044]
+position = Vector2(-356, -194)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-84, -8, 84, -8, 84, 8, -84, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945397" type="Node2D" parent="@Node2D@8945992" unique_id=339100996]
+position = Vector2(-84, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945398" type="Node2D" parent="@Node2D@8945992" unique_id=1545751002]
+position = Vector2(84, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945399" type="Node2D" parent="@Node2D@8945992" unique_id=232854]
+position = Vector2(84, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945400" type="Node2D" parent="@Node2D@8945992" unique_id=91228228]
+position = Vector2(-84, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946005" type="Node2D" parent="." unique_id=1357339134]
+position = Vector2(-88, -198)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945401" type="Node2D" parent="@Node2D@8946005" unique_id=967886922]
+position = Vector2(-8, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945402" type="Node2D" parent="@Node2D@8946005" unique_id=620421494]
+position = Vector2(8, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945403" type="Node2D" parent="@Node2D@8946005" unique_id=1499056195]
+position = Vector2(8, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945404" type="Node2D" parent="@Node2D@8946005" unique_id=1855767237]
+position = Vector2(-8, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946018" type="Node2D" parent="." unique_id=4268745]
+position = Vector2(-60, -198)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945405" type="Node2D" parent="@Node2D@8946018" unique_id=168435683]
+position = Vector2(-4, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945406" type="Node2D" parent="@Node2D@8946018" unique_id=655712464]
+position = Vector2(4, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945407" type="Node2D" parent="@Node2D@8946018" unique_id=914672104]
+position = Vector2(4, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945408" type="Node2D" parent="@Node2D@8946018" unique_id=30132565]
+position = Vector2(-4, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946031" type="Node2D" parent="." unique_id=91856488]
+position = Vector2(40, -198)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-88, -4, 88, -4, 88, 4, -88, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945409" type="Node2D" parent="@Node2D@8946031" unique_id=1459757008]
+position = Vector2(-88, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945410" type="Node2D" parent="@Node2D@8946031" unique_id=1247559174]
+position = Vector2(88, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945411" type="Node2D" parent="@Node2D@8946031" unique_id=845956118]
+position = Vector2(88, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945412" type="Node2D" parent="@Node2D@8946031" unique_id=985553820]
+position = Vector2(-88, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946044" type="Node2D" parent="." unique_id=587225725]
+position = Vector2(372, -198)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-68, -4, 68, -4, 68, 4, -68, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945413" type="Node2D" parent="@Node2D@8946044" unique_id=304530400]
+position = Vector2(-68, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945414" type="Node2D" parent="@Node2D@8946044" unique_id=1542074764]
+position = Vector2(68, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945415" type="Node2D" parent="@Node2D@8946044" unique_id=684717688]
+position = Vector2(68, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945416" type="Node2D" parent="@Node2D@8946044" unique_id=2134405]
+position = Vector2(-68, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946057" type="Node2D" parent="." unique_id=726468882]
+position = Vector2(32, -190)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-64, -4, 64, -4, 64, 4, -64, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945417" type="Node2D" parent="@Node2D@8946057" unique_id=1762707507]
+position = Vector2(-64, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945418" type="Node2D" parent="@Node2D@8946057" unique_id=425027280]
+position = Vector2(64, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945419" type="Node2D" parent="@Node2D@8946057" unique_id=576457772]
+position = Vector2(64, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945420" type="Node2D" parent="@Node2D@8946057" unique_id=2089309445]
+position = Vector2(-64, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946070" type="Node2D" parent="." unique_id=990277632]
+position = Vector2(368, -190)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-72, -4, 72, -4, 72, 4, -72, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945421" type="Node2D" parent="@Node2D@8946070" unique_id=508386243]
+position = Vector2(-72, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945422" type="Node2D" parent="@Node2D@8946070" unique_id=1345831935]
+position = Vector2(72, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945423" type="Node2D" parent="@Node2D@8946070" unique_id=1842516483]
+position = Vector2(72, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945424" type="Node2D" parent="@Node2D@8946070" unique_id=1145543291]
+position = Vector2(-72, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946083" type="Node2D" parent="." unique_id=1876934870]
+position = Vector2(-348, -162)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-92, -24, 92, -24, 92, 24, -92, 24)
+auto_seed_points = false
+
+[node name="@Node2D@8945425" type="Node2D" parent="@Node2D@8946083" unique_id=1510358146]
+position = Vector2(-92, -24)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945426" type="Node2D" parent="@Node2D@8946083" unique_id=353824814]
+position = Vector2(92, -24)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945427" type="Node2D" parent="@Node2D@8946083" unique_id=329451077]
+position = Vector2(92, 24)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945428" type="Node2D" parent="@Node2D@8946083" unique_id=1267991722]
+position = Vector2(-92, 24)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946096" type="Node2D" parent="." unique_id=1780180164]
+position = Vector2(-140, -182)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945429" type="Node2D" parent="@Node2D@8946096" unique_id=2146200269]
+position = Vector2(-12, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945430" type="Node2D" parent="@Node2D@8946096" unique_id=1435270609]
+position = Vector2(12, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945431" type="Node2D" parent="@Node2D@8946096" unique_id=1407886664]
+position = Vector2(12, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945432" type="Node2D" parent="@Node2D@8946096" unique_id=272873866]
+position = Vector2(-12, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946109" type="Node2D" parent="." unique_id=125337553]
+position = Vector2(-12, -182)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945433" type="Node2D" parent="@Node2D@8946109" unique_id=1682983150]
+position = Vector2(-12, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945434" type="Node2D" parent="@Node2D@8946109" unique_id=312602090]
+position = Vector2(12, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945435" type="Node2D" parent="@Node2D@8946109" unique_id=190235724]
+position = Vector2(12, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945436" type="Node2D" parent="@Node2D@8946109" unique_id=1798631417]
+position = Vector2(-12, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946122" type="Node2D" parent="." unique_id=1419530654]
+position = Vector2(36, -182)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-28, -4, 28, -4, 28, 4, -28, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945437" type="Node2D" parent="@Node2D@8946122" unique_id=817590496]
+position = Vector2(-28, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945438" type="Node2D" parent="@Node2D@8946122" unique_id=1544144808]
+position = Vector2(28, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945439" type="Node2D" parent="@Node2D@8946122" unique_id=1126437212]
+position = Vector2(28, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945440" type="Node2D" parent="@Node2D@8946122" unique_id=2139248254]
+position = Vector2(-28, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946135" type="Node2D" parent="." unique_id=727497861]
+position = Vector2(364, -154)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-76, -32, 76, -32, 76, 32, -76, 32)
+auto_seed_points = false
+
+[node name="@Node2D@8945441" type="Node2D" parent="@Node2D@8946135" unique_id=1259261783]
+position = Vector2(-76, -32)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945442" type="Node2D" parent="@Node2D@8946135" unique_id=378254763]
+position = Vector2(76, -32)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945443" type="Node2D" parent="@Node2D@8946135" unique_id=1886012862]
+position = Vector2(76, 32)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945444" type="Node2D" parent="@Node2D@8946135" unique_id=77411088]
+position = Vector2(-76, 32)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946148" type="Node2D" parent="." unique_id=1740045522]
+position = Vector2(-136, -174)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-16, -4, 16, -4, 16, 4, -16, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945445" type="Node2D" parent="@Node2D@8946148" unique_id=1718011317]
+position = Vector2(-16, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945446" type="Node2D" parent="@Node2D@8946148" unique_id=1306045949]
+position = Vector2(16, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945447" type="Node2D" parent="@Node2D@8946148" unique_id=631143928]
+position = Vector2(16, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945448" type="Node2D" parent="@Node2D@8946148" unique_id=1481666708]
+position = Vector2(-16, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946161" type="Node2D" parent="." unique_id=1179245925]
+position = Vector2(124, -174)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945449" type="Node2D" parent="@Node2D@8946161" unique_id=806993954]
+position = Vector2(-4, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945450" type="Node2D" parent="@Node2D@8946161" unique_id=1236229994]
+position = Vector2(4, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945451" type="Node2D" parent="@Node2D@8946161" unique_id=2135979843]
+position = Vector2(4, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945452" type="Node2D" parent="@Node2D@8946161" unique_id=668999764]
+position = Vector2(-4, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946174" type="Node2D" parent="." unique_id=458166322]
+position = Vector2(152, -170)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945453" type="Node2D" parent="@Node2D@8946174" unique_id=2093588920]
+position = Vector2(-8, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945454" type="Node2D" parent="@Node2D@8946174" unique_id=1215185669]
+position = Vector2(8, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945455" type="Node2D" parent="@Node2D@8946174" unique_id=975269437]
+position = Vector2(8, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945456" type="Node2D" parent="@Node2D@8946174" unique_id=1224988292]
+position = Vector2(-8, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946187" type="Node2D" parent="." unique_id=1055296305]
+position = Vector2(-132, -166)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945457" type="Node2D" parent="@Node2D@8946187" unique_id=1410982736]
+position = Vector2(-4, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945458" type="Node2D" parent="@Node2D@8946187" unique_id=651444124]
+position = Vector2(4, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945459" type="Node2D" parent="@Node2D@8946187" unique_id=997366111]
+position = Vector2(4, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945460" type="Node2D" parent="@Node2D@8946187" unique_id=462696977]
+position = Vector2(-4, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946200" type="Node2D" parent="." unique_id=1608508501]
+position = Vector2(-88, -166)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945461" type="Node2D" parent="@Node2D@8946200" unique_id=1077963766]
+position = Vector2(-8, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945462" type="Node2D" parent="@Node2D@8946200" unique_id=1172526646]
+position = Vector2(8, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945463" type="Node2D" parent="@Node2D@8946200" unique_id=2024028289]
+position = Vector2(8, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945464" type="Node2D" parent="@Node2D@8946200" unique_id=1779512101]
+position = Vector2(-8, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946213" type="Node2D" parent="." unique_id=101895921]
+position = Vector2(124, -158)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -12, 12, -12, 12, 12, -12, 12)
+auto_seed_points = false
+
+[node name="@Node2D@8945465" type="Node2D" parent="@Node2D@8946213" unique_id=1095254551]
+position = Vector2(-12, -12)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945466" type="Node2D" parent="@Node2D@8946213" unique_id=361750845]
+position = Vector2(12, -12)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945467" type="Node2D" parent="@Node2D@8946213" unique_id=1848111417]
+position = Vector2(12, 12)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945468" type="Node2D" parent="@Node2D@8946213" unique_id=1989577564]
+position = Vector2(-12, 12)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946226" type="Node2D" parent="." unique_id=1942488973]
+position = Vector2(-88, -158)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-16, -4, 16, -4, 16, 4, -16, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945469" type="Node2D" parent="@Node2D@8946226" unique_id=1738324823]
+position = Vector2(-16, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945470" type="Node2D" parent="@Node2D@8946226" unique_id=796484395]
+position = Vector2(16, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945471" type="Node2D" parent="@Node2D@8946226" unique_id=323267076]
+position = Vector2(16, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945472" type="Node2D" parent="@Node2D@8946226" unique_id=251264978]
+position = Vector2(-16, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946239" type="Node2D" parent="." unique_id=942456687]
+position = Vector2(-80, -150)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-24, -4, 24, -4, 24, 4, -24, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945473" type="Node2D" parent="@Node2D@8946239" unique_id=1662976523]
+position = Vector2(-24, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945474" type="Node2D" parent="@Node2D@8946239" unique_id=1116178994]
+position = Vector2(24, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945475" type="Node2D" parent="@Node2D@8946239" unique_id=365114451]
+position = Vector2(24, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945476" type="Node2D" parent="@Node2D@8946239" unique_id=437731610]
+position = Vector2(-24, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946252" type="Node2D" parent="." unique_id=1924140181]
+position = Vector2(100, -150)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945477" type="Node2D" parent="@Node2D@8946252" unique_id=699434200]
+position = Vector2(-4, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945478" type="Node2D" parent="@Node2D@8946252" unique_id=1883573301]
+position = Vector2(4, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945479" type="Node2D" parent="@Node2D@8946252" unique_id=246378544]
+position = Vector2(4, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945480" type="Node2D" parent="@Node2D@8946252" unique_id=954902665]
+position = Vector2(-4, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946265" type="Node2D" parent="." unique_id=580403053]
+position = Vector2(-88, -142)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945481" type="Node2D" parent="@Node2D@8946265" unique_id=947856903]
+position = Vector2(-8, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945482" type="Node2D" parent="@Node2D@8946265" unique_id=1503761532]
+position = Vector2(8, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945483" type="Node2D" parent="@Node2D@8946265" unique_id=2042837479]
+position = Vector2(8, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945484" type="Node2D" parent="@Node2D@8946265" unique_id=1837971764]
+position = Vector2(-8, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946278" type="Node2D" parent="." unique_id=328986534]
+position = Vector2(-64, -138)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945485" type="Node2D" parent="@Node2D@8946278" unique_id=631701103]
+position = Vector2(-8, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945486" type="Node2D" parent="@Node2D@8946278" unique_id=608511930]
+position = Vector2(8, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945487" type="Node2D" parent="@Node2D@8946278" unique_id=489506117]
+position = Vector2(8, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945488" type="Node2D" parent="@Node2D@8946278" unique_id=949830656]
+position = Vector2(-8, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946291" type="Node2D" parent="." unique_id=198470132]
+position = Vector2(96, -142)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945489" type="Node2D" parent="@Node2D@8946291" unique_id=1759138018]
+position = Vector2(-8, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945490" type="Node2D" parent="@Node2D@8946291" unique_id=1218225769]
+position = Vector2(8, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945491" type="Node2D" parent="@Node2D@8946291" unique_id=1976500829]
+position = Vector2(8, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945492" type="Node2D" parent="@Node2D@8946291" unique_id=1833620275]
+position = Vector2(-8, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946304" type="Node2D" parent="." unique_id=1510994438]
+position = Vector2(124, -142)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945493" type="Node2D" parent="@Node2D@8946304" unique_id=281651822]
+position = Vector2(-4, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945494" type="Node2D" parent="@Node2D@8946304" unique_id=1407710277]
+position = Vector2(4, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945495" type="Node2D" parent="@Node2D@8946304" unique_id=1079961542]
+position = Vector2(4, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945496" type="Node2D" parent="@Node2D@8946304" unique_id=1468703532]
+position = Vector2(-4, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946317" type="Node2D" parent="." unique_id=1969266826]
+position = Vector2(-344, -134)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-96, -4, 96, -4, 96, 4, -96, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945497" type="Node2D" parent="@Node2D@8946317" unique_id=594958974]
+position = Vector2(-96, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945498" type="Node2D" parent="@Node2D@8946317" unique_id=228416426]
+position = Vector2(96, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945499" type="Node2D" parent="@Node2D@8946317" unique_id=81396701]
+position = Vector2(96, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945500" type="Node2D" parent="@Node2D@8946317" unique_id=2085226969]
+position = Vector2(-96, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946330" type="Node2D" parent="." unique_id=1047663903]
+position = Vector2(100, -134)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945501" type="Node2D" parent="@Node2D@8946330" unique_id=1204721976]
+position = Vector2(-4, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945502" type="Node2D" parent="@Node2D@8946330" unique_id=1293836145]
+position = Vector2(4, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945503" type="Node2D" parent="@Node2D@8946330" unique_id=137569907]
+position = Vector2(4, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945504" type="Node2D" parent="@Node2D@8946330" unique_id=1015936599]
+position = Vector2(-4, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946343" type="Node2D" parent="." unique_id=1876871210]
+position = Vector2(132, -134)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945505" type="Node2D" parent="@Node2D@8946343" unique_id=885746356]
+position = Vector2(-12, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945506" type="Node2D" parent="@Node2D@8946343" unique_id=1794823023]
+position = Vector2(12, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945507" type="Node2D" parent="@Node2D@8946343" unique_id=1647425523]
+position = Vector2(12, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945508" type="Node2D" parent="@Node2D@8946343" unique_id=1722578204]
+position = Vector2(-12, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946356" type="Node2D" parent="." unique_id=1574538131]
+position = Vector2(-336, -126)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-104, -4, 104, -4, 104, 4, -104, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945509" type="Node2D" parent="@Node2D@8946356" unique_id=7079967]
+position = Vector2(-104, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945510" type="Node2D" parent="@Node2D@8946356" unique_id=1504094921]
+position = Vector2(104, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945511" type="Node2D" parent="@Node2D@8946356" unique_id=207437980]
+position = Vector2(104, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945512" type="Node2D" parent="@Node2D@8946356" unique_id=875862629]
+position = Vector2(-104, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946369" type="Node2D" parent="." unique_id=27064416]
+position = Vector2(132, -126)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945513" type="Node2D" parent="@Node2D@8946369" unique_id=976183867]
+position = Vector2(-4, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945514" type="Node2D" parent="@Node2D@8946369" unique_id=541181627]
+position = Vector2(4, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945515" type="Node2D" parent="@Node2D@8946369" unique_id=1196405527]
+position = Vector2(4, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945516" type="Node2D" parent="@Node2D@8946369" unique_id=467041373]
+position = Vector2(-4, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946382" type="Node2D" parent="." unique_id=1106212385]
+position = Vector2(-332, -118)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-108, -4, 108, -4, 108, 4, -108, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945517" type="Node2D" parent="@Node2D@8946382" unique_id=636850850]
+position = Vector2(-108, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945518" type="Node2D" parent="@Node2D@8946382" unique_id=1244848435]
+position = Vector2(108, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945519" type="Node2D" parent="@Node2D@8946382" unique_id=1679984259]
+position = Vector2(108, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945520" type="Node2D" parent="@Node2D@8946382" unique_id=1985754]
+position = Vector2(-108, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946395" type="Node2D" parent="." unique_id=83919471]
+position = Vector2(356, -118)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-84, -4, 84, -4, 84, 4, -84, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945521" type="Node2D" parent="@Node2D@8946395" unique_id=901121322]
+position = Vector2(-84, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945522" type="Node2D" parent="@Node2D@8946395" unique_id=964247370]
+position = Vector2(84, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945523" type="Node2D" parent="@Node2D@8946395" unique_id=823113688]
+position = Vector2(84, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945524" type="Node2D" parent="@Node2D@8946395" unique_id=1251246430]
+position = Vector2(-84, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946408" type="Node2D" parent="." unique_id=1757826528]
+position = Vector2(-328, -110)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-112, -4, 112, -4, 112, 4, -112, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945525" type="Node2D" parent="@Node2D@8946408" unique_id=506106233]
+position = Vector2(-112, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945526" type="Node2D" parent="@Node2D@8946408" unique_id=15712185]
+position = Vector2(112, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945527" type="Node2D" parent="@Node2D@8946408" unique_id=1014334552]
+position = Vector2(112, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945528" type="Node2D" parent="@Node2D@8946408" unique_id=1596461133]
+position = Vector2(-112, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946421" type="Node2D" parent="." unique_id=1100696422]
+position = Vector2(12, -106)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -8, 12, -8, 12, 8, -12, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945529" type="Node2D" parent="@Node2D@8946421" unique_id=1746267304]
+position = Vector2(-12, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945530" type="Node2D" parent="@Node2D@8946421" unique_id=989948048]
+position = Vector2(12, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945531" type="Node2D" parent="@Node2D@8946421" unique_id=1525486430]
+position = Vector2(12, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945532" type="Node2D" parent="@Node2D@8946421" unique_id=447768197]
+position = Vector2(-12, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946434" type="Node2D" parent="." unique_id=1504658154]
+position = Vector2(352, -110)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-88, -4, 88, -4, 88, 4, -88, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945533" type="Node2D" parent="@Node2D@8946434" unique_id=1929480960]
+position = Vector2(-88, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945534" type="Node2D" parent="@Node2D@8946434" unique_id=724450801]
+position = Vector2(88, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945535" type="Node2D" parent="@Node2D@8946434" unique_id=1253835076]
+position = Vector2(88, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945536" type="Node2D" parent="@Node2D@8946434" unique_id=195441406]
+position = Vector2(-88, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946447" type="Node2D" parent="." unique_id=1596993379]
+position = Vector2(-324, -98)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-116, -8, 116, -8, 116, 8, -116, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945537" type="Node2D" parent="@Node2D@8946447" unique_id=274595909]
+position = Vector2(-116, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945538" type="Node2D" parent="@Node2D@8946447" unique_id=163979815]
+position = Vector2(116, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945539" type="Node2D" parent="@Node2D@8946447" unique_id=175341681]
+position = Vector2(116, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945540" type="Node2D" parent="@Node2D@8946447" unique_id=1633224695]
+position = Vector2(-116, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946460" type="Node2D" parent="." unique_id=1750617808]
+position = Vector2(340, -102)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-100, -4, 100, -4, 100, 4, -100, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945541" type="Node2D" parent="@Node2D@8946460" unique_id=984938203]
+position = Vector2(-100, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945542" type="Node2D" parent="@Node2D@8946460" unique_id=231095185]
+position = Vector2(100, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945543" type="Node2D" parent="@Node2D@8946460" unique_id=1956174511]
+position = Vector2(100, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945544" type="Node2D" parent="@Node2D@8946460" unique_id=1192444478]
+position = Vector2(-100, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946473" type="Node2D" parent="." unique_id=1536471148]
+position = Vector2(332, -90)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-108, -8, 108, -8, 108, 8, -108, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945545" type="Node2D" parent="@Node2D@8946473" unique_id=1306429915]
+position = Vector2(-108, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945546" type="Node2D" parent="@Node2D@8946473" unique_id=296994789]
+position = Vector2(108, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945547" type="Node2D" parent="@Node2D@8946473" unique_id=968851136]
+position = Vector2(108, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945548" type="Node2D" parent="@Node2D@8946473" unique_id=1307401453]
+position = Vector2(-108, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946486" type="Node2D" parent="." unique_id=1325284952]
+position = Vector2(-300, -82)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-140, -8, 140, -8, 140, 8, -140, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945549" type="Node2D" parent="@Node2D@8946486" unique_id=1244335324]
+position = Vector2(-140, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945550" type="Node2D" parent="@Node2D@8946486" unique_id=1893810180]
+position = Vector2(140, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945551" type="Node2D" parent="@Node2D@8946486" unique_id=163381800]
+position = Vector2(140, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945552" type="Node2D" parent="@Node2D@8946486" unique_id=577763787]
+position = Vector2(-140, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946499" type="Node2D" parent="." unique_id=164432117]
+position = Vector2(324, -78)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-116, -4, 116, -4, 116, 4, -116, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945553" type="Node2D" parent="@Node2D@8946499" unique_id=1522723550]
+position = Vector2(-116, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945554" type="Node2D" parent="@Node2D@8946499" unique_id=2141157970]
+position = Vector2(116, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945555" type="Node2D" parent="@Node2D@8946499" unique_id=412108129]
+position = Vector2(116, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945556" type="Node2D" parent="@Node2D@8946499" unique_id=2134428883]
+position = Vector2(-116, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946512" type="Node2D" parent="." unique_id=399415193]
+position = Vector2(-292, -58)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-148, -16, 148, -16, 148, 16, -148, 16)
+auto_seed_points = false
+
+[node name="@Node2D@8945557" type="Node2D" parent="@Node2D@8946512" unique_id=26167788]
+position = Vector2(-148, -16)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945558" type="Node2D" parent="@Node2D@8946512" unique_id=710947608]
+position = Vector2(148, -16)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945559" type="Node2D" parent="@Node2D@8946512" unique_id=1748954609]
+position = Vector2(148, 16)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945560" type="Node2D" parent="@Node2D@8946512" unique_id=395558363]
+position = Vector2(-148, 16)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946525" type="Node2D" parent="." unique_id=304834100]
+position = Vector2(320, -66)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-120, -8, 120, -8, 120, 8, -120, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945561" type="Node2D" parent="@Node2D@8946525" unique_id=773918114]
+position = Vector2(-120, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945562" type="Node2D" parent="@Node2D@8946525" unique_id=544280528]
+position = Vector2(120, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945563" type="Node2D" parent="@Node2D@8946525" unique_id=1614182943]
+position = Vector2(120, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945564" type="Node2D" parent="@Node2D@8946525" unique_id=168616029]
+position = Vector2(-120, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946538" type="Node2D" parent="." unique_id=1691663185]
+position = Vector2(316, -54)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-124, -4, 124, -4, 124, 4, -124, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945565" type="Node2D" parent="@Node2D@8946538" unique_id=525426700]
+position = Vector2(-124, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945566" type="Node2D" parent="@Node2D@8946538" unique_id=987559535]
+position = Vector2(124, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945567" type="Node2D" parent="@Node2D@8946538" unique_id=921031995]
+position = Vector2(124, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945568" type="Node2D" parent="@Node2D@8946538" unique_id=1598657982]
+position = Vector2(-124, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946551" type="Node2D" parent="." unique_id=1933111392]
+position = Vector2(312, -46)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-128, -4, 128, -4, 128, 4, -128, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945569" type="Node2D" parent="@Node2D@8946551" unique_id=648526327]
+position = Vector2(-128, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945570" type="Node2D" parent="@Node2D@8946551" unique_id=658000967]
+position = Vector2(128, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945571" type="Node2D" parent="@Node2D@8946551" unique_id=1860691379]
+position = Vector2(128, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945572" type="Node2D" parent="@Node2D@8946551" unique_id=1321098955]
+position = Vector2(-128, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946564" type="Node2D" parent="." unique_id=225106480]
+position = Vector2(-284, -38)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-156, -4, 156, -4, 156, 4, -156, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945573" type="Node2D" parent="@Node2D@8946564" unique_id=142456922]
+position = Vector2(-156, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945574" type="Node2D" parent="@Node2D@8946564" unique_id=524879956]
+position = Vector2(156, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945575" type="Node2D" parent="@Node2D@8946564" unique_id=1220526089]
+position = Vector2(156, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945576" type="Node2D" parent="@Node2D@8946564" unique_id=1706520710]
+position = Vector2(-156, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946577" type="Node2D" parent="." unique_id=1982044193]
+position = Vector2(308, -38)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-132, -4, 132, -4, 132, 4, -132, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945577" type="Node2D" parent="@Node2D@8946577" unique_id=1623330477]
+position = Vector2(-132, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945578" type="Node2D" parent="@Node2D@8946577" unique_id=346399991]
+position = Vector2(132, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945579" type="Node2D" parent="@Node2D@8946577" unique_id=1201035065]
+position = Vector2(132, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945580" type="Node2D" parent="@Node2D@8946577" unique_id=79451474]
+position = Vector2(-132, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946590" type="Node2D" parent="." unique_id=574671671]
+position = Vector2(-280, -26)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-160, -8, 160, -8, 160, 8, -160, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945581" type="Node2D" parent="@Node2D@8946590" unique_id=1119338928]
+position = Vector2(-160, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945582" type="Node2D" parent="@Node2D@8946590" unique_id=184100119]
+position = Vector2(160, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945583" type="Node2D" parent="@Node2D@8946590" unique_id=472315622]
+position = Vector2(160, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945584" type="Node2D" parent="@Node2D@8946590" unique_id=1233588782]
+position = Vector2(-160, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946603" type="Node2D" parent="." unique_id=1757921957]
+position = Vector2(304, -26)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-136, -8, 136, -8, 136, 8, -136, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945585" type="Node2D" parent="@Node2D@8946603" unique_id=560406134]
+position = Vector2(-136, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945586" type="Node2D" parent="@Node2D@8946603" unique_id=1317393812]
+position = Vector2(136, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945587" type="Node2D" parent="@Node2D@8946603" unique_id=599293457]
+position = Vector2(136, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945588" type="Node2D" parent="@Node2D@8946603" unique_id=938432693]
+position = Vector2(-136, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946616" type="Node2D" parent="." unique_id=585146284]
+position = Vector2(-276, 2)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-164, -20, 164, -20, 164, 20, -164, 20)
+auto_seed_points = false
+
+[node name="@Node2D@8945589" type="Node2D" parent="@Node2D@8946616" unique_id=716515561]
+position = Vector2(-164, -20)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945590" type="Node2D" parent="@Node2D@8946616" unique_id=78754931]
+position = Vector2(164, -20)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945591" type="Node2D" parent="@Node2D@8946616" unique_id=1503325787]
+position = Vector2(164, 20)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945592" type="Node2D" parent="@Node2D@8946616" unique_id=1094190635]
+position = Vector2(-164, 20)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946629" type="Node2D" parent="." unique_id=373828433]
+position = Vector2(300, -6)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-140, -12, 140, -12, 140, 12, -140, 12)
+auto_seed_points = false
+
+[node name="@Node2D@8945593" type="Node2D" parent="@Node2D@8946629" unique_id=1724843265]
+position = Vector2(-140, -12)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945594" type="Node2D" parent="@Node2D@8946629" unique_id=1886207074]
+position = Vector2(140, -12)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945595" type="Node2D" parent="@Node2D@8946629" unique_id=1295411866]
+position = Vector2(140, 12)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945596" type="Node2D" parent="@Node2D@8946629" unique_id=994335888]
+position = Vector2(-140, 12)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946642" type="Node2D" parent="." unique_id=1431606372]
+position = Vector2(-32, 14)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945597" type="Node2D" parent="@Node2D@8946642" unique_id=1461387703]
+position = Vector2(-8, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945598" type="Node2D" parent="@Node2D@8946642" unique_id=1388290908]
+position = Vector2(8, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945599" type="Node2D" parent="@Node2D@8946642" unique_id=960399975]
+position = Vector2(8, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945600" type="Node2D" parent="@Node2D@8946642" unique_id=79564062]
+position = Vector2(-8, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946655" type="Node2D" parent="." unique_id=310315351]
+position = Vector2(296, 14)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-144, -8, 144, -8, 144, 8, -144, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945601" type="Node2D" parent="@Node2D@8946655" unique_id=967578191]
+position = Vector2(-144, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945602" type="Node2D" parent="@Node2D@8946655" unique_id=1080250686]
+position = Vector2(144, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945603" type="Node2D" parent="@Node2D@8946655" unique_id=1501195239]
+position = Vector2(144, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945604" type="Node2D" parent="@Node2D@8946655" unique_id=1148609463]
+position = Vector2(-144, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946668" type="Node2D" parent="." unique_id=774180339]
+position = Vector2(-280, 26)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-160, -4, 160, -4, 160, 4, -160, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945605" type="Node2D" parent="@Node2D@8946668" unique_id=1111422719]
+position = Vector2(-160, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945606" type="Node2D" parent="@Node2D@8946668" unique_id=1750029927]
+position = Vector2(160, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945607" type="Node2D" parent="@Node2D@8946668" unique_id=92852467]
+position = Vector2(160, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945608" type="Node2D" parent="@Node2D@8946668" unique_id=450026803]
+position = Vector2(-160, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946681" type="Node2D" parent="." unique_id=235983435]
+position = Vector2(-56, 34)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-16, -12, 16, -12, 16, 12, -16, 12)
+auto_seed_points = false
+
+[node name="@Node2D@8945609" type="Node2D" parent="@Node2D@8946681" unique_id=1593777244]
+position = Vector2(-16, -12)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945610" type="Node2D" parent="@Node2D@8946681" unique_id=178286270]
+position = Vector2(16, -12)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945611" type="Node2D" parent="@Node2D@8946681" unique_id=202581899]
+position = Vector2(16, 12)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945612" type="Node2D" parent="@Node2D@8946681" unique_id=1727814587]
+position = Vector2(-16, 12)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946694" type="Node2D" parent="." unique_id=1454927880]
+position = Vector2(-28, 26)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945613" type="Node2D" parent="@Node2D@8946694" unique_id=1472571312]
+position = Vector2(-4, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945614" type="Node2D" parent="@Node2D@8946694" unique_id=179888750]
+position = Vector2(4, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945615" type="Node2D" parent="@Node2D@8946694" unique_id=2080369692]
+position = Vector2(4, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945616" type="Node2D" parent="@Node2D@8946694" unique_id=341704331]
+position = Vector2(-4, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946707" type="Node2D" parent="." unique_id=1933980230]
+position = Vector2(292, 30)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-148, -8, 148, -8, 148, 8, -148, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945617" type="Node2D" parent="@Node2D@8946707" unique_id=901390644]
+position = Vector2(-148, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945618" type="Node2D" parent="@Node2D@8946707" unique_id=308912637]
+position = Vector2(148, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945619" type="Node2D" parent="@Node2D@8946707" unique_id=1395222682]
+position = Vector2(148, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945620" type="Node2D" parent="@Node2D@8946707" unique_id=843878924]
+position = Vector2(-148, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946720" type="Node2D" parent="." unique_id=708967719]
+position = Vector2(-276, 34)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-164, -4, 164, -4, 164, 4, -164, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945621" type="Node2D" parent="@Node2D@8946720" unique_id=794228091]
+position = Vector2(-164, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945622" type="Node2D" parent="@Node2D@8946720" unique_id=348895199]
+position = Vector2(164, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945623" type="Node2D" parent="@Node2D@8946720" unique_id=1250889073]
+position = Vector2(164, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945624" type="Node2D" parent="@Node2D@8946720" unique_id=383531250]
+position = Vector2(-164, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946733" type="Node2D" parent="." unique_id=1051080845]
+position = Vector2(-280, 42)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-160, -4, 160, -4, 160, 4, -160, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945625" type="Node2D" parent="@Node2D@8946733" unique_id=1880491726]
+position = Vector2(-160, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945626" type="Node2D" parent="@Node2D@8946733" unique_id=955293499]
+position = Vector2(160, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945627" type="Node2D" parent="@Node2D@8946733" unique_id=1272953402]
+position = Vector2(160, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945628" type="Node2D" parent="@Node2D@8946733" unique_id=1792003268]
+position = Vector2(-160, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946746" type="Node2D" parent="." unique_id=383184679]
+position = Vector2(288, 58)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-152, -20, 152, -20, 152, 20, -152, 20)
+auto_seed_points = false
+
+[node name="@Node2D@8945629" type="Node2D" parent="@Node2D@8946746" unique_id=2036173655]
+position = Vector2(-152, -20)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945630" type="Node2D" parent="@Node2D@8946746" unique_id=1680049359]
+position = Vector2(152, -20)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945631" type="Node2D" parent="@Node2D@8946746" unique_id=1986184303]
+position = Vector2(152, 20)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945632" type="Node2D" parent="@Node2D@8946746" unique_id=890484945]
+position = Vector2(-152, 20)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946759" type="Node2D" parent="." unique_id=1620236704]
+position = Vector2(-276, 78)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-164, -32, 164, -32, 164, 32, -164, 32)
+auto_seed_points = false
+
+[node name="@Node2D@8945633" type="Node2D" parent="@Node2D@8946759" unique_id=1272280524]
+position = Vector2(-164, -32)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945634" type="Node2D" parent="@Node2D@8946759" unique_id=742041085]
+position = Vector2(164, -32)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945635" type="Node2D" parent="@Node2D@8946759" unique_id=1709810035]
+position = Vector2(164, 32)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945636" type="Node2D" parent="@Node2D@8946759" unique_id=1101384373]
+position = Vector2(-164, 32)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946772" type="Node2D" parent="." unique_id=500000755]
+position = Vector2(-60, 50)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945637" type="Node2D" parent="@Node2D@8946772" unique_id=493842041]
+position = Vector2(-12, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945638" type="Node2D" parent="@Node2D@8946772" unique_id=1007642144]
+position = Vector2(12, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945639" type="Node2D" parent="@Node2D@8946772" unique_id=526599395]
+position = Vector2(12, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945640" type="Node2D" parent="@Node2D@8946772" unique_id=919466548]
+position = Vector2(-12, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946785" type="Node2D" parent="." unique_id=1889084103]
+position = Vector2(84, 62)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -16, 12, -16, 12, 16, -12, 16)
+auto_seed_points = false
+
+[node name="@Node2D@8945641" type="Node2D" parent="@Node2D@8946785" unique_id=1071726607]
+position = Vector2(-12, -16)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945642" type="Node2D" parent="@Node2D@8946785" unique_id=2119772504]
+position = Vector2(12, -16)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945643" type="Node2D" parent="@Node2D@8946785" unique_id=1889952637]
+position = Vector2(12, 16)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945644" type="Node2D" parent="@Node2D@8946785" unique_id=186292135]
+position = Vector2(-12, 16)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946798" type="Node2D" parent="." unique_id=322345627]
+position = Vector2(-60, 82)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945645" type="Node2D" parent="@Node2D@8946798" unique_id=723237618]
+position = Vector2(-12, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945646" type="Node2D" parent="@Node2D@8946798" unique_id=686307955]
+position = Vector2(12, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945647" type="Node2D" parent="@Node2D@8946798" unique_id=377701328]
+position = Vector2(12, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945648" type="Node2D" parent="@Node2D@8946798" unique_id=1401354152]
+position = Vector2(-12, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946811" type="Node2D" parent="." unique_id=246796221]
+position = Vector2(84, 82)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945649" type="Node2D" parent="@Node2D@8946811" unique_id=1035926339]
+position = Vector2(-4, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945650" type="Node2D" parent="@Node2D@8946811" unique_id=275797448]
+position = Vector2(4, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945651" type="Node2D" parent="@Node2D@8946811" unique_id=172948843]
+position = Vector2(4, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945652" type="Node2D" parent="@Node2D@8946811" unique_id=753925073]
+position = Vector2(-4, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946824" type="Node2D" parent="." unique_id=1317679347]
+position = Vector2(292, 94)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-148, -16, 148, -16, 148, 16, -148, 16)
+auto_seed_points = false
+
+[node name="@Node2D@8945653" type="Node2D" parent="@Node2D@8946824" unique_id=1449175480]
+position = Vector2(-148, -16)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945654" type="Node2D" parent="@Node2D@8946824" unique_id=804508235]
+position = Vector2(148, -16)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945655" type="Node2D" parent="@Node2D@8946824" unique_id=182705532]
+position = Vector2(148, 16)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945656" type="Node2D" parent="@Node2D@8946824" unique_id=1268479512]
+position = Vector2(-148, 16)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946837" type="Node2D" parent="." unique_id=145660968]
+position = Vector2(-72, 94)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-16, -8, 16, -8, 16, 8, -16, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945657" type="Node2D" parent="@Node2D@8946837" unique_id=2073351960]
+position = Vector2(-16, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945658" type="Node2D" parent="@Node2D@8946837" unique_id=1403428253]
+position = Vector2(16, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945659" type="Node2D" parent="@Node2D@8946837" unique_id=544372808]
+position = Vector2(16, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945660" type="Node2D" parent="@Node2D@8946837" unique_id=1620939650]
+position = Vector2(-16, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946850" type="Node2D" parent="." unique_id=1743304638]
+position = Vector2(-68, 106)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945661" type="Node2D" parent="@Node2D@8946850" unique_id=97596946]
+position = Vector2(-12, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945662" type="Node2D" parent="@Node2D@8946850" unique_id=1380206489]
+position = Vector2(12, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945663" type="Node2D" parent="@Node2D@8946850" unique_id=650480542]
+position = Vector2(12, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945664" type="Node2D" parent="@Node2D@8946850" unique_id=1099260973]
+position = Vector2(-12, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946863" type="Node2D" parent="." unique_id=376203709]
+position = Vector2(80, 106)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945665" type="Node2D" parent="@Node2D@8946863" unique_id=259988002]
+position = Vector2(-8, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945666" type="Node2D" parent="@Node2D@8946863" unique_id=1345524645]
+position = Vector2(8, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945667" type="Node2D" parent="@Node2D@8946863" unique_id=663041131]
+position = Vector2(8, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945668" type="Node2D" parent="@Node2D@8946863" unique_id=787945928]
+position = Vector2(-8, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946876" type="Node2D" parent="." unique_id=962801461]
+position = Vector2(-272, 114)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-168, -4, 168, -4, 168, 4, -168, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945669" type="Node2D" parent="@Node2D@8946876" unique_id=755274468]
+position = Vector2(-168, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945670" type="Node2D" parent="@Node2D@8946876" unique_id=63976152]
+position = Vector2(168, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945671" type="Node2D" parent="@Node2D@8946876" unique_id=296078808]
+position = Vector2(168, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945672" type="Node2D" parent="@Node2D@8946876" unique_id=1510386458]
+position = Vector2(-168, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946889" type="Node2D" parent="." unique_id=1749938955]
+position = Vector2(84, 114)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945673" type="Node2D" parent="@Node2D@8946889" unique_id=697404205]
+position = Vector2(-12, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945674" type="Node2D" parent="@Node2D@8946889" unique_id=1202455696]
+position = Vector2(12, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945675" type="Node2D" parent="@Node2D@8946889" unique_id=2078729546]
+position = Vector2(12, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945676" type="Node2D" parent="@Node2D@8946889" unique_id=1887077756]
+position = Vector2(-12, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946902" type="Node2D" parent="." unique_id=66460019]
+position = Vector2(296, 114)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-144, -4, 144, -4, 144, 4, -144, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945677" type="Node2D" parent="@Node2D@8946902" unique_id=1943144976]
+position = Vector2(-144, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945678" type="Node2D" parent="@Node2D@8946902" unique_id=1615199276]
+position = Vector2(144, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945679" type="Node2D" parent="@Node2D@8946902" unique_id=1282603682]
+position = Vector2(144, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945680" type="Node2D" parent="@Node2D@8946902" unique_id=1186824301]
+position = Vector2(-144, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946915" type="Node2D" parent="." unique_id=406348903]
+position = Vector2(-276, 122)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-164, -4, 164, -4, 164, 4, -164, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945681" type="Node2D" parent="@Node2D@8946915" unique_id=1977134861]
+position = Vector2(-164, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945682" type="Node2D" parent="@Node2D@8946915" unique_id=665124725]
+position = Vector2(164, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945683" type="Node2D" parent="@Node2D@8946915" unique_id=822645115]
+position = Vector2(164, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945684" type="Node2D" parent="@Node2D@8946915" unique_id=485792856]
+position = Vector2(-164, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8946928" type="Node2D" parent="." unique_id=752928252]
 position = Vector2(88, 122)
 script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(112, 8)
-points = PackedVector2Array()
+points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
+auto_seed_points = false
 
-[node name="Blocked_115" type="Node2D" parent="." unique_id=105048465]
-position = Vector2(232, 122)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(144, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945685" type="Node2D" parent="@Node2D@8946928" unique_id=579090869]
+position = Vector2(-8, -4)
+script = ExtResource("5_ndmri")
 
-[node name="Blocked_116" type="Node2D" parent="." unique_id=1114464480]
-position = Vector2(172, 130)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(280, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945686" type="Node2D" parent="@Node2D@8946928" unique_id=1686279772]
+position = Vector2(8, -4)
+script = ExtResource("5_ndmri")
+idx = 1
 
-[node name="Blocked_117" type="Node2D" parent="." unique_id=14979533]
-position = Vector2(236, 138)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(408, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945687" type="Node2D" parent="@Node2D@8946928" unique_id=1869107339]
+position = Vector2(8, 4)
+script = ExtResource("5_ndmri")
+idx = 2
 
-[node name="Blocked_118" type="Node2D" parent="." unique_id=1592139229]
-position = Vector2(100, 146)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(136, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945688" type="Node2D" parent="@Node2D@8946928" unique_id=1843977856]
+position = Vector2(-8, 4)
+script = ExtResource("5_ndmri")
+idx = 3
 
-[node name="Blocked_119" type="Node2D" parent="." unique_id=1430024819]
-position = Vector2(308, 146)
+[node name="@Node2D@8946941" type="Node2D" parent="." unique_id=1989046876]
+position = Vector2(304, 122)
 script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(264, 8)
-points = PackedVector2Array()
+points = PackedVector2Array(-136, -4, 136, -4, 136, 4, -136, 4)
+auto_seed_points = false
 
-[node name="Blocked_120" type="Node2D" parent="." unique_id=1613199113]
-position = Vector2(-160, 154)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945689" type="Node2D" parent="@Node2D@8946941" unique_id=1947582228]
+position = Vector2(-136, -4)
+script = ExtResource("5_ndmri")
 
-[node name="Blocked_121" type="Node2D" parent="." unique_id=1133136185]
-position = Vector2(112, 154)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(112, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945690" type="Node2D" parent="@Node2D@8946941" unique_id=1583899442]
+position = Vector2(136, -4)
+script = ExtResource("5_ndmri")
+idx = 1
 
-[node name="Blocked_122" type="Node2D" parent="." unique_id=684531493]
-position = Vector2(320, 154)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(240, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945691" type="Node2D" parent="@Node2D@8946941" unique_id=845551040]
+position = Vector2(136, 4)
+script = ExtResource("5_ndmri")
+idx = 2
 
-[node name="Blocked_123" type="Node2D" parent="." unique_id=771197285]
-position = Vector2(-152, 162)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945692" type="Node2D" parent="@Node2D@8946941" unique_id=795331601]
+position = Vector2(-136, 4)
+script = ExtResource("5_ndmri")
+idx = 3
 
-[node name="Blocked_124" type="Node2D" parent="." unique_id=554489590]
-position = Vector2(-40, 162)
+[node name="@Node2D@8946954" type="Node2D" parent="." unique_id=524749151]
+position = Vector2(-296, 130)
 script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(48, 8)
-points = PackedVector2Array()
+points = PackedVector2Array(-144, -4, 144, -4, 144, 4, -144, 4)
+auto_seed_points = false
 
-[node name="Blocked_125" type="Node2D" parent="." unique_id=1206417352]
-position = Vector2(124, 162)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(88, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945693" type="Node2D" parent="@Node2D@8946954" unique_id=1325690999]
+position = Vector2(-144, -4)
+script = ExtResource("5_ndmri")
 
-[node name="Blocked_126" type="Node2D" parent="." unique_id=201275105]
-position = Vector2(332, 162)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(216, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945694" type="Node2D" parent="@Node2D@8946954" unique_id=1627438745]
+position = Vector2(144, -4)
+script = ExtResource("5_ndmri")
+idx = 1
 
-[node name="Blocked_127" type="Node2D" parent="." unique_id=1741162692]
-position = Vector2(-152, 170)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(48, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945695" type="Node2D" parent="@Node2D@8946954" unique_id=1531073084]
+position = Vector2(144, 4)
+script = ExtResource("5_ndmri")
+idx = 2
 
-[node name="Blocked_128" type="Node2D" parent="." unique_id=1247926480]
-position = Vector2(-40, 174)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(80, 16)
-points = PackedVector2Array()
+[node name="@Node2D@8945696" type="Node2D" parent="@Node2D@8946954" unique_id=748242260]
+position = Vector2(-144, 4)
+script = ExtResource("5_ndmri")
+idx = 3
 
-[node name="Blocked_129" type="Node2D" parent="." unique_id=104805321]
-position = Vector2(128, 170)
+[node name="@Node2D@8946967" type="Node2D" parent="." unique_id=1166093577]
+position = Vector2(-128, 130)
 script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(64, 8)
-points = PackedVector2Array()
+points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
+auto_seed_points = false
 
-[node name="Blocked_130" type="Node2D" parent="." unique_id=1165986490]
-position = Vector2(272, 170)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(64, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945697" type="Node2D" parent="@Node2D@8946967" unique_id=511585379]
+position = Vector2(-8, -4)
+script = ExtResource("5_ndmri")
 
-[node name="Blocked_131" type="Node2D" parent="." unique_id=891058286]
-position = Vector2(376, 174)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(128, 16)
-points = PackedVector2Array()
+[node name="@Node2D@8945698" type="Node2D" parent="@Node2D@8946967" unique_id=45689488]
+position = Vector2(8, -4)
+script = ExtResource("5_ndmri")
+idx = 1
 
-[node name="Blocked_132" type="Node2D" parent="." unique_id=1684959957]
-position = Vector2(-148, 178)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(56, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945699" type="Node2D" parent="@Node2D@8946967" unique_id=609042015]
+position = Vector2(8, 4)
+script = ExtResource("5_ndmri")
+idx = 2
 
-[node name="Blocked_133" type="Node2D" parent="." unique_id=1714331434]
-position = Vector2(140, 178)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(40, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945700" type="Node2D" parent="@Node2D@8946967" unique_id=450021455]
+position = Vector2(-8, 4)
+script = ExtResource("5_ndmri")
+idx = 3
 
-[node name="Blocked_134" type="Node2D" parent="." unique_id=1930042970]
-position = Vector2(280, 178)
+[node name="@Node2D@8946980" type="Node2D" parent="." unique_id=767530531]
+position = Vector2(308, 130)
 script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
+points = PackedVector2Array(-132, -4, 132, -4, 132, 4, -132, 4)
+auto_seed_points = false
 
-[node name="Blocked_136" type="Node2D" parent="." unique_id=1139801016]
-position = Vector2(-152, 186)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(64, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945701" type="Node2D" parent="@Node2D@8946980" unique_id=1853920823]
+position = Vector2(-132, -4)
+script = ExtResource("5_ndmri")
 
-[node name="Blocked_137" type="Node2D" parent="." unique_id=405346942]
-position = Vector2(-32, 190)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(96, 16)
-points = PackedVector2Array()
+[node name="@Node2D@8945702" type="Node2D" parent="@Node2D@8946980" unique_id=518568617]
+position = Vector2(132, -4)
+script = ExtResource("5_ndmri")
+idx = 1
 
-[node name="Blocked_138" type="Node2D" parent="." unique_id=794584019]
-position = Vector2(64, 186)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945703" type="Node2D" parent="@Node2D@8946980" unique_id=1495617682]
+position = Vector2(132, 4)
+script = ExtResource("5_ndmri")
+idx = 2
 
-[node name="Blocked_139" type="Node2D" parent="." unique_id=342370029]
-position = Vector2(144, 186)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945704" type="Node2D" parent="@Node2D@8946980" unique_id=1492854641]
+position = Vector2(-132, 4)
+script = ExtResource("5_ndmri")
+idx = 3
 
-[node name="Blocked_140" type="Node2D" parent="." unique_id=848614036]
-position = Vector2(368, 186)
+[node name="@Node2D@8946993" type="Node2D" parent="." unique_id=1468884972]
+position = Vector2(-300, 150)
 script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(144, 8)
-points = PackedVector2Array()
+points = PackedVector2Array(-140, -16, 140, -16, 140, 16, -140, 16)
+auto_seed_points = false
 
-[node name="Blocked_141" type="Node2D" parent="." unique_id=1972970800]
-position = Vector2(-160, 194)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(64, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945705" type="Node2D" parent="@Node2D@8946993" unique_id=159011599]
+position = Vector2(-140, -16)
+script = ExtResource("5_ndmri")
 
-[node name="Blocked_142" type="Node2D" parent="." unique_id=728313337]
-position = Vector2(68, 194)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(40, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945706" type="Node2D" parent="@Node2D@8946993" unique_id=2042961506]
+position = Vector2(140, -16)
+script = ExtResource("5_ndmri")
+idx = 1
 
-[node name="Blocked_143" type="Node2D" parent="." unique_id=417553090]
-position = Vector2(364, 194)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(152, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945707" type="Node2D" parent="@Node2D@8946993" unique_id=956680762]
+position = Vector2(140, 16)
+script = ExtResource("5_ndmri")
+idx = 2
 
-[node name="Blocked_144" type="Node2D" parent="." unique_id=421825677]
-position = Vector2(-164, 202)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(40, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945708" type="Node2D" parent="@Node2D@8946993" unique_id=150951946]
+position = Vector2(-140, 16)
+script = ExtResource("5_ndmri")
+idx = 3
 
-[node name="Blocked_145" type="Node2D" parent="." unique_id=1333055335]
-position = Vector2(-32, 202)
+[node name="@Node2D@8947006" type="Node2D" parent="." unique_id=202271041]
+position = Vector2(304, 138)
 script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(112, 8)
-points = PackedVector2Array()
+points = PackedVector2Array(-136, -4, 136, -4, 136, 4, -136, 4)
+auto_seed_points = false
 
-[node name="Blocked_146" type="Node2D" parent="." unique_id=1160867356]
-position = Vector2(64, 202)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(32, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945709" type="Node2D" parent="@Node2D@8947006" unique_id=1739543606]
+position = Vector2(-136, -4)
+script = ExtResource("5_ndmri")
 
-[node name="Blocked_147" type="Node2D" parent="." unique_id=810129554]
-position = Vector2(360, 202)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(160, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945710" type="Node2D" parent="@Node2D@8947006" unique_id=293951335]
+position = Vector2(136, -4)
+script = ExtResource("5_ndmri")
+idx = 1
 
-[node name="Blocked_148" type="Node2D" parent="." unique_id=2142250852]
-position = Vector2(-168, 210)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(16, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945711" type="Node2D" parent="@Node2D@8947006" unique_id=2054186749]
+position = Vector2(136, 4)
+script = ExtResource("5_ndmri")
+idx = 2
 
-[node name="Blocked_149" type="Node2D" parent="." unique_id=1507019347]
-position = Vector2(-36, 210)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(88, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945712" type="Node2D" parent="@Node2D@8947006" unique_id=1884889490]
+position = Vector2(-136, 4)
+script = ExtResource("5_ndmri")
+idx = 3
 
-[node name="Blocked_150" type="Node2D" parent="." unique_id=1285420804]
-position = Vector2(20, 210)
+[node name="@Node2D@8947019" type="Node2D" parent="." unique_id=181353866]
+position = Vector2(300, 146)
 script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(8, 8)
-points = PackedVector2Array()
+points = PackedVector2Array(-140, -4, 140, -4, 140, 4, -140, 4)
+auto_seed_points = false
 
-[node name="Blocked_151" type="Node2D" parent="." unique_id=1592640003]
-position = Vector2(68, 210)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(24, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945713" type="Node2D" parent="@Node2D@8947019" unique_id=629934939]
+position = Vector2(-140, -4)
+script = ExtResource("5_ndmri")
 
-[node name="Blocked_152" type="Node2D" parent="." unique_id=1827492405]
-position = Vector2(356, 210)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(168, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945714" type="Node2D" parent="@Node2D@8947019" unique_id=1850852430]
+position = Vector2(140, -4)
+script = ExtResource("5_ndmri")
+idx = 1
 
-[node name="Blocked_153" type="Node2D" parent="." unique_id=995105990]
-position = Vector2(-28, 218)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(72, 8)
-points = PackedVector2Array()
+[node name="@Node2D@8945715" type="Node2D" parent="@Node2D@8947019" unique_id=1816728329]
+position = Vector2(140, 4)
+script = ExtResource("5_ndmri")
+idx = 2
 
-[node name="Blocked_154" type="Node2D" parent="." unique_id=1767963119]
-position = Vector2(352, 230)
-script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(176, 32)
-points = PackedVector2Array()
+[node name="@Node2D@8945716" type="Node2D" parent="@Node2D@8947019" unique_id=1197334352]
+position = Vector2(-140, 4)
+script = ExtResource("5_ndmri")
+idx = 3
 
-[node name="Blocked_155" type="Node2D" parent="." unique_id=592048511]
-position = Vector2(348, 250)
+[node name="@Node2D@8947032" type="Node2D" parent="." unique_id=685453704]
+position = Vector2(296, 162)
 script = ExtResource("4_ndmri")
-shape_type = 0
-rect_size = Vector2(184, 8)
-points = PackedVector2Array()
+points = PackedVector2Array(-144, -12, 144, -12, 144, 12, -144, 12)
+auto_seed_points = false
+
+[node name="@Node2D@8945717" type="Node2D" parent="@Node2D@8947032" unique_id=205577758]
+position = Vector2(-144, -12)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945718" type="Node2D" parent="@Node2D@8947032" unique_id=1153504240]
+position = Vector2(144, -12)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945719" type="Node2D" parent="@Node2D@8947032" unique_id=1345268118]
+position = Vector2(144, 12)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945720" type="Node2D" parent="@Node2D@8947032" unique_id=933783835]
+position = Vector2(-144, 12)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947045" type="Node2D" parent="." unique_id=473563079]
+position = Vector2(-296, 170)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-144, -4, 144, -4, 144, 4, -144, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945721" type="Node2D" parent="@Node2D@8947045" unique_id=1755046318]
+position = Vector2(-144, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945722" type="Node2D" parent="@Node2D@8947045" unique_id=1352679071]
+position = Vector2(144, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945723" type="Node2D" parent="@Node2D@8947045" unique_id=1858811875]
+position = Vector2(144, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945724" type="Node2D" parent="@Node2D@8947045" unique_id=1073604706]
+position = Vector2(-144, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947058" type="Node2D" parent="." unique_id=1202984964]
+position = Vector2(-284, 178)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-156, -4, 156, -4, 156, 4, -156, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945725" type="Node2D" parent="@Node2D@8947058" unique_id=1389620694]
+position = Vector2(-156, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945726" type="Node2D" parent="@Node2D@8947058" unique_id=360067029]
+position = Vector2(156, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945727" type="Node2D" parent="@Node2D@8947058" unique_id=280405138]
+position = Vector2(156, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945728" type="Node2D" parent="@Node2D@8947058" unique_id=1311071946]
+position = Vector2(-156, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947071" type="Node2D" parent="." unique_id=646138643]
+position = Vector2(292, 190)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-148, -16, 148, -16, 148, 16, -148, 16)
+auto_seed_points = false
+
+[node name="@Node2D@8945729" type="Node2D" parent="@Node2D@8947071" unique_id=1608529481]
+position = Vector2(-148, -16)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945730" type="Node2D" parent="@Node2D@8947071" unique_id=1846703614]
+position = Vector2(148, -16)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945731" type="Node2D" parent="@Node2D@8947071" unique_id=1149083958]
+position = Vector2(148, 16)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945732" type="Node2D" parent="@Node2D@8947071" unique_id=1454623094]
+position = Vector2(-148, 16)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947084" type="Node2D" parent="." unique_id=1120666781]
+position = Vector2(-280, 186)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-160, -4, 160, -4, 160, 4, -160, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945733" type="Node2D" parent="@Node2D@8947084" unique_id=3810385]
+position = Vector2(-160, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945734" type="Node2D" parent="@Node2D@8947084" unique_id=1838809805]
+position = Vector2(160, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945735" type="Node2D" parent="@Node2D@8947084" unique_id=1636645221]
+position = Vector2(160, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945736" type="Node2D" parent="@Node2D@8947084" unique_id=1030714985]
+position = Vector2(-160, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947097" type="Node2D" parent="." unique_id=1600226348]
+position = Vector2(-284, 206)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-156, -16, 156, -16, 156, 16, -156, 16)
+auto_seed_points = false
+
+[node name="@Node2D@8945737" type="Node2D" parent="@Node2D@8947097" unique_id=634757626]
+position = Vector2(-156, -16)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945738" type="Node2D" parent="@Node2D@8947097" unique_id=2115803368]
+position = Vector2(156, -16)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945739" type="Node2D" parent="@Node2D@8947097" unique_id=1541059476]
+position = Vector2(156, 16)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945740" type="Node2D" parent="@Node2D@8947097" unique_id=660770565]
+position = Vector2(-156, 16)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947110" type="Node2D" parent="." unique_id=540810886]
+position = Vector2(84, 210)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945741" type="Node2D" parent="@Node2D@8947110" unique_id=206853405]
+position = Vector2(-12, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945742" type="Node2D" parent="@Node2D@8947110" unique_id=1522823103]
+position = Vector2(12, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945743" type="Node2D" parent="@Node2D@8947110" unique_id=1353979067]
+position = Vector2(12, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945744" type="Node2D" parent="@Node2D@8947110" unique_id=952869178]
+position = Vector2(-12, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947123" type="Node2D" parent="." unique_id=1816268440]
+position = Vector2(296, 210)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-144, -4, 144, -4, 144, 4, -144, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945745" type="Node2D" parent="@Node2D@8947123" unique_id=17869075]
+position = Vector2(-144, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945746" type="Node2D" parent="@Node2D@8947123" unique_id=611352668]
+position = Vector2(144, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945747" type="Node2D" parent="@Node2D@8947123" unique_id=620603515]
+position = Vector2(144, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945748" type="Node2D" parent="@Node2D@8947123" unique_id=820618302]
+position = Vector2(-144, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947136" type="Node2D" parent="." unique_id=949700773]
+position = Vector2(88, 222)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-16, -8, 16, -8, 16, 8, -16, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945749" type="Node2D" parent="@Node2D@8947136" unique_id=52138427]
+position = Vector2(-16, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945750" type="Node2D" parent="@Node2D@8947136" unique_id=1494955288]
+position = Vector2(16, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945751" type="Node2D" parent="@Node2D@8947136" unique_id=733034666]
+position = Vector2(16, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945752" type="Node2D" parent="@Node2D@8947136" unique_id=346300115]
+position = Vector2(-16, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947149" type="Node2D" parent="." unique_id=1661400095]
+position = Vector2(300, 222)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-140, -8, 140, -8, 140, 8, -140, 8)
+auto_seed_points = false
+
+[node name="@Node2D@8945753" type="Node2D" parent="@Node2D@8947149" unique_id=1615211101]
+position = Vector2(-140, -8)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945754" type="Node2D" parent="@Node2D@8947149" unique_id=1027176291]
+position = Vector2(140, -8)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945755" type="Node2D" parent="@Node2D@8947149" unique_id=1357117472]
+position = Vector2(140, 8)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945756" type="Node2D" parent="@Node2D@8947149" unique_id=859154404]
+position = Vector2(-140, 8)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947162" type="Node2D" parent="." unique_id=394940000]
+position = Vector2(-280, 226)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-160, -4, 160, -4, 160, 4, -160, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945757" type="Node2D" parent="@Node2D@8947162" unique_id=1242576892]
+position = Vector2(-160, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945758" type="Node2D" parent="@Node2D@8947162" unique_id=310331164]
+position = Vector2(160, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945759" type="Node2D" parent="@Node2D@8947162" unique_id=1743660978]
+position = Vector2(160, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945760" type="Node2D" parent="@Node2D@8947162" unique_id=1916738343]
+position = Vector2(-160, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947175" type="Node2D" parent="." unique_id=904964772]
+position = Vector2(-284, 242)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-156, -12, 156, -12, 156, 12, -156, 12)
+auto_seed_points = false
+
+[node name="@Node2D@8945761" type="Node2D" parent="@Node2D@8947175" unique_id=324158457]
+position = Vector2(-156, -12)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945762" type="Node2D" parent="@Node2D@8947175" unique_id=1374240461]
+position = Vector2(156, -12)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945763" type="Node2D" parent="@Node2D@8947175" unique_id=444219263]
+position = Vector2(156, 12)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945764" type="Node2D" parent="@Node2D@8947175" unique_id=1800924662]
+position = Vector2(-156, 12)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947188" type="Node2D" parent="." unique_id=159824198]
+position = Vector2(84, 234)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945765" type="Node2D" parent="@Node2D@8947188" unique_id=1295047284]
+position = Vector2(-12, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945766" type="Node2D" parent="@Node2D@8947188" unique_id=771467302]
+position = Vector2(12, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945767" type="Node2D" parent="@Node2D@8947188" unique_id=1006429795]
+position = Vector2(12, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945768" type="Node2D" parent="@Node2D@8947188" unique_id=1709067270]
+position = Vector2(-12, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947201" type="Node2D" parent="." unique_id=827951639]
+position = Vector2(296, 234)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-144, -4, 144, -4, 144, 4, -144, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945769" type="Node2D" parent="@Node2D@8947201" unique_id=1631617439]
+position = Vector2(-144, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945770" type="Node2D" parent="@Node2D@8947201" unique_id=670133341]
+position = Vector2(144, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945771" type="Node2D" parent="@Node2D@8947201" unique_id=287471816]
+position = Vector2(144, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945772" type="Node2D" parent="@Node2D@8947201" unique_id=1635446711]
+position = Vector2(-144, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947214" type="Node2D" parent="." unique_id=2136058275]
+position = Vector2(88, 242)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945773" type="Node2D" parent="@Node2D@8947214" unique_id=415874734]
+position = Vector2(-8, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945774" type="Node2D" parent="@Node2D@8947214" unique_id=1458951755]
+position = Vector2(8, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945775" type="Node2D" parent="@Node2D@8947214" unique_id=250500667]
+position = Vector2(8, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945776" type="Node2D" parent="@Node2D@8947214" unique_id=912951008]
+position = Vector2(-8, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947227" type="Node2D" parent="." unique_id=1505324377]
+position = Vector2(300, 242)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-140, -4, 140, -4, 140, 4, -140, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945777" type="Node2D" parent="@Node2D@8947227" unique_id=1777511379]
+position = Vector2(-140, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945778" type="Node2D" parent="@Node2D@8947227" unique_id=1730676418]
+position = Vector2(140, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945779" type="Node2D" parent="@Node2D@8947227" unique_id=1400372825]
+position = Vector2(140, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945780" type="Node2D" parent="@Node2D@8947227" unique_id=403464195]
+position = Vector2(-140, 4)
+script = ExtResource("5_ndmri")
+idx = 3
+
+[node name="@Node2D@8947240" type="Node2D" parent="." unique_id=1421048646]
+position = Vector2(292, 250)
+script = ExtResource("4_ndmri")
+points = PackedVector2Array(-148, -4, 148, -4, 148, 4, -148, 4)
+auto_seed_points = false
+
+[node name="@Node2D@8945781" type="Node2D" parent="@Node2D@8947240" unique_id=1256061653]
+position = Vector2(-148, -4)
+script = ExtResource("5_ndmri")
+
+[node name="@Node2D@8945782" type="Node2D" parent="@Node2D@8947240" unique_id=2016568237]
+position = Vector2(148, -4)
+script = ExtResource("5_ndmri")
+idx = 1
+
+[node name="@Node2D@8945783" type="Node2D" parent="@Node2D@8947240" unique_id=559092565]
+position = Vector2(148, 4)
+script = ExtResource("5_ndmri")
+idx = 2
+
+[node name="@Node2D@8945784" type="Node2D" parent="@Node2D@8947240" unique_id=1730723687]
+position = Vector2(-148, 4)
+script = ExtResource("5_ndmri")
+idx = 3
