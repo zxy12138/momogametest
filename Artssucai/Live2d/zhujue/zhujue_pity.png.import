@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b61jmhc8p6vlx"
-path="res://.godot/imported/momo_anger.png-a680bd9db4a2f3f85126b748d0eead49.ctex"
+uid="uid://cg3x7qsr8ti72"
+path="res://.godot/imported/zhujue_pity.png-7fab37b34d5678e33c89afff7efb3c2f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Artssucai/Live2d/momo_anger.png"
-dest_files=["res://.godot/imported/momo_anger.png-a680bd9db4a2f3f85126b748d0eead49.ctex"]
+source_file="res://Artssucai/Live2d/zhujue/zhujue_pity.png"
+dest_files=["res://.godot/imported/zhujue_pity.png-7fab37b34d5678e33c89afff7efb3c2f.ctex"]
 
 [params]
 

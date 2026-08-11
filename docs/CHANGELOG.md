@@ -1445,3 +1445,19 @@ RoomLayoutEditor 是**编辑器专用工具场景**，其下子节点（含拖�
 ## 修复·2026-08-09（f1_r2 解析错误 + 出生"在中心"真根因）
 1. **f1_r2.tscn 解析错误**：rollback_last.py 删 ext_resource 但节点块没删干净（有 unique_id 正则未匹配）→ Light_A/B/C/Spawn 引用不存在的 mask_1/lflk_1/7_spawn_1 → 解析崩溃。修复：截断尾部残留节点块，47 节点 + 5 ext_resource，引用完整。
 2. **出生"在中心"真根因（rid 跨层撞名）**：`Game._swap` 门查找 `entry_door_position(prev_rid)`——用户从 f1_r1（rid="r1"）跳 f3_r0 时 prev_rid="r1"，f3_r0 恰好有 `Door_r1`（target="r1" 指向层3的 r1）→ 误匹配 → 出生在门位置 (96,-21)（屏幕中央偏右）。从 f2_r7 跳正常（prev_rid="r7" 无匹配门）。**修复**：加 `_crossed_layer` 标志（`_switch_floor`/`_go_next_layer`/`_enter_completed_state` 置 true，`_swap` 守卫 + 消费）——跨层跳转不用 prev_rid 查门，同层过门不受影响。
+
+## 新增·2026-08-11（Galgame 对话框系统 v4.0 §5.0 + 第一关接入）
+- **新组件 `src/ui/GalgameDialog.gd`**：底部半透明对话框（名字框+打字机正文 46 字/秒）、立绘双槽（左 momo/右 zhujue，说话人全亮、非说话人置灰 0.30）、交互（点击/回车逐句、长按快进 320 字/秒、ESC 跳过整段）、`play(lines, on_finish)` 台词表驱动 + finished 信号。挂 CanvasLayer。
+- **Game.gd 接入**：
+  1. `_play_prologue` 升级为 GalgameDialog——v4.0 §5.2 弥绘苏醒对话 4 句（momo_happy→pity→pity→anger 立绘），finished→_end_prologue；删除旧固定文字+3.4s 定时版 `_show_prologue_dialogue`。
+  2. `_play_boss_intro_dialogue`——进未清 f1_r7 触发"末班车……是 Boss！"（锁输入+冻结敌人，结束解锁解冻）。
+  3. `_create_galgame_dialog` 统一入口 + `_galgame_active` 标志（演出中 _unhandled_input return，ESC 不弹暂停）。
+- **立绘**：assets/Live2d/momo/{happy,anger,pity}.png (949×1895) + zhujue/pity.png (1152×1542)，preload 常量。
+- **演出节点**：Prologue 苏醒 + f1_r7 Boss 前。Boss 击败过场/关末转场留待后续。
+- **坑**：GalgameDialog `_advance` else 缩进漏层（语法错误）；立绘锚点 preset 后需 custom_minimum_size 否则宽度坍缩。
+
+## 更新·2026-08-11（弥果卷改名 + 对话立绘 + 武器延迟出现 + 会话日志机制）
+1. **称呼改名**：momo 粉丝牌名=弥果卷。文档 §角色设定补注（弥绘对粉丝称呼用弥果卷）、§5.2 与 §六对话总表「梦主」→「弥果卷」；游戏 `_play_prologue` 台词同步（7 句），src 内零「梦主」残留。
+2. **对话双立绘**：Prologue 台词左右立绘同框（左弥绘 momo / 右弥果卷 zhujue=ZHUJUE_PITY），弥果卷梦呓句 role="zhujue" 右侧高亮。
+3. **武器延迟出现**：`GameManager.prologue_dialog_active` 标志；`RoomManager._spawn_weapons` 守卫（prologue_pending or prologue_dialog_active 时跳过——时序：_swap/setup 先于 _play_prologue，此时 prologue_pending 仍 true）；新增 `spawn_weapons_now()`；`_end_prologue` 清标志并触发（弥绘「倒出 3 把武器」，f1_r1 正好 3 个 WeaponHandle）。
+4. **会话日志机制**：新增 `docs/会话日志.md`，每次对话后追加需求+完成内容+改动文件；约定固化到 MEMORY.md（用户要求必守）。

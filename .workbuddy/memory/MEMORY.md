@@ -1,5 +1,9 @@
 # 项目长期记忆 · 《梦境逐影》Godot 4.7.1（已精简）
 
+## 用户约定（必守）
+- **每次对话结束后必须把对话内容与所做工作追加写入 `docs/会话日志.md`**（用户明确要求）。
+- 称呼规范：momo（弥绘貘貘/虚拟主播）的粉丝牌名叫**弥果卷**；弥绘称呼粉丝时用「弥果卷」不用「梦主」。「梦主」仅用于角色设定/叙述（设定处已注明粉丝牌名）。
+
 ## 架构
 - 入口：Main→Intro(视频)→Prologue(剧情)→Game→(3层Boss后)Epilogue→Game(通关态)→Main。
 - Autoload：GameManager(全局状态/成长/瞬态标志 prologue_pending·game_completed)、SaveManager(user://save.json)、MapData(房间状态机)。

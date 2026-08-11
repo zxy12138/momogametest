@@ -43,6 +43,10 @@ var dev_mode := false        # 开发者模式：地图内选层跳关（F2 切�
 # 「继续」/「死亡重开」不设置，因此不会重播开场。
 var prologue_pending := false
 
+# 苏醒对话（Galgame）播放中：地面武器延迟到对话结束后才出现（v4.0 §5.2「倒出3把武器」）。
+# 由 Game._play_prologue 置 true、_end_prologue 清 false。
+var prologue_dialog_active := false
+
 # 通关标志：第3层Boss被击败后置 true，进入 Epilogue 剧情场景；
 # 回到 Game._ready 时由 _enter_completed_state 消费并清零，触发「通关状态」UI。
 var game_completed := false

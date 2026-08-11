@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cmk2bb74kj5g8"
-path="res://.godot/imported/momo_happy.png-14c2c4e8dc624604ff32c155d84a44ce.ctex"
+uid="uid://bxra1erujmr3d"
+path="res://.godot/imported/momo_pity.png-c9944ada0d7f241bc3b794da32f9f42c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Artssucai/Live2d/momo_happy.png"
-dest_files=["res://.godot/imported/momo_happy.png-14c2c4e8dc624604ff32c155d84a44ce.ctex"]
+source_file="res://Artssucai/Live2d/momo/momo_pity.png"
+dest_files=["res://.godot/imported/momo_pity.png-c9944ada0d7f241bc3b794da32f9f42c.ctex"]
 
 [params]
 

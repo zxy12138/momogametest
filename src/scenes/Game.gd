@@ -12,6 +12,11 @@ const EPILOGUE = preload("res://src/scenes/Epilogue.tscn")
 # 因此这里用 preload 拿脚本引用来 new()，类型统一按 Node2D 处理（成员走 call/get/set），
 # 避免解析期依赖全局类型「WeaponPickup」导致 Parse Error。
 const WeaponPickupScript := preload("res://src/weapons/WeaponPickup.gd")
+# Galgame 演出立绘（v4.0 §5.0）：弥绘 3 表情差分 + 粉丝剪影
+const MOMO_HAPPY := preload("res://assets/Live2d/momo/momo_happy.png")
+const MOMO_ANGER := preload("res://assets/Live2d/momo/momo_anger.png")
+const MOMO_PITY := preload("res://assets/Live2d/momo/momo_pity.png")
+const ZHUJUE_PITY := preload("res://assets/Live2d/zhujue/zhujue_pity.png")
 
 var _room: Node = null
 var _crossed_layer := false   ## 跨层标志：_switch_floor/_go_next_layer 置 true；_swap 消费后置 false。跨层时 rid 撞名不能用 prev_rid 查门
@@ -36,8 +41,8 @@ var _completion_overlay: Control = null
 
 # ============ 开场序列 / 场景内武器拾取 ============
 var _prologue_active := false
-var _prologue_bubble: Control = null
-var _prologue_end_timer: SceneTreeTimer = null
+var _galgame_dialog: GalgameDialog = null   ## 当前 Galgame 对话框（Prologue / Boss 前演出）
+var _galgame_active := false                ## Galgame 演出进行中（锁输入，ESC 不弹暂停）
 var _near_pickup: Node2D = null
 var _pickups: Array[Node2D] = []
 var _pickup_panel: Panel = null
@@ -296,6 +301,10 @@ func _swap(rid: String) -> void:
 		spawn_pos += (Vector2.ZERO - spawn_pos).normalized() * 70.0
 	p.global_position = anchor.global_position + spawn_pos
 	p.reset_ult()
+	# 第一关 Boss 前 Galgame 演出（v4.0 §5.3）：进入未清的 f1_r7 时触发（弥绘台词 + 立绘）
+	if type == "boss" and GameManager.layer_index == 1 \
+			and not GameManager.boss_cleared.get(1, false):
+		_play_boss_intro_dialogue()
 	# DEBUG：打印真实出生坐标 + 房间锚点 + 玩家最终位置，方便排查"在中心"问题
 	print("[SPAWN DEBUG] rid=%s from_door=%s spawn_pos=%s anchor.global_position=%s player.global_position=%s focus=%s" % [rid, from_door, spawn_pos, anchor.global_position, p.global_position, _room.global_position if _room else Vector2.ZERO])
 	# 武器掉落完全由房间场景里的 WeaponHandle 定义（RoomManager._spawn_weapons），程序不再随机生成。
@@ -530,7 +539,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _prologue_active:
+	if _prologue_active or _galgame_active:
 		return
 	# 通关状态：ESC 强制返回主菜单，不弹暂停菜单（玩家只剩这一条出路）
 	if _completed_state_active and event.is_action_pressed("ui_cancel"):
@@ -648,57 +657,65 @@ func dev_goto_layer(l: int) -> void:
 # ============ 开场序列（醒来独白，居中跟随，无放大） ============
 func _play_prologue() -> void:
 	_prologue_active = true
+	GameManager.prologue_dialog_active = true   # 对话中：地面武器延迟出现（§5.2 弥绘倒出武器）
 	_set_gm_locked(true)
-	# 开场不再拉近放大（保留居中与对话框）。相机由 _update_camera 每帧居中跟随玩家。
-	# 0.5s 后弹出对话框（屏幕空间，固定可读）；序列总时长 3.4s 后自动结束（或按 ESC 跳过）
-	get_tree().create_timer(0.5).timeout.connect(_show_prologue_dialogue)
-	_prologue_end_timer = get_tree().create_timer(3.4)
-	_prologue_end_timer.timeout.connect(_end_prologue)
+	print("[GALGAME] _play_prologue 触发")
+	# v4.0 §5.2 苏醒对话（文档最新版）：Galgame 对话框 + 弥绘立绘 + 弥果卷立绘
+	# （打字机逐句，点击/回车推进，ESC 跳过）。momo=弥绘左槽、zhujue=弥果卷右槽。
+	# 最后两句是旁白（narration=true）：只显示名字、不显示立绘——两槽立绘全部隐藏。
+	_create_galgame_dialog([
+		{ "name": "弥绘", "role": "momo", "text": "……这里是……梦？怎么这么真实。等等——", "portrait_left": MOMO_HAPPY, "portrait_right": ZHUJUE_PITY },
+		{ "name": "弥绘", "role": "momo", "text": "啊！你……你是今天的弥果卷！喂，醒醒——！", "portrait_left": MOMO_HAPPY, "portrait_right": ZHUJUE_PITY },
+		{ "name": "弥果卷", "role": "zhujue", "text": "呜~我要上班，我要赚米给momo打钱。呜~", "portrait_left": MOMO_HAPPY, "portrait_right": ZHUJUE_PITY },
+		{ "name": "弥绘", "role": "momo", "text": "（弥果卷没反应，只是发出梦呓）……糟糕，是‘魂被拖走了’的状态。", "portrait_left": MOMO_PITY, "portrait_right": ZHUJUE_PITY },
+		{ "name": "弥绘", "role": "momo", "text": "身体还在，但灵魂不在。这是……噩梦核把灵魂锁在深处了。放着不管的话，你可能再也做不了美梦了。", "portrait_left": MOMO_PITY, "portrait_right": ZHUJUE_PITY },
+		{ "name": "弥绘", "role": "momo", "text": "……没办法，谁让你是我的粉丝呢。我带你去把魂找回来——走，去把这场噩梦，一口吃掉！", "portrait_left": MOMO_ANGER, "portrait_right": ZHUJUE_PITY },
+		{ "name": "弥绘", "role": "momo", "text": "是时候使用我的梦境武器了。", "portrait_left": MOMO_ANGER, "portrait_right": ZHUJUE_PITY },
+		{ "name": "旁白", "narration": true, "text": "弥绘拿出了自己的口袋（梦境收纳袋），然后往外倒，3把武器掉落在了地上然后放大。" },
+		{ "name": "旁白", "narration": true, "text": "弥绘把粉丝的本体收进自己的口袋（梦境收纳袋），拍了拍口袋，推开出租屋的门。门外不是走廊，而是一条延伸到黑暗里的公路。" },
+	], _end_prologue)
 
 
-func _show_prologue_dialogue() -> void:
-	if not _prologue_active:
-		return
-	# 对话框挂在屏幕空间 UI 层（CanvasLayer），不随相机 3.4 倍放大而变形/偏移，
-	# 始终居中可读。这是项目既定 UI 规范（HUD/提示/转场都走 _ui_layer）。
-	var box := Control.new()
-	box.name = "PrologueBubble"
-	_ui_layer.add_child(box)
-	var vsize := get_window().get_visible_rect().size
-	var bw := 520.0
-	var bh := 64.0
-	box.position = Vector2((vsize.x - bw) / 2.0, vsize.y - bh - 60.0)
-	var bg := ColorRect.new()
-	bg.color = Color(0.07, 0.05, 0.14, 0.92)
-	bg.size = Vector2(bw, bh)
-	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(bg)
-	var lab := Label.new()
-	lab.text = "我醒来了，这是在哪……"
-	lab.position = Vector2(16, 10)
-	lab.size = Vector2(bw - 32.0, bh - 20.0)
-	lab.add_theme_font_size_override("font_size", 20)
-	lab.add_theme_color_override("font_color", Color(1, 1, 1))
-	lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	lab.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	box.add_child(lab)
-	_prologue_bubble = box
+## 新建并播放一段 Galgame 对话（挂屏幕空间 _ui_layer；finished 后自动释放）。
+func _create_galgame_dialog(lines: Array[Dictionary], on_finish: Callable = Callable()) -> void:
+	_galgame_active = true
+	var dlg := GalgameDialog.new()
+	_ui_layer.add_child(dlg)
+	_galgame_dialog = dlg
+	print("[GALGAME] 对话框已创建，句数=%d" % lines.size())
+	# 包装回调：先清 active 标志（ESC 不再弹暂停），再执行调用方回调
+	dlg.play(lines, func() -> void:
+		_galgame_active = false
+		_galgame_dialog = null
+		if on_finish.is_valid():
+			on_finish.call())
+
+
+## 第一关 Boss 前演出（v4.0 §5.3）：进入未清的 f1_r7 时触发。
+func _play_boss_intro_dialogue() -> void:
+	_set_gm_locked(true)
+	_freeze_world(true)   # 演出期间冻结敌人，避免 Boss 入场后打正在看对话的玩家
+	_create_galgame_dialog([
+		{ "name": "弥绘", "role": "momo", "text": "末班车……？都这个点了还通车……不对，这感觉——是 Boss！", "portrait_left": MOMO_HAPPY },
+	], func() -> void:
+		_set_gm_locked(false)
+		_freeze_world(false))
 
 
 func _end_prologue() -> void:
 	if not _prologue_active:
 		return
 	_prologue_active = false
-	if is_instance_valid(_prologue_end_timer):
-		if _prologue_end_timer.is_connected("timeout", _end_prologue):
-			_prologue_end_timer.timeout.disconnect(_end_prologue)
-		_prologue_end_timer = null
-	# 序列/对话结束：移除对话框，解锁输入。相机继续由 _update_camera 居中跟随。
-	# 起始武器由房间场景里的 WeaponHandle 定义（RoomManager._spawn_weapons 生成）。
-	if is_instance_valid(_prologue_bubble):
-		_prologue_bubble.queue_free()
-		_prologue_bubble = null
+	_galgame_active = false   # ESC 跳过路径：对话框被 queue_free，不触发 finished 回调，需手动清标志
+	GameManager.prologue_dialog_active = false   # 对话结束 → 允许地面武器出现
+	# 释放 Galgame 对话框（finished 已由组件触发，这里只做清理兜底）
+	if is_instance_valid(_galgame_dialog):
+		_galgame_dialog.queue_free()
+		_galgame_dialog = null
 	_set_gm_locked(false)
+	# v4.0 §5.2：弥绘「倒出 3 把武器」——对话结束才生成地面武器（开局武器延迟出现）
+	if _room != null and is_instance_valid(_room) and _room.has_method("spawn_weapons_now"):
+		_room.call("spawn_weapons_now")
 
 
 func _player_camera() -> Camera2D:

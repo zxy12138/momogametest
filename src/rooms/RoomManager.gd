@@ -444,6 +444,11 @@ func _point_in_polygon(p: Vector2, pts: PackedVector2Array) -> bool:
 ## 手柄在编辑器里显示一种武器样子作为"掉落位"预览；运行期从 8 把武器池随机抽（不重复优先），
 ## 保证每次进房掉落的武器组合不同。大小取手柄 display_scale，位置=手柄位置。
 func _spawn_weapons() -> void:
+	# v4.0 §5.2：开局苏醒对话播放中，地面武器不出现（弥绘对话结束才「倒出 3 把武器」）。
+	# 判断时机：_swap/setup 发生在 _play_prologue 之前 → 此时 prologue_pending 仍为 true（新游戏）；
+	# 对话中 prologue_dialog_active=true；对话结束后 Game._end_prologue 调 spawn_weapons_now() 触发生成。
+	if GameManager.prologue_pending or GameManager.prologue_dialog_active:
+		return
 	if _weapon_handles.size() == 0:
 		return
 	var pool: Array = Weapons.POOL.duplicate()
@@ -459,6 +464,11 @@ func _spawn_weapons() -> void:
 		add_child(pk)
 		if _game != null and _game.has_method("register_pickup"):
 			_game.call("register_pickup", pk)
+
+
+## 对话结束后的公开入口：立即生成地面武器（开局苏醒对话结束调用）。
+func spawn_weapons_now() -> void:
+	_spawn_weapons()
 
 
 ## 场景 NextDoorHandle → 下一层传送门（初始隐藏+禁用；Boss 击败后 Game 调 enable_next_door 启用）。
