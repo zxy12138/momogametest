@@ -1,0 +1,19 @@
+{
+  "source": "cat_ryu_hurricane.mp4",
+  "frameCount": 121,
+  "uniqueFrameCount": 116,
+  "frameSize": {
+    "width": 221,
+    "height": 129
+  },
+  "sourceFrameSize": {
+    "width": 1248,
+    "height": 704
+  },
+  "scale": {
+    "x": 5.65,
+    "y": 5.46
+  },
+  "paletteCount": 23,
+  "palette": "00000006055D2A2334253A2B20400023367993202D76462F7F42606F6A7CD9232F3675FAE86C2EAD8D80DC8C668EA5EDA3C08CFCA548EEB1C3FCD2ADF5D953F0EFF5E0FF20"
+}

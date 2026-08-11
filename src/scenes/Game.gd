@@ -300,7 +300,7 @@ func _swap(rid: String) -> void:
 	if from_door and spawn_pos.length() > 1.0:
 		spawn_pos += (Vector2.ZERO - spawn_pos).normalized() * 70.0
 	p.global_position = anchor.global_position + spawn_pos
-	p.reset_ult()
+	# 武器技能：蓝条自动恢复，无需每房重置（v5.0）
 	# 第一关 Boss 前 Galgame 演出（v4.0 §5.3）：进入未清的 f1_r7 时触发（弥绘台词 + 立绘）
 	if type == "boss" and GameManager.layer_index == 1 \
 			and not GameManager.boss_cleared.get(1, false):

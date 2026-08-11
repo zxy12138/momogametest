@@ -13,6 +13,10 @@ var xp := 0
 var xp_needed := 100
 var max_hp := 100
 var hp := 100
+# ---- 蓝条（技能资源，v5.0）----
+var max_mana := 100.0      # 技能法力上限：任何武器技能释放消耗全部
+var mana := 100.0          # 当前法力，开局满
+var mana_regen := 8.0      # 自动恢复 8/秒（空→满 ≈12.5s，即技能天然冷却周期）
 var crit_rate := 0.05
 var crit_dmg := 150
 var attack_mult := 1.0
@@ -58,6 +62,31 @@ func _ready() -> void:
 	reset_run(START_WEAPON)
 
 
+# 蓝条自动恢复（恒定速率，不因战斗/移动中断）
+func _process(delta: float) -> void:
+	if mana < max_mana:
+		mana = minf(max_mana, mana + mana_regen * delta)
+
+
+## 尝试释放技能：消耗全部蓝条。成功返回 true，蓝不足返回 false。
+func spend_mana() -> bool:
+	if mana < 1.0:
+		return false
+	mana = 0.0
+	emit_signal("stats_changed")
+	return true
+
+
+## 蓝条百分比（0~1，供 HUD 显示）。
+func mana_pct() -> float:
+	return clampf(mana / maxf(1.0, max_mana), 0.0, 1.0)
+
+
+## 技能是否就绪（蓝 ≥ 99%，避免浮点误差）。
+func skill_ready() -> bool:
+	return mana >= max_mana * 0.99
+
+
 # ============ 新游戏 / 死亡重置 ============
 func reset_run(wid: String) -> void:
 	level = 1
@@ -76,6 +105,7 @@ func reset_run(wid: String) -> void:
 	input_locked = false   # 新一局必须解锁输入，否则重开后玩家被卡死（ESC→重新开始 即此坑）
 	compute_stats()
 	hp = max_hp
+	mana = max_mana   # 新开局满蓝（技能即就绪）
 	emit_signal("stats_changed")
 
 
@@ -100,6 +130,7 @@ func apply_death() -> void:
 	weak_window = false
 	compute_stats()
 	hp = max_hp
+	mana = max_mana   # 死亡复活满蓝
 	emit_signal("stats_changed")
 
 
