@@ -47,9 +47,13 @@ func setup(eid: String) -> void:
 	_sprite = get_node("Sprite")
 	var fh: int = _data["fh"]; var fw: int = _data["fw"]
 	var spec := {
-		"idle":   [_data["idle"], fw, fh, _data["fi"], 10],
-		"attack": [_data["attack"], fw, fh, _data["fa"], 12],
+		"idle":   [_data["idle"], fw, fh, _data["fi"], 8],
+		"attack": [_data["attack"], fw, fh, _data["fa"], 14],
 	}
+	if _data.has("walk"):
+		spec["walk"] = [_data["walk"], fw, fh, _data.get("fwk", _data["fi"]), 12]
+	if _data.has("dead"):
+		spec["dead"] = [_data["dead"], fw, fh, _data.get("fd", _data["fa"]), 12]
 	_sprite.sprite_frames = GameManager.make_frames(spec)
 	_sprite.play("idle")
 	_sprite.scale = Vector2(0.45, 0.45)  # 与玩家同比例缩小（玩家 0.28/原 0.6≈0.467，取 0.45），战斗场景人物比例协调；仅视觉，碰撞半径不变
@@ -126,10 +130,16 @@ func _physics_process(delta: float) -> void:
 		if _anim != "attack":
 			_anim = "attack"
 			_sprite.play("attack")
+	elif velocity.length() > 5.0 and _data.has("walk"):
+		# 移动时播走路（有 walk 动画的敌人）
+		if _anim != "walk":
+			_anim = "walk"
+			_sprite.play("walk")
+		_sprite.flip_h = dir.x < 0
 	elif _anim != "idle":
 		_anim = "idle"
 		_sprite.play("idle")
-	_sprite.flip_h = dir.x < 0
+		_sprite.flip_h = dir.x < 0
 
 
 func _shoot(target_pos: Vector2) -> void:
@@ -247,12 +257,22 @@ func _take_burn(d: int) -> void:
 func _die(is_crit: bool) -> void:
 	_dead = true
 	GameManager.on_kill(xp, is_crit)
-	GameManager.fx("res://assets/fx/FX-023_kill_dissolve_effect.png", global_position, 32, 32, 5, 0.4)
 	_drop()
 	velocity = Vector2.ZERO
-	var t := get_tree().create_tween()
-	t.tween_property(self, "modulate:a", 0.0, 0.35)
-	t.tween_callback(queue_free).set_delay(0.35)
+	if _data.has("dead") and _sprite.sprite_frames.has_animation("dead"):
+		# 有逐帧死亡动画：播放后 queue_free
+		_sprite.play("dead")
+		_sprite.connect("animation_finished", _on_dead_finished, CONNECT_ONE_SHOT)
+	else:
+		# 无死亡动画：沿用旧版淡出+溶解
+		GameManager.fx("res://assets/fx/FX-023_kill_dissolve_effect.png", global_position, 32, 32, 5, 0.4)
+		var t := get_tree().create_tween()
+		t.tween_property(self, "modulate:a", 0.0, 0.35)
+		t.tween_callback(queue_free).set_delay(0.35)
+
+
+func _on_dead_finished() -> void:
+	queue_free()
 
 
 func _drop() -> void:

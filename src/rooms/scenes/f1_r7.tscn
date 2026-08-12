@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://dgbmfqficv7rx"]
 
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
-[ext_resource type="Script" path="res://src/rooms/handles/BossHandle.gd" id="3"]
 [ext_resource type="Script" uid="uid://cbkyfb5lc3d3k" path="res://src/rooms/handles/NextDoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://dfb0ay3uvl07g" path="res://assets/tiles/S_001_7.png" id="2_cbbsg"]
 
@@ -23,8 +22,3 @@ stretch_mode = 6
 position = Vector2(305, -150)
 script = ExtResource("2")
 next_layer = 2
-
-[node name="Boss" type="Node2D" parent="."]
-script = ExtResource("3")
-position = Vector2(0, -60)
-boss_type = 0

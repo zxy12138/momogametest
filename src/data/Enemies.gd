@@ -10,6 +10,9 @@ const B = "res://assets/sprites/bosses/"
 
 const DATA = {
 	# ---------- 第一层：午夜办公室 ----------
+	"alarm_clock": {name="闹钟怪物", layer=1, behavior="chase", hp=45, xp=12, speed=55, contact_dmg=14,
+		idle=E1+"idle.png", walk=E1+"walk.png", attack=E1+"attack.png", dead=E1+"dead.png",
+		fw=260, fh=500, fi=4, fwk=6, fa=4, fd=4},
 	"overtime_ghost": {name="加班幽灵", layer=1, behavior="shooter", hp=35, xp=10, speed=60, contact_dmg=12,
 		idle=E1+"M-001_overtime_ghost_walk.png", attack=E1+"M-002_overtime_ghost_throw.png", fw=130, fh=250, fi=4, fa=3,
 		atk_cd=1.6, atk_range=240, proj_dmg=8, proj_speed=210, proj="res://assets/weapons/projectiles/W-020_dream_light_bolt.png", bullet=1},

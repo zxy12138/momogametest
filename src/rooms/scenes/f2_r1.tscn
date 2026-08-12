@@ -24,7 +24,7 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="Door_r2" type="Node2D" parent="." unique_id=1443360490]
-position = Vector2(0, -224)
+position = Vector2(-7, -80)
 script = ExtResource("2")
 target = "r2"
 layer = 2
