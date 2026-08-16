@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://cvnxq3td613kv" path="res://assets/tiles/S_003_1.png" id="2_l3odg"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="4_7tlpj"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_8fk5f"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="5_pgmc3"]
 [ext_resource type="Script" uid="uid://ceaed3quy2f1s" path="res://src/rooms/handles/WeaponHandle.gd" id="6_7tlpj"]
@@ -23,16 +24,26 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="Door_r0" type="Node2D" parent="." unique_id=770541022]
-position = Vector2(142, -66)
+position = Vector2(151, -110)
 script = ExtResource("2")
 target = "r0"
 layer = 3
+door_size = Vector2(156, 78)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r0" unique_id=1809161991]
+position = Vector2(78, 39)
+script = ExtResource("4_7tlpj")
 
 [node name="Door_r2" type="Node2D" parent="." unique_id=1170686847]
-position = Vector2(-340, -85)
+position = Vector2(-333, -128)
 script = ExtResource("2")
 target = "r2"
 layer = 3
+door_size = Vector2(70, 102)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r2" unique_id=1914860429]
+position = Vector2(35, 51)
+script = ExtResource("4_7tlpj")
 
 [node name="Blocked" type="Node2D" parent="." unique_id=1604602660]
 position = Vector2(0, -218)
@@ -337,7 +348,7 @@ idx = 3
 [node name="@Node2D@744599" type="Node2D" parent="." unique_id=1385264080]
 position = Vector2(-116, -54)
 script = ExtResource("4_8fk5f")
-points = PackedVector2Array(-164, -4, 164, -4, 164, 4, -164, 4)
+points = PackedVector2Array(-164, -4, 164, -4, 164, -35, -162, -26)
 auto_seed_points = false
 
 [node name="@Node2D@657346" type="Node2D" parent="@Node2D@744599" unique_id=552342427]
@@ -350,12 +361,12 @@ script = ExtResource("5_pgmc3")
 idx = 1
 
 [node name="@Node2D@657352" type="Node2D" parent="@Node2D@744599" unique_id=828606604]
-position = Vector2(164, 4)
+position = Vector2(164, -35)
 script = ExtResource("5_pgmc3")
 idx = 2
 
 [node name="@Node2D@657355" type="Node2D" parent="@Node2D@744599" unique_id=503772193]
-position = Vector2(-164, 4)
+position = Vector2(-162, -26)
 script = ExtResource("5_pgmc3")
 idx = 3
 

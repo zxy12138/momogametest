@@ -7,6 +7,8 @@ class_name NextDoorHandle
 ## next_layer=0 时自动取当前层+1；层3 Boss 用结局流程则不摆此手柄。
 
 @export var next_layer: int = 0
+## 传送门判定框尺寸（运行期 Area2D 碰撞框 = 该尺寸；编辑器里可视化显示可拖对齐）
+@export var door_size: Vector2 = Vector2(48, 48)
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
@@ -18,22 +20,40 @@ func _ready() -> void:
 func _redraw() -> void:
 	for c in get_children():
 		c.queue_free()
-	var door_tex := load("res://assets/tiles/T-003_door_frame_open_anim.png") as Texture2D
+	# 门框贴图（素材暂缺，用 exists 守卫避免 load 失败报错；素材准备好后放到该路径即自动生效）
+	var door_tex: Texture2D = null
+	if ResourceLoader.exists("res://assets/tiles/chuansongmen.png"):
+		door_tex = load("res://assets/tiles/chuansongmen.png") as Texture2D
 	if door_tex != null:
 		var ds := door_tex.get_size()
-		var fw := ds.x / 4.0
+		var fw := ds.x   # 单图（chuansongmen.png），不再 4 帧分割
 		var dw := 96.0 * fw / ds.y
 		var spr := Sprite2D.new()
 		spr.texture = door_tex
-		spr.hframes = 4
+		spr.hframes = 1
 		spr.frame = 0
 		spr.scale = Vector2(dw / fw, 96.0 / ds.y)
 		spr.z_index = 90
 		add_child(spr)
-	var lab := Label.new()
-	lab.text = "↑ 下一层"
-	lab.position = Vector2(-34, -62)
-	lab.add_theme_font_size_override("font_size", 16)
-	lab.add_theme_color_override("font_color", Color(1.0, 0.95, 0.7))
-	lab.z_index = 91
-	add_child(lab)
+	# 场景文字已去除（2026-08-16）：不显示「↑ 下一层」标签，仅保留门框贴图 + 判定框。
+	# 传送门判定框可视化（金色半透明矩形 + 边框）：与运行期 _build_next_door 生成的
+	# Area2D 判定范围一致，让用户在编辑器里直接看到/调整门的碰撞范围（所见即所得）。
+	var half_w := door_size.x * 0.5
+	var half_h := door_size.y * 0.5
+	var poly := Polygon2D.new()
+	poly.polygon = PackedVector2Array([
+		Vector2(-half_w, -half_h), Vector2(half_w, -half_h),
+		Vector2(half_w, half_h), Vector2(-half_w, half_h),
+	])
+	poly.color = Color(1.0, 0.85, 0.3, 0.30)
+	poly.z_index = 89
+	add_child(poly)
+	var frame := Line2D.new()
+	frame.points = PackedVector2Array([
+		Vector2(-half_w, -half_h), Vector2(half_w, -half_h),
+		Vector2(half_w, half_h), Vector2(-half_w, half_h), Vector2(-half_w, -half_h),
+	])
+	frame.width = 2
+	frame.default_color = Color(1.0, 0.85, 0.3, 0.95)
+	frame.z_index = 89
+	add_child(frame)

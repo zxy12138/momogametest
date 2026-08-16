@@ -4,7 +4,10 @@
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://dla3sbt15mcfs" path="res://assets/tiles/S_001_2.png" id="2_wfmob"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_bmpyr"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="4_x6t6f"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="5_x6t6f"]
+[ext_resource type="PackedScene" uid="uid://207jn7d244y7" path="res://assets/tiles/Dynamic_objects/dianti.tscn" id="7_negf8"]
+[ext_resource type="Script" uid="uid://da124w81aw0i5" path="res://src/rooms/handles/EnemyHandle.gd" id="8_x1gl1"]
 
 [node name="Room" type="Node2D" unique_id=2108999853]
 script = ExtResource("1")
@@ -22,41 +25,56 @@ stretch_mode = 6
 metadata/_edit_lock_ = true
 
 [node name="Door_r1" type="Node2D" parent="." unique_id=1984182860]
-position = Vector2(-4, -123)
+position = Vector2(0, -144)
 script = ExtResource("2")
 target = "r1"
+door_size = Vector2(46, 80)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r1" unique_id=613267939]
+position = Vector2(23, 40)
+script = ExtResource("4_x6t6f")
 
 [node name="Door_r3" type="Node2D" parent="." unique_id=1719872043]
-position = Vector2(-372, -4)
+position = Vector2(-363, -3)
 script = ExtResource("2")
 target = "r3"
+door_size = Vector2(70, 78)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r3" unique_id=1110469747]
+position = Vector2(35, 39)
+script = ExtResource("4_x6t6f")
 
 [node name="Door_r4" type="Node2D" parent="." unique_id=835136831]
-position = Vector2(372, -1)
+position = Vector2(376, -1)
 script = ExtResource("2")
 target = "r4"
+door_size = Vector2(68, 74)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r4" unique_id=946773849]
+position = Vector2(34, 37)
+script = ExtResource("4_x6t6f")
 
 [node name="Blocked" type="Node2D" parent="." unique_id=184238432]
-position = Vector2(-260, 116)
+position = Vector2(8.5, 146.5)
 script = ExtResource("4_bmpyr")
-points = PackedVector2Array(-68, -11, 612, -11, 710, 72, -180, 72)
+points = PackedVector2Array(-336.5, -41.5, 343.5, -41.5, 441.5, 41.5, -448.5, 41.5)
 
 [node name="@Node2D@39363" type="Node2D" parent="Blocked" unique_id=1968257710]
-position = Vector2(-68, -11)
+position = Vector2(-336.5, -41.5)
 script = ExtResource("5_x6t6f")
 
 [node name="@Node2D@39366" type="Node2D" parent="Blocked" unique_id=504286265]
-position = Vector2(612, -11)
+position = Vector2(343.5, -41.5)
 script = ExtResource("5_x6t6f")
 idx = 1
 
 [node name="@Node2D@39369" type="Node2D" parent="Blocked" unique_id=1738454851]
-position = Vector2(710, 72)
+position = Vector2(441.5, 41.5)
 script = ExtResource("5_x6t6f")
 idx = 2
 
 [node name="@Node2D@94746" type="Node2D" parent="Blocked" unique_id=935535691]
-position = Vector2(-180, 72)
+position = Vector2(-448.5, 41.5)
 script = ExtResource("5_x6t6f")
 idx = 3
 
@@ -85,26 +103,26 @@ script = ExtResource("5_x6t6f")
 idx = 3
 
 [node name="Blocked_3" type="Node2D" parent="." unique_id=1950885654]
-position = Vector2(-133.09625, -37.166737)
+position = Vector2(-204.5, -155.5)
 script = ExtResource("4_bmpyr")
-points = PackedVector2Array(101.09625, -170.83327, 107.09625, -64.83327, -194.90375, -66.83327, -298.90375, -170.83327)
+points = PackedVector2Array(172.5, -52.5, 178.5, 53.5, -123.5, 51.5, -227.5, -52.5)
 
 [node name="@Node2D@40889" type="Node2D" parent="Blocked_3" unique_id=2139281540]
-position = Vector2(101.09625, -170.83327)
+position = Vector2(172.5, -52.5)
 script = ExtResource("5_x6t6f")
 
 [node name="@Node2D@40892" type="Node2D" parent="Blocked_3" unique_id=956216422]
-position = Vector2(107.09625, -64.83327)
+position = Vector2(178.5, 53.5)
 script = ExtResource("5_x6t6f")
 idx = 1
 
 [node name="@Node2D@40895" type="Node2D" parent="Blocked_3" unique_id=1028152228]
-position = Vector2(-194.90375, -66.83327)
+position = Vector2(-123.5, 51.5)
 script = ExtResource("5_x6t6f")
 idx = 2
 
 [node name="@Node2D@355673" type="Node2D" parent="Blocked_3" unique_id=295160831]
-position = Vector2(-298.90375, -170.83327)
+position = Vector2(-227.5, -52.5)
 script = ExtResource("5_x6t6f")
 idx = 3
 
@@ -133,107 +151,134 @@ script = ExtResource("5_x6t6f")
 idx = 3
 
 [node name="Blocked_5" type="Node2D" parent="." unique_id=255171034]
-position = Vector2(160, 56)
+position = Vector2(397.1408, 89.5504)
 script = ExtResource("4_bmpyr")
-points = PackedVector2Array(186.14082, -28.449604, 286.1408, -8.449604, 290.14084, 128.5504, 186.14082, 42.550396)
+points = PackedVector2Array(-51, -62, 48.999985, -42, 53.000015, 95, -51, 9)
 
 [node name="@Node2D@634137" type="Node2D" parent="Blocked_5" unique_id=1074238313]
-position = Vector2(186.14082, -28.449604)
+position = Vector2(-51, -62)
 script = ExtResource("5_x6t6f")
 
 [node name="@Node2D@634140" type="Node2D" parent="Blocked_5" unique_id=1360872519]
-position = Vector2(286.1408, -8.449604)
+position = Vector2(48.999985, -42)
 script = ExtResource("5_x6t6f")
 idx = 1
 
 [node name="@Node2D@634143" type="Node2D" parent="Blocked_5" unique_id=1631228079]
-position = Vector2(290.14084, 128.5504)
+position = Vector2(53.000015, 95)
 script = ExtResource("5_x6t6f")
 idx = 2
 
 [node name="@Node2D@646004" type="Node2D" parent="Blocked_5" unique_id=1083270515]
-position = Vector2(186.14082, 42.550396)
+position = Vector2(-51, 9)
 script = ExtResource("5_x6t6f")
 idx = 3
 
 [node name="Blocked_6" type="Node2D" parent="." unique_id=378599540]
-position = Vector2(-280, 60)
+position = Vector2(-380, 83.5)
 script = ExtResource("4_bmpyr")
-points = PackedVector2Array(-48, -28, -47.999992, 45, -152, 104, -152, -27)
+points = PackedVector2Array(52, -51.5, 52.000008, 21.5, -52, 80.5, -52, -50.5)
 
 [node name="@Node2D@747959" type="Node2D" parent="Blocked_6" unique_id=1511056733]
-position = Vector2(-48, -28)
+position = Vector2(52, -51.5)
 script = ExtResource("5_x6t6f")
 
 [node name="@Node2D@747962" type="Node2D" parent="Blocked_6" unique_id=1660770477]
-position = Vector2(-47.999992, 45)
+position = Vector2(52.000008, 21.5)
 script = ExtResource("5_x6t6f")
 idx = 1
 
 [node name="@Node2D@747965" type="Node2D" parent="Blocked_6" unique_id=417931250]
-position = Vector2(-152, 104)
+position = Vector2(-52, 80.5)
 script = ExtResource("5_x6t6f")
 idx = 2
 
 [node name="@Node2D@755447" type="Node2D" parent="Blocked_6" unique_id=970204965]
-position = Vector2(-152, -27)
+position = Vector2(-52, -50.5)
 script = ExtResource("5_x6t6f")
 idx = 3
 
 [node name="Blocked_7" type="Node2D" parent="." unique_id=1804277743]
-position = Vector2(-61.245636, -68.043465)
+position = Vector2(-380, -102.5)
 script = ExtResource("4_bmpyr")
-points = PackedVector2Array(-266.75436, 31.043465, -266.75436, -33.956535, -370.75436, -138.95654, -370.75436, 4.0434647)
+points = PackedVector2Array(52, 65.5, 52, 0.5, -52, -104.50001, -52, 38.5)
 
 [node name="@Node2D@749826" type="Node2D" parent="Blocked_7" unique_id=581393167]
-position = Vector2(-266.75436, 31.043465)
+position = Vector2(52, 65.5)
 script = ExtResource("5_x6t6f")
 
 [node name="@Node2D@749829" type="Node2D" parent="Blocked_7" unique_id=942384999]
-position = Vector2(-266.75436, -33.956535)
+position = Vector2(52, 0.5)
 script = ExtResource("5_x6t6f")
 idx = 1
 
 [node name="@Node2D@749832" type="Node2D" parent="Blocked_7" unique_id=1882987975]
-position = Vector2(-370.75436, -138.95654)
+position = Vector2(-52, -104.50001)
 script = ExtResource("5_x6t6f")
 idx = 2
 
 [node name="@Node2D@763408" type="Node2D" parent="Blocked_7" unique_id=102989867]
-position = Vector2(-370.75436, 4.0434647)
+position = Vector2(-52, 38.5)
 script = ExtResource("5_x6t6f")
 idx = 3
 
 [node name="Blocked_8" type="Node2D" parent="." unique_id=823241310]
-position = Vector2(-136.79811, -56.361977)
+position = Vector2(76, 10.666664)
 script = ExtResource("4_bmpyr")
-points = PackedVector2Array(240.79811, 54.361977, 240.79811, 72.36198, 212.79811, 100.36198, 184.79811, 81.36198, 184.79811, 61.361977, 212.79811, 32.361977)
+points = PackedVector2Array(28, -12.666664, 28, 5.333336, 0, 33.333336, -28, 14.333336, -28, -5.666664, 0, -34.666664)
 
 [node name="@Node2D@1303043" type="Node2D" parent="Blocked_8" unique_id=978991345]
-position = Vector2(240.79811, 54.361977)
+position = Vector2(28, -12.666664)
 script = ExtResource("5_x6t6f")
 
 [node name="@Node2D@1303046" type="Node2D" parent="Blocked_8" unique_id=670282853]
-position = Vector2(240.79811, 72.36198)
+position = Vector2(28, 5.333336)
 script = ExtResource("5_x6t6f")
 idx = 1
 
 [node name="@Node2D@1303049" type="Node2D" parent="Blocked_8" unique_id=604283725]
-position = Vector2(212.79811, 100.36198)
+position = Vector2(0, 33.333336)
 script = ExtResource("5_x6t6f")
 idx = 2
 
 [node name="@Node2D@1315456" type="Node2D" parent="Blocked_8" unique_id=1283780622]
-position = Vector2(184.79811, 81.36198)
+position = Vector2(-28, 14.333336)
 script = ExtResource("5_x6t6f")
 idx = 3
 
 [node name="@Node2D@1444421" type="Node2D" parent="Blocked_8" unique_id=855675106]
-position = Vector2(184.79811, 61.361977)
+position = Vector2(-28, -5.666664)
 script = ExtResource("5_x6t6f")
 idx = 4
 
 [node name="@Node2D@1631796" type="Node2D" parent="Blocked_8" unique_id=746151703]
-position = Vector2(212.79811, 32.361977)
+position = Vector2(0, -34.666664)
 script = ExtResource("5_x6t6f")
 idx = 5
+
+[node name="dianti" parent="." unique_id=1104796653 instance=ExtResource("7_negf8")]
+position = Vector2(-444, -250)
+scale = Vector2(0.69375, 0.69374996)
+frame = 4
+frame_progress = 0.8453829
+metadata/_edit_lock_ = true
+
+[node name="Enemy" type="Node2D" parent="." unique_id=1819450318]
+position = Vector2(290, 47)
+script = ExtResource("8_x1gl1")
+
+[node name="Enemy_2" type="Node2D" parent="." unique_id=1640965534]
+position = Vector2(-282, 48)
+script = ExtResource("8_x1gl1")
+
+[node name="Enemy_3" type="Node2D" parent="." unique_id=1222782517]
+position = Vector2(188, 46)
+script = ExtResource("8_x1gl1")
+
+[node name="Enemy_4" type="Node2D" parent="." unique_id=2123774051]
+position = Vector2(247, -53)
+script = ExtResource("8_x1gl1")
+
+[node name="Enemy_5" type="Node2D" parent="." unique_id=1392091800]
+position = Vector2(-86, 52)
+script = ExtResource("8_x1gl1")

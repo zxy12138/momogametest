@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dmfe3pv3ou47y"]
+
+[ext_resource type="SpriteFrames" uid="uid://3imb3umpjouj" path="res://assets/tiles/Dynamic_objects/S_002_1_opendoor.tres" id="1_ymjvc"]
+
+[node name="S_002_1_opendoor" type="AnimatedSprite2D" unique_id=1836730784]
+sprite_frames = ExtResource("1_ymjvc")
+autoplay = "default"
+centered = false

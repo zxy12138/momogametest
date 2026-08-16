@@ -26,11 +26,4 @@ func _redraw() -> void:
 	sq.color = Color(0.95, 0.8, 0.4, 0.4)
 	sq.z_index = 87
 	add_child(sq)
-	var nm: String = scene_path.get_file().get_basename() if scene_path != "" else "(未设置场景)"
-	var lab := Label.new()
-	lab.text = "装饰:" + nm
-	lab.position = Vector2(-18, 10)
-	lab.add_theme_font_size_override("font_size", 11)
-	lab.add_theme_color_override("font_color", Color(0.95, 0.8, 0.4))
-	lab.z_index = 88
-	add_child(lab)
+	# 场景文字已去除（2026-08-16）：不显示「装饰:xx」标签，仅保留方块提示。

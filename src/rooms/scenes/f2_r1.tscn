@@ -3,8 +3,10 @@
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://dvrt2jdmkirg4" path="res://assets/tiles/S_002_1.png" id="2_8eurl"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="4_oiyuf"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_r6f2b"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="5_011cu"]
+[ext_resource type="PackedScene" uid="uid://dmfe3pv3ou47y" path="res://assets/tiles/Dynamic_objects/S_002_1_opendoor.tscn" id="5_cdqm8"]
 [ext_resource type="Script" uid="uid://ceaed3quy2f1s" path="res://src/rooms/handles/WeaponHandle.gd" id="6_du8e4"]
 [ext_resource type="Script" uid="uid://xare6cnk2cgh" path="res://src/rooms/handles/SpawnPointHandle.gd" id="7_spawn"]
 
@@ -24,10 +26,25 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="Door_r2" type="Node2D" parent="." unique_id=1443360490]
-position = Vector2(-7, -80)
+position = Vector2(-2, -97)
 script = ExtResource("2")
 target = "r2"
 layer = 2
+door_size = Vector2(174, 98)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r2" unique_id=1235235505]
+position = Vector2(87, 49)
+script = ExtResource("4_oiyuf")
+
+[node name="Polygon2D" type="Polygon2D" parent="Door_r2" unique_id=363590979]
+clip_children = 1
+position = Vector2(-160, -162)
+scale = Vector2(0.70481926, 0.7142857)
+polygon = PackedVector2Array(75.19658, 109.20001, 75.19658, 406.00003, 385.91455, 407.40002, 384.49573, 109.20001)
+
+[node name="S_002_1_opendoor" parent="Door_r2/Polygon2D" unique_id=1836730784 instance=ExtResource("5_cdqm8")]
+frame = 108
+frame_progress = 0.076816
 
 [node name="Blocked" type="Node2D" parent="." unique_id=1654069912]
 position = Vector2(4, -246)

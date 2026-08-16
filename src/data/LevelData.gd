@@ -24,7 +24,7 @@ const LAYERS = {
 			"r4": {type="combat", pos=[0.38,0.75], neighbors=["r2","r5"], enemies=[["overtime_ghost",2],["kpi",2],["phone",2]]},
 			"r5": {type="elite", pos=[0.58,0.50], neighbors=["r3","r4","r6"], enemies=[["overtime_ghost",3],["printer",2],["meeting",3]]},
 			"r6": {type="inn", pos=[0.78,0.50], neighbors=["r5","r7"], enemies=[]},
-			"r7": {type="boss", pos=[0.95,0.55], neighbors=["r6"], enemies=[], boss="b_director"},
+			"r7": {type="boss", pos=[0.95,0.55], neighbors=["r6"], enemies=[], boss="b_bus"},
 		}
 	},
 	2: {
@@ -37,7 +37,7 @@ const LAYERS = {
 			"r4": {type="combat", pos=[0.38,0.75], neighbors=["r2","r5"], enemies=[["commuter",2],["revolving",2],["package",2]]},
 			"r5": {type="elite", pos=[0.58,0.50], neighbors=["r3","r4","r6"], enemies=[["commuter",3],["rider",2],["revolving",2]]},
 			"r6": {type="inn", pos=[0.78,0.50], neighbors=["r5","r7"], enemies=[]},
-			"r7": {type="boss", pos=[0.95,0.55], neighbors=["r6"], enemies=[], boss="b_train"},
+			"r7": {type="boss", pos=[0.95,0.55], neighbors=["r6"], enemies=[], boss="b_bug"},
 		}
 	},
 	3: {
@@ -51,7 +51,7 @@ const LAYERS = {
 			"r4": {type="combat", pos=[0.38,0.75], neighbors=["r2","r5"], enemies=[["message",2],["overdue",2],["rejected",2]]},
 			"r5": {type="elite", pos=[0.58,0.50], neighbors=["r3","r4","r6"], enemies=[["elite_996",1],["heart_beat",2],["overdue",2]]},
 			"r6": {type="inn", pos=[0.78,0.50], neighbors=["r5","r7"], enemies=[]},
-			"r7": {type="boss", pos=[0.95,0.55], neighbors=["r6"], enemies=[], boss="b_fear", boss_intro_img="res://assets/tiles/S_003_7.png", boss_intro_time=2.5},
+			"r7": {type="boss", pos=[0.95,0.55], neighbors=["r6"], enemies=[], boss="b_pc", boss_intro_img="res://assets/tiles/S_003_7.png", boss_intro_time=2.5},
 		}
 	}
 }
@@ -60,7 +60,7 @@ const LAYERS = {
 # 房="3or4"/"3ro4" 表示 r3 与 r4 平行分支共用一张图（第三关文件名写作 3or4，第二关为 3ro4——以实际文件为准）。
 # 该表为各房间背景的唯一来源；MapData.load_layer 会据此写入 room 的 scene_img，RoomManager 直接取用。
 const TILES = {
-	1: {"r1":"S_001_1", "r2":"S_001_2", "r3":"S_001_3or4", "r4":"S_001_3or4", "r5":"S_001_5", "r6":"S_001_6", "r7":"S_001_7"},
+	1: {"r1":"S_001_1", "r2":"S_001_2", "r3":"S_001_3or4", "r4":"S_001_3or4", "r5":"S_001_5", "r6":"S_001_6_All", "r7":"S_001_7_All"},
 	2: {"r1":"S_002_1", "r2":"S_002_2", "r3":"S_002_3ro4", "r4":"S_002_3ro4", "r5":"S_002_5", "r6":"S_002_6", "r7":"S_002_7"},
 	3: {"r0":"S_003_0", "r1":"S_003_1", "r2":"S_003_2", "r3":"S_003_3or4", "r4":"S_003_3or4", "r5":"S_003_5", "r6":"S_003_6", "r7":"S_003_7_1"},
 }

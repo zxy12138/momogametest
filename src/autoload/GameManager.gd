@@ -41,6 +41,16 @@ var weak_window := false
 var birthday := false
 var input_locked := false   # 驿站/地图/死亡界面时锁输入
 var dev_mode := false        # 开发者模式：地图内选层跳关（F2 切换；不再自动全开地图）
+var god_mode := true         # 无敌模式：血量为 0 也不死亡（测试用，默认开启；游戏内按 F3 切换）
+var debug_full_map := false  # F12 全开地图开关（设置里控制，默认关闭）
+var debug_kill_all := false  # F11 秒杀全屏怪开关（设置里控制，默认关闭）
+var ground_weapons := {}     # 地面武器剩余状态：key="f{层}-{rid}" -> Array[String]（未拾取的武器 id，按 WeaponHandle 顺序）
+var door_opened := false     # f1_r1 开门动画是否已播放（切房回来时门保持"最后1帧+生效"；瞬态，不入存档）
+var r34_opened := {}         # f1_r3/f1_r4 开门动画是否已播（key=rid；首次进入播动画+隐藏momo，后续保持最后一帧）
+var dianti_done := {}        # 电梯动画（f1_r2 dianti）是否已播放过（key=rid；切房回来保持最后一帧）
+var r7_video_done := {}      # f1_r7 背景视频（S_001_7_All.ogv）是否已播完（key=rid；固定末帧，切房回来保持）
+var r7_blocks_gone := {}     # f1_r7 Boss 战禁区（Blocked_2/3）是否已消失（key=rid；boss 死后持久化，回来保持消失）
+var cutscene_frozen := false # 演出（f1_r3/r4 进入关卡演出）期间敌人暂停：Enemy._physics_process 读到即静止不行动
 
 # 新游戏开场序列（醒来独白 + 镜头拉近）触发开关。
 # 由 Main._new_game 置 true，经 Intro 一路带到 Game._ready，播放后清零。
@@ -60,6 +70,33 @@ const START_WEAPON := "staff"
 
 func _ready() -> void:
 	reset_run(START_WEAPON)
+	_build_bgm()
+
+
+## 全局 BGM 播放器（autoload 常驻，跨场景循环播放；音量受 AudioServer master 总线控制）。
+var _bgm: AudioStreamPlayer = null
+
+func _build_bgm() -> void:
+	_bgm = AudioStreamPlayer.new()
+	_bgm.name = "BGM"
+	var s := load("res://assets/audio/Midnight_Protocol.mp3") as AudioStream
+	if s != null:
+		s.loop = true   # 整首循环
+		_bgm.stream = s
+	_bgm.volume_db = -8.0
+	add_child(_bgm)
+
+
+## 播放 BGM（Game 进入时调用；切房间不中断，因为挂在 autoload 上）。
+func play_bgm() -> void:
+	if _bgm != null and _bgm.stream != null and not _bgm.playing:
+		_bgm.play()
+
+
+## 停止 BGM（返回标题/主菜单时调用）。
+func stop_bgm() -> void:
+	if _bgm != null:
+		_bgm.stop()
 
 
 # 蓝条自动恢复（恒定速率，不因战斗/移动中断）
@@ -100,6 +137,13 @@ func reset_run(wid: String) -> void:
 	layer_index = 1
 	boss_cleared = {}
 	visited = {}
+	ground_weapons = {}   # 地面武器剩余状态也随新一局清空
+	door_opened = false   # 开门动画回到"未开"状态，新一局重新选武器开门
+	r34_opened = {}       # f1_r3/f1_r4 开门动画状态清空
+	dianti_done = {}      # 电梯动画状态清空
+	r7_video_done = {}    # f1_r7 背景视频状态清空
+	r7_blocks_gone = {}   # f1_r7 Boss 战禁区状态清空
+	cutscene_frozen = false
 	weak_window = false
 	birthday = false
 	input_locked = false   # 新一局必须解锁输入，否则重开后玩家被卡死（ESC→重新开始 即此坑）
@@ -127,6 +171,13 @@ func apply_death() -> void:
 	upgraded_done = false
 	affixes = {}
 	dream_crystals = 0
+	ground_weapons = {}   # 死亡重开：地面武器重新随机
+	door_opened = false   # 死亡重开：门回到"未开"，重新选武器开门
+	r34_opened = {}       # f1_r3/f1_r4 开门动画状态清空
+	dianti_done = {}      # 电梯动画状态清空
+	r7_video_done = {}    # f1_r7 背景视频状态清空
+	r7_blocks_gone = {}   # f1_r7 Boss 战禁区状态清空
+	cutscene_frozen = false
 	weak_window = false
 	compute_stats()
 	hp = max_hp
@@ -203,10 +254,16 @@ func heal(amount: float) -> void:
 
 func damage_player(amount: float) -> void:
 	hp -= amount
+	# 玩家受伤飘字（显示在玩家头顶）
+	var p := get_tree().get_first_node_in_group("player") as Node2D
+	if p != null and amount >= 1.0:
+		popup_damage(p.global_position + Vector2(0, -46), int(round(amount)), false)
 	if hp <= 0:
 		hp = 0
 		emit_signal("stats_changed")
-		emit_signal("died")
+		# 无敌模式：血量为 0 也不死亡（测试用，不触发 died）
+		if not god_mode:
+			emit_signal("died")
 	else:
 		emit_signal("stats_changed")
 
@@ -321,7 +378,7 @@ func make_frames(spec: Dictionary) -> SpriteFrames:
 		var row: int = a[5] if a.size() > 5 else 0
 		sf.add_animation(anim)
 		sf.set_animation_speed(anim, fps)
-		sf.set_animation_loop(anim, anim != "dead")
+		sf.set_animation_loop(anim, not anim.begins_with("dead"))
 		var tex := load_tex(path)
 		if tex != null:
 			for i in fr:

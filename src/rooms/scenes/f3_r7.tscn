@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://c5cyvu8iabyoh" path="res://src/rooms/handles/BossHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://oq4mn6osqqec" path="res://assets/tiles/S_003_7_1.png" id="2_6at17"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="3_pwkso"]
+[ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="4_dk8bp"]
 
 [node name="Room" type="Node2D" unique_id=1424249248]
 script = ExtResource("1")
@@ -26,11 +27,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-440, -60, 440, -60, 440, 60, -440, 60)
 auto_seed_points = false
 
+[node name="@Node2D@8847245" type="Node2D" parent="Blocked" unique_id=1764230960]
+position = Vector2(-440, -60)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847248" type="Node2D" parent="Blocked" unique_id=1845561886]
+position = Vector2(440, -60)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847251" type="Node2D" parent="Blocked" unique_id=1045768178]
+position = Vector2(440, 60)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847254" type="Node2D" parent="Blocked" unique_id=1485959770]
+position = Vector2(-440, 60)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919003" type="Node2D" parent="." unique_id=2101603125]
 position = Vector2(-28, -118)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-412, -12, 412, -12, 412, 12, -412, 12)
 auto_seed_points = false
+
+[node name="@Node2D@8847257" type="Node2D" parent="@Node2D@919003" unique_id=813070210]
+position = Vector2(-412, -12)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847260" type="Node2D" parent="@Node2D@919003" unique_id=1327674625]
+position = Vector2(412, -12)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847263" type="Node2D" parent="@Node2D@919003" unique_id=195158436]
+position = Vector2(412, 12)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847266" type="Node2D" parent="@Node2D@919003" unique_id=1168794325]
+position = Vector2(-412, 12)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919016" type="Node2D" parent="." unique_id=1061980744]
 position = Vector2(416, -118)
@@ -38,11 +77,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-24, -12, 24, -12, 24, 12, -24, 12)
 auto_seed_points = false
 
+[node name="@Node2D@8847269" type="Node2D" parent="@Node2D@919016" unique_id=227906171]
+position = Vector2(-24, -12)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847272" type="Node2D" parent="@Node2D@919016" unique_id=242087655]
+position = Vector2(24, -12)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847275" type="Node2D" parent="@Node2D@919016" unique_id=478069254]
+position = Vector2(24, 12)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847278" type="Node2D" parent="@Node2D@919016" unique_id=233824074]
+position = Vector2(-24, 12)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919029" type="Node2D" parent="." unique_id=279004117]
 position = Vector2(-32, -82)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-408, -24, 408, -24, 408, 24, -408, 24)
 auto_seed_points = false
+
+[node name="@Node2D@8847281" type="Node2D" parent="@Node2D@919029" unique_id=447403784]
+position = Vector2(-408, -24)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847284" type="Node2D" parent="@Node2D@919029" unique_id=20707095]
+position = Vector2(408, -24)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847287" type="Node2D" parent="@Node2D@919029" unique_id=862098948]
+position = Vector2(408, 24)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847290" type="Node2D" parent="@Node2D@919029" unique_id=416414239]
+position = Vector2(-408, 24)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919042" type="Node2D" parent="." unique_id=1254560969]
 position = Vector2(420, -14)
@@ -50,11 +127,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-20, -92, 20, -92, 20, 92, -20, 92)
 auto_seed_points = false
 
+[node name="@Node2D@8847293" type="Node2D" parent="@Node2D@919042" unique_id=522489472]
+position = Vector2(-20, -92)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847296" type="Node2D" parent="@Node2D@919042" unique_id=595795846]
+position = Vector2(20, -92)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847299" type="Node2D" parent="@Node2D@919042" unique_id=385548728]
+position = Vector2(20, 92)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847302" type="Node2D" parent="@Node2D@919042" unique_id=83954947]
+position = Vector2(-20, 92)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919055" type="Node2D" parent="." unique_id=2057200402]
 position = Vector2(-312, -50)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-128, -8, 128, -8, 128, 8, -128, 8)
 auto_seed_points = false
+
+[node name="@Node2D@8847305" type="Node2D" parent="@Node2D@919055" unique_id=1449142673]
+position = Vector2(-128, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847308" type="Node2D" parent="@Node2D@919055" unique_id=51511668]
+position = Vector2(128, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847311" type="Node2D" parent="@Node2D@919055" unique_id=1390784334]
+position = Vector2(128, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847314" type="Node2D" parent="@Node2D@919055" unique_id=265568270]
+position = Vector2(-128, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919068" type="Node2D" parent="." unique_id=1078482910]
 position = Vector2(-12, -54)
@@ -62,11 +177,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-84, -4, 84, -4, 84, 4, -84, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847317" type="Node2D" parent="@Node2D@919068" unique_id=535947405]
+position = Vector2(-84, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847320" type="Node2D" parent="@Node2D@919068" unique_id=165213973]
+position = Vector2(84, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847323" type="Node2D" parent="@Node2D@919068" unique_id=1053156094]
+position = Vector2(84, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847326" type="Node2D" parent="@Node2D@919068" unique_id=430476594]
+position = Vector2(-84, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919081" type="Node2D" parent="." unique_id=1263789209]
 position = Vector2(240, -54)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-136, -4, 136, -4, 136, 4, -136, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847329" type="Node2D" parent="@Node2D@919081" unique_id=312381770]
+position = Vector2(-136, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847332" type="Node2D" parent="@Node2D@919081" unique_id=731952193]
+position = Vector2(136, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847335" type="Node2D" parent="@Node2D@919081" unique_id=1269732164]
+position = Vector2(136, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847338" type="Node2D" parent="@Node2D@919081" unique_id=268205362]
+position = Vector2(-136, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919094" type="Node2D" parent="." unique_id=1111164022]
 position = Vector2(-8, -46)
@@ -74,11 +227,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-80, -4, 80, -4, 80, 4, -80, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847341" type="Node2D" parent="@Node2D@919094" unique_id=218635864]
+position = Vector2(-80, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847344" type="Node2D" parent="@Node2D@919094" unique_id=386809527]
+position = Vector2(80, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847347" type="Node2D" parent="@Node2D@919094" unique_id=542780465]
+position = Vector2(80, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847350" type="Node2D" parent="@Node2D@919094" unique_id=1961415695]
+position = Vector2(-80, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919107" type="Node2D" parent="." unique_id=284179075]
 position = Vector2(244, -46)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-132, -4, 132, -4, 132, 4, -132, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847353" type="Node2D" parent="@Node2D@919107" unique_id=21518583]
+position = Vector2(-132, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847356" type="Node2D" parent="@Node2D@919107" unique_id=2088461847]
+position = Vector2(132, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847359" type="Node2D" parent="@Node2D@919107" unique_id=927259419]
+position = Vector2(132, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847362" type="Node2D" parent="@Node2D@919107" unique_id=785255040]
+position = Vector2(-132, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919120" type="Node2D" parent="." unique_id=780718453]
 position = Vector2(-308, -38)
@@ -86,11 +277,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-132, -4, 132, -4, 132, 4, -132, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847365" type="Node2D" parent="@Node2D@919120" unique_id=509549606]
+position = Vector2(-132, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847368" type="Node2D" parent="@Node2D@919120" unique_id=1337285201]
+position = Vector2(132, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847371" type="Node2D" parent="@Node2D@919120" unique_id=819111251]
+position = Vector2(132, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847374" type="Node2D" parent="@Node2D@919120" unique_id=1326053862]
+position = Vector2(-132, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919133" type="Node2D" parent="." unique_id=2045463081]
 position = Vector2(85, -33)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-76, -4, 76, -4, 76, 4, -76, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847377" type="Node2D" parent="@Node2D@919133" unique_id=1392983314]
+position = Vector2(-76, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847380" type="Node2D" parent="@Node2D@919133" unique_id=1975950644]
+position = Vector2(76, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847383" type="Node2D" parent="@Node2D@919133" unique_id=492273525]
+position = Vector2(76, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847386" type="Node2D" parent="@Node2D@919133" unique_id=1493004464]
+position = Vector2(-76, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919146" type="Node2D" parent="." unique_id=903143137]
 position = Vector2(268, -38)
@@ -98,11 +327,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-108, -4, 108, -4, 108, 4, -108, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847389" type="Node2D" parent="@Node2D@919146" unique_id=1878420296]
+position = Vector2(-108, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847392" type="Node2D" parent="@Node2D@919146" unique_id=2124597762]
+position = Vector2(108, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847395" type="Node2D" parent="@Node2D@919146" unique_id=2040460709]
+position = Vector2(108, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847398" type="Node2D" parent="@Node2D@919146" unique_id=607460286]
+position = Vector2(-108, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919159" type="Node2D" parent="." unique_id=1649090698]
 position = Vector2(-312, -22)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-128, -12, 128, -12, 128, 12, -128, 12)
 auto_seed_points = false
+
+[node name="@Node2D@8847401" type="Node2D" parent="@Node2D@919159" unique_id=634887454]
+position = Vector2(-128, -12)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847404" type="Node2D" parent="@Node2D@919159" unique_id=1217785547]
+position = Vector2(128, -12)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847407" type="Node2D" parent="@Node2D@919159" unique_id=2084043329]
+position = Vector2(128, 12)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847410" type="Node2D" parent="@Node2D@919159" unique_id=340780647]
+position = Vector2(-128, 12)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919172" type="Node2D" parent="." unique_id=1627000756]
 position = Vector2(-96, -30)
@@ -110,11 +377,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847413" type="Node2D" parent="@Node2D@919172" unique_id=1008840677]
+position = Vector2(-8, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847416" type="Node2D" parent="@Node2D@919172" unique_id=102116603]
+position = Vector2(8, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847419" type="Node2D" parent="@Node2D@919172" unique_id=1552878865]
+position = Vector2(8, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847422" type="Node2D" parent="@Node2D@919172" unique_id=758749456]
+position = Vector2(-8, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919185" type="Node2D" parent="." unique_id=658672739]
 position = Vector2(0, -30)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-80, -4, 80, -4, 80, 4, -80, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847425" type="Node2D" parent="@Node2D@919185" unique_id=578269147]
+position = Vector2(-80, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847428" type="Node2D" parent="@Node2D@919185" unique_id=1491461815]
+position = Vector2(80, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847431" type="Node2D" parent="@Node2D@919185" unique_id=764528766]
+position = Vector2(80, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847434" type="Node2D" parent="@Node2D@919185" unique_id=1925765781]
+position = Vector2(-80, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919198" type="Node2D" parent="." unique_id=1455037728]
 position = Vector2(96, -30)
@@ -122,11 +427,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847437" type="Node2D" parent="@Node2D@919198" unique_id=1277220007]
+position = Vector2(-8, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847440" type="Node2D" parent="@Node2D@919198" unique_id=469058254]
+position = Vector2(8, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847443" type="Node2D" parent="@Node2D@919198" unique_id=484207515]
+position = Vector2(8, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847446" type="Node2D" parent="@Node2D@919198" unique_id=512406416]
+position = Vector2(-8, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919211" type="Node2D" parent="." unique_id=1198503846]
 position = Vector2(276, -22)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-100, -12, 100, -12, 100, 12, -100, 12)
 auto_seed_points = false
+
+[node name="@Node2D@8847449" type="Node2D" parent="@Node2D@919211" unique_id=10721393]
+position = Vector2(-100, -12)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847452" type="Node2D" parent="@Node2D@919211" unique_id=1852914861]
+position = Vector2(100, -12)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847455" type="Node2D" parent="@Node2D@919211" unique_id=1310303998]
+position = Vector2(100, 12)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847458" type="Node2D" parent="@Node2D@919211" unique_id=170585160]
+position = Vector2(-100, 12)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919224" type="Node2D" parent="." unique_id=56350297]
 position = Vector2(-4, -22)
@@ -134,11 +477,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-108, -4, 108, -4, 108, 4, -108, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847461" type="Node2D" parent="@Node2D@919224" unique_id=2107822206]
+position = Vector2(-108, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847464" type="Node2D" parent="@Node2D@919224" unique_id=1726040350]
+position = Vector2(108, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847467" type="Node2D" parent="@Node2D@919224" unique_id=1891812046]
+position = Vector2(108, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847470" type="Node2D" parent="@Node2D@919224" unique_id=1036247086]
+position = Vector2(-108, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919237" type="Node2D" parent="." unique_id=802134720]
 position = Vector2(0, -14)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-112, -4, 112, -4, 112, 4, -112, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847473" type="Node2D" parent="@Node2D@919237" unique_id=21638977]
+position = Vector2(-112, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847476" type="Node2D" parent="@Node2D@919237" unique_id=2068488631]
+position = Vector2(112, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847479" type="Node2D" parent="@Node2D@919237" unique_id=1901628580]
+position = Vector2(112, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847482" type="Node2D" parent="@Node2D@919237" unique_id=1754453402]
+position = Vector2(-112, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919250" type="Node2D" parent="." unique_id=876388020]
 position = Vector2(-344, -6)
@@ -146,11 +527,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-96, -4, 96, -4, 96, 4, -96, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847485" type="Node2D" parent="@Node2D@919250" unique_id=708183539]
+position = Vector2(-96, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847488" type="Node2D" parent="@Node2D@919250" unique_id=1753782711]
+position = Vector2(96, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847491" type="Node2D" parent="@Node2D@919250" unique_id=776287604]
+position = Vector2(96, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847494" type="Node2D" parent="@Node2D@919250" unique_id=1053194460]
+position = Vector2(-96, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919263" type="Node2D" parent="." unique_id=594187070]
 position = Vector2(-208, -2)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-16, -8, 16, -8, 16, 8, -16, 8)
 auto_seed_points = false
+
+[node name="@Node2D@8847497" type="Node2D" parent="@Node2D@919263" unique_id=1147731869]
+position = Vector2(-16, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847500" type="Node2D" parent="@Node2D@919263" unique_id=52334474]
+position = Vector2(16, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847503" type="Node2D" parent="@Node2D@919263" unique_id=274185205]
+position = Vector2(16, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847506" type="Node2D" parent="@Node2D@919263" unique_id=2005086519]
+position = Vector2(-16, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919276" type="Node2D" parent="." unique_id=1965141977]
 position = Vector2(-72, -2)
@@ -158,11 +577,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-40, -8, 40, -8, 40, 8, -40, 8)
 auto_seed_points = false
 
+[node name="@Node2D@8847509" type="Node2D" parent="@Node2D@919276" unique_id=1213480470]
+position = Vector2(-40, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847512" type="Node2D" parent="@Node2D@919276" unique_id=1440902030]
+position = Vector2(40, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847515" type="Node2D" parent="@Node2D@919276" unique_id=1263776421]
+position = Vector2(40, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847518" type="Node2D" parent="@Node2D@919276" unique_id=67216370]
+position = Vector2(-40, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919289" type="Node2D" parent="." unique_id=800110724]
 position = Vector2(-4, -6)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-20, -4, 20, -4, 20, 4, -20, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847521" type="Node2D" parent="@Node2D@919289" unique_id=1655450362]
+position = Vector2(-20, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847524" type="Node2D" parent="@Node2D@919289" unique_id=1074107221]
+position = Vector2(20, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847527" type="Node2D" parent="@Node2D@919289" unique_id=1208057685]
+position = Vector2(20, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847530" type="Node2D" parent="@Node2D@919289" unique_id=1910965077]
+position = Vector2(-20, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919302" type="Node2D" parent="." unique_id=48589916]
 position = Vector2(68, -6)
@@ -170,11 +627,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-44, -4, 44, -4, 44, 4, -44, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847533" type="Node2D" parent="@Node2D@919302" unique_id=1514469305]
+position = Vector2(-44, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847536" type="Node2D" parent="@Node2D@919302" unique_id=1023388890]
+position = Vector2(44, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847539" type="Node2D" parent="@Node2D@919302" unique_id=1370525440]
+position = Vector2(44, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847542" type="Node2D" parent="@Node2D@919302" unique_id=1647008739]
+position = Vector2(-44, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919315" type="Node2D" parent="." unique_id=1564671327]
 position = Vector2(288, -6)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-88, -4, 88, -4, 88, 4, -88, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847545" type="Node2D" parent="@Node2D@919315" unique_id=181863781]
+position = Vector2(-88, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847548" type="Node2D" parent="@Node2D@919315" unique_id=22294580]
+position = Vector2(88, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847551" type="Node2D" parent="@Node2D@919315" unique_id=696282767]
+position = Vector2(88, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847554" type="Node2D" parent="@Node2D@919315" unique_id=1787545847]
+position = Vector2(-88, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919328" type="Node2D" parent="." unique_id=1783438810]
 position = Vector2(-348, 2)
@@ -182,11 +677,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-92, -4, 92, -4, 92, 4, -92, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847557" type="Node2D" parent="@Node2D@919328" unique_id=1102510108]
+position = Vector2(-92, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847560" type="Node2D" parent="@Node2D@919328" unique_id=1446134382]
+position = Vector2(92, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847563" type="Node2D" parent="@Node2D@919328" unique_id=770300955]
+position = Vector2(92, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847566" type="Node2D" parent="@Node2D@919328" unique_id=1968890294]
+position = Vector2(-92, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919341" type="Node2D" parent="." unique_id=698845803]
 position = Vector2(-8, 2)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-16, -4, 16, -4, 16, 4, -16, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847569" type="Node2D" parent="@Node2D@919341" unique_id=801020693]
+position = Vector2(-16, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847572" type="Node2D" parent="@Node2D@919341" unique_id=1774409663]
+position = Vector2(16, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847575" type="Node2D" parent="@Node2D@919341" unique_id=660390286]
+position = Vector2(16, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847578" type="Node2D" parent="@Node2D@919341" unique_id=1887298763]
+position = Vector2(-16, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919354" type="Node2D" parent="." unique_id=1278663417]
 position = Vector2(72, 6)
@@ -194,11 +727,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-40, -8, 40, -8, 40, 8, -40, 8)
 auto_seed_points = false
 
+[node name="@Node2D@8847581" type="Node2D" parent="@Node2D@919354" unique_id=1417038799]
+position = Vector2(-40, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847584" type="Node2D" parent="@Node2D@919354" unique_id=606724268]
+position = Vector2(40, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847587" type="Node2D" parent="@Node2D@919354" unique_id=2147246605]
+position = Vector2(40, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847590" type="Node2D" parent="@Node2D@919354" unique_id=119762744]
+position = Vector2(-40, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919367" type="Node2D" parent="." unique_id=561013345]
 position = Vector2(224, 2)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-24, -4, 24, -4, 24, 4, -24, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847593" type="Node2D" parent="@Node2D@919367" unique_id=1853790350]
+position = Vector2(-24, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847596" type="Node2D" parent="@Node2D@919367" unique_id=2071918987]
+position = Vector2(24, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847599" type="Node2D" parent="@Node2D@919367" unique_id=234734695]
+position = Vector2(24, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847602" type="Node2D" parent="@Node2D@919367" unique_id=790188422]
+position = Vector2(-24, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919380" type="Node2D" parent="." unique_id=1015481849]
 position = Vector2(292, 6)
@@ -206,11 +777,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-12, -8, 12, -8, 12, 8, -12, 8)
 auto_seed_points = false
 
+[node name="@Node2D@8847605" type="Node2D" parent="@Node2D@919380" unique_id=209739528]
+position = Vector2(-12, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847608" type="Node2D" parent="@Node2D@919380" unique_id=565469491]
+position = Vector2(12, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847611" type="Node2D" parent="@Node2D@919380" unique_id=576686354]
+position = Vector2(12, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847614" type="Node2D" parent="@Node2D@919380" unique_id=1255146634]
+position = Vector2(-12, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919393" type="Node2D" parent="." unique_id=471440363]
 position = Vector2(344, 6)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-32, -8, 32, -8, 32, 8, -32, 8)
 auto_seed_points = false
+
+[node name="@Node2D@8847617" type="Node2D" parent="@Node2D@919393" unique_id=1326339249]
+position = Vector2(-32, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847620" type="Node2D" parent="@Node2D@919393" unique_id=369017671]
+position = Vector2(32, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847623" type="Node2D" parent="@Node2D@919393" unique_id=1576640384]
+position = Vector2(32, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847626" type="Node2D" parent="@Node2D@919393" unique_id=722412890]
+position = Vector2(-32, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919406" type="Node2D" parent="." unique_id=893488100]
 position = Vector2(-352, 10)
@@ -218,11 +827,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-88, -4, 88, -4, 88, 4, -88, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847629" type="Node2D" parent="@Node2D@919406" unique_id=1211230212]
+position = Vector2(-88, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847632" type="Node2D" parent="@Node2D@919406" unique_id=1673401881]
+position = Vector2(88, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847635" type="Node2D" parent="@Node2D@919406" unique_id=935620535]
+position = Vector2(88, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847638" type="Node2D" parent="@Node2D@919406" unique_id=192448996]
+position = Vector2(-88, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="_Node2D_919419" type="Node2D" parent="." unique_id=1621288039]
 position = Vector2(-68, 10)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-36, -4, 36, -4, 36, 4, -36, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847641" type="Node2D" parent="_Node2D_919419" unique_id=128023963]
+position = Vector2(-36, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847644" type="Node2D" parent="_Node2D_919419" unique_id=1961780969]
+position = Vector2(36, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847647" type="Node2D" parent="_Node2D_919419" unique_id=521755061]
+position = Vector2(36, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847650" type="Node2D" parent="_Node2D_919419" unique_id=1475134487]
+position = Vector2(-36, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919432" type="Node2D" parent="." unique_id=1384019842]
 position = Vector2(-4, 10)
@@ -230,11 +877,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847653" type="Node2D" parent="@Node2D@919432" unique_id=397671313]
+position = Vector2(-12, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847656" type="Node2D" parent="@Node2D@919432" unique_id=598207970]
+position = Vector2(12, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847659" type="Node2D" parent="@Node2D@919432" unique_id=647688525]
+position = Vector2(12, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847662" type="Node2D" parent="@Node2D@919432" unique_id=1598095778]
+position = Vector2(-12, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919445" type="Node2D" parent="." unique_id=301503663]
 position = Vector2(-360, 18)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-80, -4, 80, -4, 80, 4, -80, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847665" type="Node2D" parent="@Node2D@919445" unique_id=945180577]
+position = Vector2(-80, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847668" type="Node2D" parent="@Node2D@919445" unique_id=1695574775]
+position = Vector2(80, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847671" type="Node2D" parent="@Node2D@919445" unique_id=1187338545]
+position = Vector2(80, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847674" type="Node2D" parent="@Node2D@919445" unique_id=751308850]
+position = Vector2(-80, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919458" type="Node2D" parent="." unique_id=1750451063]
 position = Vector2(-72, 18)
@@ -242,11 +927,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847677" type="Node2D" parent="@Node2D@919458" unique_id=1949937653]
+position = Vector2(-8, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847680" type="Node2D" parent="@Node2D@919458" unique_id=1489151873]
+position = Vector2(8, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847683" type="Node2D" parent="@Node2D@919458" unique_id=601336526]
+position = Vector2(8, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847686" type="Node2D" parent="@Node2D@919458" unique_id=2113952736]
+position = Vector2(-8, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919471" type="Node2D" parent="." unique_id=1002203688]
 position = Vector2(-44, 18)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847689" type="Node2D" parent="@Node2D@919471" unique_id=500349660]
+position = Vector2(-4, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847692" type="Node2D" parent="@Node2D@919471" unique_id=1750643229]
+position = Vector2(4, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847695" type="Node2D" parent="@Node2D@919471" unique_id=1962850205]
+position = Vector2(4, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847698" type="Node2D" parent="@Node2D@919471" unique_id=356890433]
+position = Vector2(-4, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919484" type="Node2D" parent="." unique_id=1128939255]
 position = Vector2(-12, 18)
@@ -254,11 +977,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847701" type="Node2D" parent="@Node2D@919484" unique_id=1732682823]
+position = Vector2(-4, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847704" type="Node2D" parent="@Node2D@919484" unique_id=946056706]
+position = Vector2(4, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847707" type="Node2D" parent="@Node2D@919484" unique_id=422879289]
+position = Vector2(4, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847710" type="Node2D" parent="@Node2D@919484" unique_id=744334138]
+position = Vector2(-4, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919497" type="Node2D" parent="." unique_id=1071746558]
 position = Vector2(4, 18)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847713" type="Node2D" parent="@Node2D@919497" unique_id=743638871]
+position = Vector2(-4, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847716" type="Node2D" parent="@Node2D@919497" unique_id=856909490]
+position = Vector2(4, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847719" type="Node2D" parent="@Node2D@919497" unique_id=1600269153]
+position = Vector2(4, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847722" type="Node2D" parent="@Node2D@919497" unique_id=452055071]
+position = Vector2(-4, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919510" type="Node2D" parent="." unique_id=1443081263]
 position = Vector2(52, 18)
@@ -266,11 +1027,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-20, -4, 20, -4, 20, 4, -20, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847725" type="Node2D" parent="@Node2D@919510" unique_id=1013345190]
+position = Vector2(-20, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847728" type="Node2D" parent="@Node2D@919510" unique_id=197120537]
+position = Vector2(20, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847731" type="Node2D" parent="@Node2D@919510" unique_id=1621758241]
+position = Vector2(20, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847734" type="Node2D" parent="@Node2D@919510" unique_id=1971850110]
+position = Vector2(-20, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919523" type="Node2D" parent="." unique_id=1365387910]
 position = Vector2(296, 18)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847737" type="Node2D" parent="@Node2D@919523" unique_id=424238769]
+position = Vector2(-8, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847740" type="Node2D" parent="@Node2D@919523" unique_id=1989493186]
+position = Vector2(8, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847743" type="Node2D" parent="@Node2D@919523" unique_id=1588457222]
+position = Vector2(8, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847746" type="Node2D" parent="@Node2D@919523" unique_id=371016458]
+position = Vector2(-8, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919536" type="Node2D" parent="." unique_id=1456244871]
 position = Vector2(348, 18)
@@ -278,11 +1077,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-28, -4, 28, -4, 28, 4, -28, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847749" type="Node2D" parent="@Node2D@919536" unique_id=1839424374]
+position = Vector2(-28, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847752" type="Node2D" parent="@Node2D@919536" unique_id=502425013]
+position = Vector2(28, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847755" type="Node2D" parent="@Node2D@919536" unique_id=766480268]
+position = Vector2(28, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847758" type="Node2D" parent="@Node2D@919536" unique_id=939988802]
+position = Vector2(-28, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919549" type="Node2D" parent="." unique_id=475270154]
 position = Vector2(-372, 26)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-68, -4, 68, -4, 68, 4, -68, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847761" type="Node2D" parent="@Node2D@919549" unique_id=74308684]
+position = Vector2(-68, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847764" type="Node2D" parent="@Node2D@919549" unique_id=270908310]
+position = Vector2(68, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847767" type="Node2D" parent="@Node2D@919549" unique_id=1822947389]
+position = Vector2(68, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847770" type="Node2D" parent="@Node2D@919549" unique_id=329203380]
+position = Vector2(-68, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919562" type="Node2D" parent="." unique_id=1599496166]
 position = Vector2(324, 26)
@@ -290,11 +1127,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847773" type="Node2D" parent="@Node2D@919562" unique_id=83396699]
+position = Vector2(-4, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847776" type="Node2D" parent="@Node2D@919562" unique_id=1681956458]
+position = Vector2(4, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847779" type="Node2D" parent="@Node2D@919562" unique_id=1260341074]
+position = Vector2(4, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847782" type="Node2D" parent="@Node2D@919562" unique_id=1972646576]
+position = Vector2(-4, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919575" type="Node2D" parent="." unique_id=372175078]
 position = Vector2(-408, 38)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-32, -8, 32, -8, 32, 8, -32, 8)
 auto_seed_points = false
+
+[node name="@Node2D@8847785" type="Node2D" parent="@Node2D@919575" unique_id=1512884229]
+position = Vector2(-32, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847788" type="Node2D" parent="@Node2D@919575" unique_id=50713238]
+position = Vector2(32, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847791" type="Node2D" parent="@Node2D@919575" unique_id=1166650699]
+position = Vector2(32, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847794" type="Node2D" parent="@Node2D@919575" unique_id=1176078980]
+position = Vector2(-32, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919588" type="Node2D" parent="." unique_id=410075691]
 position = Vector2(-340, 34)
@@ -302,11 +1177,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-20, -4, 20, -4, 20, 4, -20, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847797" type="Node2D" parent="@Node2D@919588" unique_id=724266908]
+position = Vector2(-20, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847800" type="Node2D" parent="@Node2D@919588" unique_id=1854683248]
+position = Vector2(20, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847803" type="Node2D" parent="@Node2D@919588" unique_id=1152645381]
+position = Vector2(20, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847806" type="Node2D" parent="@Node2D@919588" unique_id=1142912651]
+position = Vector2(-20, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919601" type="Node2D" parent="." unique_id=773593155]
 position = Vector2(-332, 42)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847809" type="Node2D" parent="@Node2D@919601" unique_id=1650839745]
+position = Vector2(-4, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847812" type="Node2D" parent="@Node2D@919601" unique_id=1915472689]
+position = Vector2(4, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847815" type="Node2D" parent="@Node2D@919601" unique_id=1482491959]
+position = Vector2(4, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847818" type="Node2D" parent="@Node2D@919601" unique_id=1996328944]
+position = Vector2(-4, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919614" type="Node2D" parent="." unique_id=1766446570]
 position = Vector2(-412, 54)
@@ -314,11 +1227,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-28, -8, 28, -8, 28, 8, -28, 8)
 auto_seed_points = false
 
+[node name="@Node2D@8847821" type="Node2D" parent="@Node2D@919614" unique_id=379749493]
+position = Vector2(-28, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847824" type="Node2D" parent="@Node2D@919614" unique_id=291342932]
+position = Vector2(28, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847827" type="Node2D" parent="@Node2D@919614" unique_id=1478201343]
+position = Vector2(28, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847830" type="Node2D" parent="@Node2D@919614" unique_id=391294711]
+position = Vector2(-28, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919627" type="Node2D" parent="." unique_id=1232637378]
 position = Vector2(-416, 74)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-24, -12, 24, -12, 24, 12, -24, 12)
 auto_seed_points = false
+
+[node name="@Node2D@8847833" type="Node2D" parent="@Node2D@919627" unique_id=432149017]
+position = Vector2(-24, -12)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847836" type="Node2D" parent="@Node2D@919627" unique_id=545124906]
+position = Vector2(24, -12)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847839" type="Node2D" parent="@Node2D@919627" unique_id=1290018096]
+position = Vector2(24, 12)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847842" type="Node2D" parent="@Node2D@919627" unique_id=977642147]
+position = Vector2(-24, 12)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919640" type="Node2D" parent="." unique_id=2104995794]
 position = Vector2(416, 82)
@@ -326,11 +1277,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-24, -4, 24, -4, 24, 4, -24, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847845" type="Node2D" parent="@Node2D@919640" unique_id=342795138]
+position = Vector2(-24, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847848" type="Node2D" parent="@Node2D@919640" unique_id=1176998640]
+position = Vector2(24, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847851" type="Node2D" parent="@Node2D@919640" unique_id=1104978717]
+position = Vector2(24, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847854" type="Node2D" parent="@Node2D@919640" unique_id=635501837]
+position = Vector2(-24, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919653" type="Node2D" parent="." unique_id=1583563336]
 position = Vector2(-412, 90)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-28, -4, 28, -4, 28, 4, -28, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847857" type="Node2D" parent="@Node2D@919653" unique_id=1023534683]
+position = Vector2(-28, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847860" type="Node2D" parent="@Node2D@919653" unique_id=177365786]
+position = Vector2(28, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847863" type="Node2D" parent="@Node2D@919653" unique_id=2010311540]
+position = Vector2(28, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847866" type="Node2D" parent="@Node2D@919653" unique_id=1435234123]
+position = Vector2(-28, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919666" type="Node2D" parent="." unique_id=1649807491]
 position = Vector2(408, 90)
@@ -338,11 +1327,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-32, -4, 32, -4, 32, 4, -32, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847869" type="Node2D" parent="@Node2D@919666" unique_id=1603242423]
+position = Vector2(-32, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847872" type="Node2D" parent="@Node2D@919666" unique_id=924673433]
+position = Vector2(32, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847875" type="Node2D" parent="@Node2D@919666" unique_id=874921587]
+position = Vector2(32, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847878" type="Node2D" parent="@Node2D@919666" unique_id=1644797306]
+position = Vector2(-32, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919679" type="Node2D" parent="." unique_id=1422180632]
 position = Vector2(-408, 98)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-32, -4, 32, -4, 32, 4, -32, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847881" type="Node2D" parent="@Node2D@919679" unique_id=414876798]
+position = Vector2(-32, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847884" type="Node2D" parent="@Node2D@919679" unique_id=1566416163]
+position = Vector2(32, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847887" type="Node2D" parent="@Node2D@919679" unique_id=610997895]
+position = Vector2(32, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847890" type="Node2D" parent="@Node2D@919679" unique_id=1853620227]
+position = Vector2(-32, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919692" type="Node2D" parent="." unique_id=1491231473]
 position = Vector2(400, 98)
@@ -350,11 +1377,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-40, -4, 40, -4, 40, 4, -40, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847893" type="Node2D" parent="@Node2D@919692" unique_id=748483885]
+position = Vector2(-40, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847896" type="Node2D" parent="@Node2D@919692" unique_id=1172427861]
+position = Vector2(40, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847899" type="Node2D" parent="@Node2D@919692" unique_id=1981626091]
+position = Vector2(40, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847902" type="Node2D" parent="@Node2D@919692" unique_id=384341717]
+position = Vector2(-40, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919705" type="Node2D" parent="." unique_id=277202058]
 position = Vector2(-388, 106)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-52, -4, 52, -4, 52, 4, -52, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847905" type="Node2D" parent="@Node2D@919705" unique_id=1868398237]
+position = Vector2(-52, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847908" type="Node2D" parent="@Node2D@919705" unique_id=1023783169]
+position = Vector2(52, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847911" type="Node2D" parent="@Node2D@919705" unique_id=1752451949]
+position = Vector2(52, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847914" type="Node2D" parent="@Node2D@919705" unique_id=12123215]
+position = Vector2(-52, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919718" type="Node2D" parent="." unique_id=130967221]
 position = Vector2(388, 106)
@@ -362,11 +1427,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-52, -4, 52, -4, 52, 4, -52, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847917" type="Node2D" parent="@Node2D@919718" unique_id=695611591]
+position = Vector2(-52, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847920" type="Node2D" parent="@Node2D@919718" unique_id=297738576]
+position = Vector2(52, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847923" type="Node2D" parent="@Node2D@919718" unique_id=1446452675]
+position = Vector2(52, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847926" type="Node2D" parent="@Node2D@919718" unique_id=1730834386]
+position = Vector2(-52, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919731" type="Node2D" parent="." unique_id=1590145342]
 position = Vector2(-368, 114)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-72, -4, 72, -4, 72, 4, -72, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847929" type="Node2D" parent="@Node2D@919731" unique_id=1328591714]
+position = Vector2(-72, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847932" type="Node2D" parent="@Node2D@919731" unique_id=1635088919]
+position = Vector2(72, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847935" type="Node2D" parent="@Node2D@919731" unique_id=1925976202]
+position = Vector2(72, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847938" type="Node2D" parent="@Node2D@919731" unique_id=1822380144]
+position = Vector2(-72, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919744" type="Node2D" parent="." unique_id=762142808]
 position = Vector2(-192, 114)
@@ -374,11 +1477,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847941" type="Node2D" parent="@Node2D@919744" unique_id=1287954791]
+position = Vector2(-8, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847944" type="Node2D" parent="@Node2D@919744" unique_id=1037132405]
+position = Vector2(8, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847947" type="Node2D" parent="@Node2D@919744" unique_id=375784199]
+position = Vector2(8, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847950" type="Node2D" parent="@Node2D@919744" unique_id=1274769851]
+position = Vector2(-8, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919757" type="Node2D" parent="." unique_id=2075257255]
 position = Vector2(356, 114)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-84, -4, 84, -4, 84, 4, -84, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847953" type="Node2D" parent="@Node2D@919757" unique_id=1799339153]
+position = Vector2(-84, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847956" type="Node2D" parent="@Node2D@919757" unique_id=594820095]
+position = Vector2(84, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847959" type="Node2D" parent="@Node2D@919757" unique_id=328253235]
+position = Vector2(84, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847962" type="Node2D" parent="@Node2D@919757" unique_id=1206107541]
+position = Vector2(-84, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919770" type="Node2D" parent="." unique_id=401066402]
 position = Vector2(-304, 126)
@@ -386,11 +1527,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-136, -8, 136, -8, 136, 8, -136, 8)
 auto_seed_points = false
 
+[node name="@Node2D@8847965" type="Node2D" parent="@Node2D@919770" unique_id=1542556099]
+position = Vector2(-136, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847968" type="Node2D" parent="@Node2D@919770" unique_id=794964838]
+position = Vector2(136, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847971" type="Node2D" parent="@Node2D@919770" unique_id=912570356]
+position = Vector2(136, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847974" type="Node2D" parent="@Node2D@919770" unique_id=1039702808]
+position = Vector2(-136, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919783" type="Node2D" parent="." unique_id=2005241202]
 position = Vector2(352, 122)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-88, -4, 88, -4, 88, 4, -88, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8847977" type="Node2D" parent="@Node2D@919783" unique_id=584698535]
+position = Vector2(-88, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847980" type="Node2D" parent="@Node2D@919783" unique_id=1780133864]
+position = Vector2(88, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847983" type="Node2D" parent="@Node2D@919783" unique_id=1475237862]
+position = Vector2(88, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847986" type="Node2D" parent="@Node2D@919783" unique_id=1060590504]
+position = Vector2(-88, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919796" type="Node2D" parent="." unique_id=296828294]
 position = Vector2(344, 130)
@@ -398,11 +1577,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-96, -4, 96, -4, 96, 4, -96, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8847989" type="Node2D" parent="@Node2D@919796" unique_id=1972675471]
+position = Vector2(-96, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8847992" type="Node2D" parent="@Node2D@919796" unique_id=377630387]
+position = Vector2(96, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8847995" type="Node2D" parent="@Node2D@919796" unique_id=903850625]
+position = Vector2(96, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8847998" type="Node2D" parent="@Node2D@919796" unique_id=755091206]
+position = Vector2(-96, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919809" type="Node2D" parent="." unique_id=1361900728]
 position = Vector2(-300, 146)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-140, -12, 140, -12, 140, 12, -140, 12)
 auto_seed_points = false
+
+[node name="@Node2D@8848001" type="Node2D" parent="@Node2D@919809" unique_id=568004952]
+position = Vector2(-140, -12)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848004" type="Node2D" parent="@Node2D@919809" unique_id=1759590932]
+position = Vector2(140, -12)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848007" type="Node2D" parent="@Node2D@919809" unique_id=1451075818]
+position = Vector2(140, 12)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848010" type="Node2D" parent="@Node2D@919809" unique_id=1017089136]
+position = Vector2(-140, 12)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919822" type="Node2D" parent="." unique_id=314479687]
 position = Vector2(336, 150)
@@ -410,11 +1627,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-104, -16, 104, -16, 104, 16, -104, 16)
 auto_seed_points = false
 
+[node name="@Node2D@8848013" type="Node2D" parent="@Node2D@919822" unique_id=1083250250]
+position = Vector2(-104, -16)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848016" type="Node2D" parent="@Node2D@919822" unique_id=448815305]
+position = Vector2(104, -16)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848019" type="Node2D" parent="@Node2D@919822" unique_id=55999579]
+position = Vector2(104, 16)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848022" type="Node2D" parent="@Node2D@919822" unique_id=1304119404]
+position = Vector2(-104, 16)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919835" type="Node2D" parent="." unique_id=1370606817]
 position = Vector2(-296, 162)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-144, -4, 144, -4, 144, 4, -144, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848025" type="Node2D" parent="@Node2D@919835" unique_id=1192408655]
+position = Vector2(-144, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848028" type="Node2D" parent="@Node2D@919835" unique_id=923277423]
+position = Vector2(144, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848031" type="Node2D" parent="@Node2D@919835" unique_id=1473497159]
+position = Vector2(144, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848034" type="Node2D" parent="@Node2D@919835" unique_id=686635928]
+position = Vector2(-144, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919848" type="Node2D" parent="." unique_id=766392052]
 position = Vector2(-300, 170)
@@ -422,11 +1677,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-140, -4, 140, -4, 140, 4, -140, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8848037" type="Node2D" parent="@Node2D@919848" unique_id=871800691]
+position = Vector2(-140, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848040" type="Node2D" parent="@Node2D@919848" unique_id=1308653082]
+position = Vector2(140, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848043" type="Node2D" parent="@Node2D@919848" unique_id=1575710035]
+position = Vector2(140, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848046" type="Node2D" parent="@Node2D@919848" unique_id=1951464575]
+position = Vector2(-140, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919861" type="Node2D" parent="." unique_id=764665299]
 position = Vector2(332, 170)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-108, -4, 108, -4, 108, 4, -108, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848049" type="Node2D" parent="@Node2D@919861" unique_id=1659443601]
+position = Vector2(-108, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848052" type="Node2D" parent="@Node2D@919861" unique_id=2029448785]
+position = Vector2(108, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848055" type="Node2D" parent="@Node2D@919861" unique_id=1257247267]
+position = Vector2(108, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848058" type="Node2D" parent="@Node2D@919861" unique_id=1979889701]
+position = Vector2(-108, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919874" type="Node2D" parent="." unique_id=1146846149]
 position = Vector2(-296, 194)
@@ -434,11 +1727,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-144, -20, 144, -20, 144, 20, -144, 20)
 auto_seed_points = false
 
+[node name="@Node2D@8848061" type="Node2D" parent="@Node2D@919874" unique_id=406849820]
+position = Vector2(-144, -20)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848064" type="Node2D" parent="@Node2D@919874" unique_id=516465050]
+position = Vector2(144, -20)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848067" type="Node2D" parent="@Node2D@919874" unique_id=896739786]
+position = Vector2(144, 20)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848070" type="Node2D" parent="@Node2D@919874" unique_id=477086958]
+position = Vector2(-144, 20)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919887" type="Node2D" parent="." unique_id=309598460]
 position = Vector2(152, 178)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-16, -4, 16, -4, 16, 4, -16, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848073" type="Node2D" parent="@Node2D@919887" unique_id=383492747]
+position = Vector2(-16, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848076" type="Node2D" parent="@Node2D@919887" unique_id=766925825]
+position = Vector2(16, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848079" type="Node2D" parent="@Node2D@919887" unique_id=1912697928]
+position = Vector2(16, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848082" type="Node2D" parent="@Node2D@919887" unique_id=29836925]
+position = Vector2(-16, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919900" type="Node2D" parent="." unique_id=935069857]
 position = Vector2(256, 178)
@@ -446,11 +1777,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-32, -4, 32, -4, 32, 4, -32, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8848085" type="Node2D" parent="@Node2D@919900" unique_id=40920140]
+position = Vector2(-32, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848088" type="Node2D" parent="@Node2D@919900" unique_id=898528822]
+position = Vector2(32, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848091" type="Node2D" parent="@Node2D@919900" unique_id=7522874]
+position = Vector2(32, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848094" type="Node2D" parent="@Node2D@919900" unique_id=1752202882]
+position = Vector2(-32, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919913" type="Node2D" parent="." unique_id=1462626016]
 position = Vector2(372, 182)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-68, -8, 68, -8, 68, 8, -68, 8)
 auto_seed_points = false
+
+[node name="@Node2D@8848097" type="Node2D" parent="@Node2D@919913" unique_id=1101414155]
+position = Vector2(-68, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848100" type="Node2D" parent="@Node2D@919913" unique_id=471537938]
+position = Vector2(68, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848103" type="Node2D" parent="@Node2D@919913" unique_id=1702998406]
+position = Vector2(68, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848106" type="Node2D" parent="@Node2D@919913" unique_id=1081065417]
+position = Vector2(-68, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919926" type="Node2D" parent="." unique_id=438883888]
 position = Vector2(148, 190)
@@ -458,11 +1827,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-36, -8, 36, -8, 36, 8, -36, 8)
 auto_seed_points = false
 
+[node name="@Node2D@8848109" type="Node2D" parent="@Node2D@919926" unique_id=638853878]
+position = Vector2(-36, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848112" type="Node2D" parent="@Node2D@919926" unique_id=370820527]
+position = Vector2(36, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848115" type="Node2D" parent="@Node2D@919926" unique_id=448728710]
+position = Vector2(36, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848118" type="Node2D" parent="@Node2D@919926" unique_id=1293203930]
+position = Vector2(-36, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919939" type="Node2D" parent="." unique_id=467289144]
 position = Vector2(248, 186)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-24, -4, 24, -4, 24, 4, -24, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848121" type="Node2D" parent="@Node2D@919939" unique_id=714842762]
+position = Vector2(-24, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848124" type="Node2D" parent="@Node2D@919939" unique_id=1569072589]
+position = Vector2(24, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848127" type="Node2D" parent="@Node2D@919939" unique_id=534160343]
+position = Vector2(24, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848130" type="Node2D" parent="@Node2D@919939" unique_id=2103155240]
+position = Vector2(-24, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919952" type="Node2D" parent="." unique_id=1077961035]
 position = Vector2(240, 194)
@@ -470,11 +1877,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-32, -4, 32, -4, 32, 4, -32, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8848133" type="Node2D" parent="@Node2D@919952" unique_id=1088050391]
+position = Vector2(-32, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848136" type="Node2D" parent="@Node2D@919952" unique_id=2051453316]
+position = Vector2(32, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848139" type="Node2D" parent="@Node2D@919952" unique_id=1935672434]
+position = Vector2(32, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848142" type="Node2D" parent="@Node2D@919952" unique_id=1125481189]
+position = Vector2(-32, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919965" type="Node2D" parent="." unique_id=684690246]
 position = Vector2(376, 194)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-64, -4, 64, -4, 64, 4, -64, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848145" type="Node2D" parent="@Node2D@919965" unique_id=797092763]
+position = Vector2(-64, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848148" type="Node2D" parent="@Node2D@919965" unique_id=28203651]
+position = Vector2(64, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848151" type="Node2D" parent="@Node2D@919965" unique_id=925181256]
+position = Vector2(64, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848154" type="Node2D" parent="@Node2D@919965" unique_id=604912577]
+position = Vector2(-64, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@919978" type="Node2D" parent="." unique_id=2088549928]
 position = Vector2(-96, 202)
@@ -482,11 +1927,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8848157" type="Node2D" parent="@Node2D@919978" unique_id=1366186386]
+position = Vector2(-8, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848160" type="Node2D" parent="@Node2D@919978" unique_id=315818051]
+position = Vector2(8, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848163" type="Node2D" parent="@Node2D@919978" unique_id=80744807]
+position = Vector2(8, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848166" type="Node2D" parent="@Node2D@919978" unique_id=1229832965]
+position = Vector2(-8, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@919991" type="Node2D" parent="." unique_id=1728415869]
 position = Vector2(144, 202)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-24, -4, 24, -4, 24, 4, -24, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848169" type="Node2D" parent="@Node2D@919991" unique_id=507077056]
+position = Vector2(-24, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848172" type="Node2D" parent="@Node2D@919991" unique_id=1739091506]
+position = Vector2(24, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848175" type="Node2D" parent="@Node2D@919991" unique_id=887674475]
+position = Vector2(24, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848178" type="Node2D" parent="@Node2D@919991" unique_id=434238812]
+position = Vector2(-24, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@920004" type="Node2D" parent="." unique_id=1701091349]
 position = Vector2(252, 202)
@@ -494,11 +1977,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-12, -4, 12, -4, 12, 4, -12, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8848181" type="Node2D" parent="@Node2D@920004" unique_id=1263565528]
+position = Vector2(-12, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848184" type="Node2D" parent="@Node2D@920004" unique_id=1418043595]
+position = Vector2(12, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848187" type="Node2D" parent="@Node2D@920004" unique_id=1327952786]
+position = Vector2(12, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848190" type="Node2D" parent="@Node2D@920004" unique_id=1396835551]
+position = Vector2(-12, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@920017" type="Node2D" parent="." unique_id=464494934]
 position = Vector2(388, 202)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-52, -4, 52, -4, 52, 4, -52, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848193" type="Node2D" parent="@Node2D@920017" unique_id=1519021932]
+position = Vector2(-52, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848196" type="Node2D" parent="@Node2D@920017" unique_id=1587646136]
+position = Vector2(52, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848199" type="Node2D" parent="@Node2D@920017" unique_id=69446953]
+position = Vector2(52, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848202" type="Node2D" parent="@Node2D@920017" unique_id=1858102983]
+position = Vector2(-52, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@920030" type="Node2D" parent="." unique_id=342965675]
 position = Vector2(-96, 210)
@@ -506,11 +2027,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-16, -4, 16, -4, 16, 4, -16, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8848205" type="Node2D" parent="@Node2D@920030" unique_id=423732752]
+position = Vector2(-16, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848208" type="Node2D" parent="@Node2D@920030" unique_id=700994827]
+position = Vector2(16, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848211" type="Node2D" parent="@Node2D@920030" unique_id=922727842]
+position = Vector2(16, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848214" type="Node2D" parent="@Node2D@920030" unique_id=1504293127]
+position = Vector2(-16, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@920043" type="Node2D" parent="." unique_id=201379459]
 position = Vector2(148, 210)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848217" type="Node2D" parent="@Node2D@920043" unique_id=1951594910]
+position = Vector2(-4, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848220" type="Node2D" parent="@Node2D@920043" unique_id=1401552246]
+position = Vector2(4, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848223" type="Node2D" parent="@Node2D@920043" unique_id=1054591450]
+position = Vector2(4, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848226" type="Node2D" parent="@Node2D@920043" unique_id=1120068569]
+position = Vector2(-4, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@920056" type="Node2D" parent="." unique_id=761997315]
 position = Vector2(372, 210)
@@ -518,11 +2077,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-68, -4, 68, -4, 68, 4, -68, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8848229" type="Node2D" parent="@Node2D@920056" unique_id=1456556496]
+position = Vector2(-68, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848232" type="Node2D" parent="@Node2D@920056" unique_id=1107562963]
+position = Vector2(68, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848235" type="Node2D" parent="@Node2D@920056" unique_id=1325478813]
+position = Vector2(68, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848238" type="Node2D" parent="@Node2D@920056" unique_id=1100040068]
+position = Vector2(-68, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@920069" type="Node2D" parent="." unique_id=848122065]
 position = Vector2(-308, 218)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-132, -4, 132, -4, 132, 4, -132, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848241" type="Node2D" parent="@Node2D@920069" unique_id=241123252]
+position = Vector2(-132, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848244" type="Node2D" parent="@Node2D@920069" unique_id=1333974008]
+position = Vector2(132, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848247" type="Node2D" parent="@Node2D@920069" unique_id=2121543363]
+position = Vector2(132, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848250" type="Node2D" parent="@Node2D@920069" unique_id=1104383226]
+position = Vector2(-132, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@920082" type="Node2D" parent="." unique_id=8656435]
 position = Vector2(-96, 222)
@@ -530,11 +2127,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-32, -8, 32, -8, 32, 8, -32, 8)
 auto_seed_points = false
 
+[node name="@Node2D@8848253" type="Node2D" parent="@Node2D@920082" unique_id=1615113595]
+position = Vector2(-32, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848256" type="Node2D" parent="@Node2D@920082" unique_id=672939362]
+position = Vector2(32, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848259" type="Node2D" parent="@Node2D@920082" unique_id=24358263]
+position = Vector2(32, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848262" type="Node2D" parent="@Node2D@920082" unique_id=1701101478]
+position = Vector2(-32, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@920095" type="Node2D" parent="." unique_id=1734932427]
 position = Vector2(356, 222)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-84, -8, 84, -8, 84, 8, -84, 8)
 auto_seed_points = false
+
+[node name="@Node2D@8848265" type="Node2D" parent="@Node2D@920095" unique_id=58284110]
+position = Vector2(-84, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848268" type="Node2D" parent="@Node2D@920095" unique_id=1753639050]
+position = Vector2(84, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848271" type="Node2D" parent="@Node2D@920095" unique_id=52394011]
+position = Vector2(84, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848274" type="Node2D" parent="@Node2D@920095" unique_id=874612268]
+position = Vector2(-84, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@920108" type="Node2D" parent="." unique_id=1988037490]
 position = Vector2(-312, 230)
@@ -542,11 +2177,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-128, -8, 128, -8, 128, 8, -128, 8)
 auto_seed_points = false
 
+[node name="@Node2D@8848277" type="Node2D" parent="@Node2D@920108" unique_id=956155906]
+position = Vector2(-128, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848280" type="Node2D" parent="@Node2D@920108" unique_id=733736654]
+position = Vector2(128, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848283" type="Node2D" parent="@Node2D@920108" unique_id=1379816845]
+position = Vector2(128, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848286" type="Node2D" parent="@Node2D@920108" unique_id=90654168]
+position = Vector2(-128, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@920121" type="Node2D" parent="." unique_id=1757054779]
 position = Vector2(-96, 234)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-40, -4, 40, -4, 40, 4, -40, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848289" type="Node2D" parent="@Node2D@920121" unique_id=653094658]
+position = Vector2(-40, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848292" type="Node2D" parent="@Node2D@920121" unique_id=788752130]
+position = Vector2(40, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848295" type="Node2D" parent="@Node2D@920121" unique_id=493614116]
+position = Vector2(40, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848298" type="Node2D" parent="@Node2D@920121" unique_id=1696208188]
+position = Vector2(-40, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@920134" type="Node2D" parent="." unique_id=130854636]
 position = Vector2(360, 234)
@@ -554,11 +2227,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-80, -4, 80, -4, 80, 4, -80, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8848301" type="Node2D" parent="@Node2D@920134" unique_id=935035047]
+position = Vector2(-80, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848304" type="Node2D" parent="@Node2D@920134" unique_id=742451744]
+position = Vector2(80, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848307" type="Node2D" parent="@Node2D@920134" unique_id=2137788202]
+position = Vector2(80, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848310" type="Node2D" parent="@Node2D@920134" unique_id=437179175]
+position = Vector2(-80, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@920147" type="Node2D" parent="." unique_id=768861046]
 position = Vector2(-308, 246)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-132, -8, 132, -8, 132, 8, -132, 8)
 auto_seed_points = false
+
+[node name="@Node2D@8848313" type="Node2D" parent="@Node2D@920147" unique_id=1984549898]
+position = Vector2(-132, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848316" type="Node2D" parent="@Node2D@920147" unique_id=1773405474]
+position = Vector2(132, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848319" type="Node2D" parent="@Node2D@920147" unique_id=1555602336]
+position = Vector2(132, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848322" type="Node2D" parent="@Node2D@920147" unique_id=949118526]
+position = Vector2(-132, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@920160" type="Node2D" parent="." unique_id=1667366860]
 position = Vector2(-104, 242)
@@ -566,11 +2277,49 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-32, -4, 32, -4, 32, 4, -32, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8848325" type="Node2D" parent="@Node2D@920160" unique_id=437632956]
+position = Vector2(-32, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848328" type="Node2D" parent="@Node2D@920160" unique_id=163622745]
+position = Vector2(32, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848331" type="Node2D" parent="@Node2D@920160" unique_id=1737239633]
+position = Vector2(32, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848334" type="Node2D" parent="@Node2D@920160" unique_id=1507044969]
+position = Vector2(-32, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@920173" type="Node2D" parent="." unique_id=120867532]
 position = Vector2(-60, 246)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-4, -8, 4, -8, 4, 8, -4, 8)
 auto_seed_points = false
+
+[node name="@Node2D@8848337" type="Node2D" parent="@Node2D@920173" unique_id=1647256962]
+position = Vector2(-4, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848340" type="Node2D" parent="@Node2D@920173" unique_id=313943915]
+position = Vector2(4, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848343" type="Node2D" parent="@Node2D@920173" unique_id=994059078]
+position = Vector2(4, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848346" type="Node2D" parent="@Node2D@920173" unique_id=942505726]
+position = Vector2(-4, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="@Node2D@920186" type="Node2D" parent="." unique_id=1791255773]
 position = Vector2(356, 246)
@@ -578,17 +2327,74 @@ script = ExtResource("3_pwkso")
 points = PackedVector2Array(-84, -8, 84, -8, 84, 8, -84, 8)
 auto_seed_points = false
 
+[node name="@Node2D@8848349" type="Node2D" parent="@Node2D@920186" unique_id=1523989879]
+position = Vector2(-84, -8)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848352" type="Node2D" parent="@Node2D@920186" unique_id=796131822]
+position = Vector2(84, -8)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848355" type="Node2D" parent="@Node2D@920186" unique_id=2025332197]
+position = Vector2(84, 8)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848358" type="Node2D" parent="@Node2D@920186" unique_id=1255423695]
+position = Vector2(-84, 8)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@920199" type="Node2D" parent="." unique_id=1775106764]
 position = Vector2(-132, 250)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
 auto_seed_points = false
 
+[node name="@Node2D@8848361" type="Node2D" parent="@Node2D@920199" unique_id=1845019025]
+position = Vector2(-4, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848364" type="Node2D" parent="@Node2D@920199" unique_id=1428530844]
+position = Vector2(4, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848367" type="Node2D" parent="@Node2D@920199" unique_id=1910924360]
+position = Vector2(4, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848370" type="Node2D" parent="@Node2D@920199" unique_id=54829909]
+position = Vector2(-4, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
+
 [node name="@Node2D@920212" type="Node2D" parent="." unique_id=2133360348]
 position = Vector2(-96, 250)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
 auto_seed_points = false
+
+[node name="@Node2D@8848373" type="Node2D" parent="@Node2D@920212" unique_id=43744739]
+position = Vector2(-8, -4)
+script = ExtResource("4_dk8bp")
+
+[node name="@Node2D@8848376" type="Node2D" parent="@Node2D@920212" unique_id=403202546]
+position = Vector2(8, -4)
+script = ExtResource("4_dk8bp")
+idx = 1
+
+[node name="@Node2D@8848379" type="Node2D" parent="@Node2D@920212" unique_id=1058972235]
+position = Vector2(8, 4)
+script = ExtResource("4_dk8bp")
+idx = 2
+
+[node name="@Node2D@8848382" type="Node2D" parent="@Node2D@920212" unique_id=1836564288]
+position = Vector2(-8, 4)
+script = ExtResource("4_dk8bp")
+idx = 3
 
 [node name="Boss" type="Node2D" parent="." unique_id=381699350]
 position = Vector2(-6, 0)

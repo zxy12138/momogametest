@@ -14,15 +14,22 @@ var effects := ""
 var effect_time := 0.0
 var homing := false
 var texture_path := ""
+var proj_frames := 1   # 弹道贴图帧数（横向精灵条，>1 时轮播动画）
+var proj_random := false   # true：发射时随机选 1 帧（不轮播）——Boss 铁块/光弹弹道
 var spin := false   # 飞旋斧：弹体自转（视觉 + 判定暗示）
 var _life := 3.0
 var _hit := []   # 已命中敌人，避免穿透重复结算
+var _frame_t := 0.0
+var _cur_frame := 0
 
 
 func _ready() -> void:
 	if texture_path != "":
 		var sp := get_node("Sprite")
 		sp.texture = GameManager.load_tex(texture_path)
+		if proj_frames > 1:
+			sp.hframes = proj_frames
+			sp.frame = randi() % proj_frames if proj_random else 0
 	# 碰撞层配置
 	if from_player:
 		collision_layer = 8      # 玩家弹（layer 4）
@@ -41,6 +48,15 @@ func _physics_process(delta: float) -> void:
 			var to := (p.global_position - global_position).normalized()
 			direction = direction.lerp(to, 0.06).normalized()
 	global_position += direction * speed * delta
+	# 多帧弹道动画轮播（proj_frames > 1 且非随机选帧时）
+	if proj_frames > 1 and not proj_random:
+		_frame_t += delta
+		if _frame_t >= 0.08:
+			_frame_t = 0.0
+			_cur_frame = (_cur_frame + 1) % proj_frames
+			var sp2 := get_node_or_null("Sprite")
+			if sp2 != null:
+				sp2.frame = _cur_frame
 	if spin:
 		# 飞旋斧：只转 Sprite（节点 rotation 保持 0，弹体整体朝向仍随方向）
 		var sp := get_node_or_null("Sprite")

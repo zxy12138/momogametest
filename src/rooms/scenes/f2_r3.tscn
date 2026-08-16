@@ -3,8 +3,10 @@
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://br7xu8uye5q8n" path="res://assets/tiles/S_002_3ro4.png" id="2_617d8"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="4_225rb"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_ln65o"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="5_ln65o"]
+[ext_resource type="Script" uid="uid://da124w81aw0i5" path="res://src/rooms/handles/EnemyHandle.gd" id="7_cgtf8"]
 
 [node name="Room" type="Node2D" unique_id=1252208605]
 script = ExtResource("1")
@@ -20,18 +22,29 @@ offset_bottom = 250.0
 texture = ExtResource("2_617d8")
 expand_mode = 1
 stretch_mode = 6
+metadata/_edit_lock_ = true
 
 [node name="Door_r2" type="Node2D" parent="." unique_id=1716156614]
-position = Vector2(301, -146)
+position = Vector2(317, -147)
 script = ExtResource("2")
 target = "r2"
 layer = 2
+door_size = Vector2(86, 44)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r2" unique_id=949361223]
+position = Vector2(43, 22)
+script = ExtResource("4_225rb")
 
 [node name="Door_r5" type="Node2D" parent="." unique_id=968917055]
-position = Vector2(0, 224)
+position = Vector2(4, 218)
 script = ExtResource("2")
 target = "r5"
 layer = 2
+door_size = Vector2(144, 26)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r5" unique_id=1680367034]
+position = Vector2(72, 13)
+script = ExtResource("4_225rb")
 
 [node name="Blocked" type="Node2D" parent="." unique_id=277977852]
 position = Vector2(0, -234)
@@ -1457,3 +1470,33 @@ idx = 2
 position = Vector2(-4, 12)
 script = ExtResource("5_ln65o")
 idx = 3
+
+[node name="Enemy" type="Node2D" parent="." unique_id=1201134055]
+position = Vector2(-205, -13)
+script = ExtResource("7_cgtf8")
+enemy_type = 9
+
+[node name="Enemy_2" type="Node2D" parent="." unique_id=1737048699]
+position = Vector2(-37.000008, -12)
+script = ExtResource("7_cgtf8")
+enemy_type = 9
+
+[node name="Enemy_3" type="Node2D" parent="." unique_id=639485459]
+position = Vector2(-114.00001, -10)
+script = ExtResource("7_cgtf8")
+enemy_type = 9
+
+[node name="Enemy_4" type="Node2D" parent="." unique_id=1483034100]
+position = Vector2(43, -3)
+script = ExtResource("7_cgtf8")
+enemy_type = 9
+
+[node name="Enemy_5" type="Node2D" parent="." unique_id=1450838274]
+position = Vector2(132, -5)
+script = ExtResource("7_cgtf8")
+enemy_type = 9
+
+[node name="Enemy_6" type="Node2D" parent="." unique_id=1281655671]
+position = Vector2(216, -6)
+script = ExtResource("7_cgtf8")
+enemy_type = 9

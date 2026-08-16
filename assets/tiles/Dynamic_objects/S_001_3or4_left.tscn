@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dwtxyy5rq0c6t"]
+
+[ext_resource type="SpriteFrames" uid="uid://bagg00baqjuvu" path="res://assets/tiles/Dynamic_objects/S_001_3or4_left.tres" id="1_c7q8q"]
+
+[node name="S_001_3or4_left" type="AnimatedSprite2D" unique_id=129510290]
+sprite_frames = ExtResource("1_c7q8q")
+autoplay = "default"
+centered = false

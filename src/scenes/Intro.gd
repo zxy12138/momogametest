@@ -5,7 +5,7 @@
 extends Control
 
 ## 视频播放完毕 / 跳过后前往的场景：开篇剧情场景。
-const NEXT_SCENE := "res://src/scenes/Prologue.tscn"
+const NEXT_SCENE := "res://src/scenes/Chapter1.tscn"
 
 var _finished := false
 

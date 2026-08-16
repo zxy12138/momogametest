@@ -26,8 +26,10 @@ var _aim := Vector2.RIGHT
 var _speed_status := 1.0   # 来自减速/冰冻（玩家本身不用，预留）
 var _sprite: AnimatedSprite2D
 var _outline: AnimatedSprite2D  # 描边子节点：用 _edge 兄弟图 sprite_frames 同步动画
+var _auto_target := Vector2.INF   # 自动行走目标（f1_r7 boss 演出：momo 自动走向 boss）；INF=未启用
+var _auto_speed := 0.0
 # 描边控制：平时柔和（modulate.a 较低），攻击/终极/受伤时提亮，强化打击感
-@export var outline_color: Color = Color(0.4, 0.7, 1.0)  # 蓝白描边（可在 Inspector 调）
+@export var outline_color: Color = Color(0, 0, 0)  # 黑色描边（用户要求，避免角色"漂浮"不自然）
 @export var outline_alpha_idle: float = 0.5               # 平时柔和描边
 @export var outline_alpha_focus: float = 1.0              # 攻击/终极/受伤时提亮
 # 参考帧高：用于把"目标视觉高"换算成 sprite scale（各动作 fh 接近 114~117，取 116）
@@ -80,7 +82,12 @@ func _ready() -> void:
 				var p: String = e[0]
 				var ext := p.get_extension()
 				var base := p.get_basename()
-				spec_edge[k] = [base + "_outline." + ext, e[1], e[2], e[3], e[4]]
+				var ep := base + "_outline." + ext
+				# 占位素材（jump/hurt/ult/true）暂无描边兄弟图，跳过避免 load 报错；
+				# _play_anim 里对 outline 有 has_animation 守卫，缺失动画不会崩。
+				if not ResourceLoader.exists(ep):
+					continue
+				spec_edge[k] = [ep, e[1], e[2], e[3], e[4]]
 			_outline.sprite_frames = GameManager.make_frames(spec_edge)
 			_outline.modulate = Color(outline_color.r, outline_color.g, outline_color.b, outline_alpha_idle)
 	_apply_sprite_scale()  # @export sprite_height_px 通过 setter 已触发一次，此处兜底（编辑器实例化时 setter 早于 _ready 跑且 _sprite 尚未 get_node）
@@ -88,6 +95,26 @@ func _ready() -> void:
 		_sprite.play("idle")
 	if _outline != null and _outline.sprite_frames != null:
 		_outline.play("idle")
+	_add_shadow()  # 脚下椭圆阴影
+
+
+## 脚下半透明椭圆阴影：让角色视觉上"落地"，不漂浮。
+func _add_shadow() -> void:
+	if get_node_or_null("Shadow") != null:
+		return
+	var w := sprite_height_px * 0.55   # 阴影宽度约为角色高度一半多一点
+	var shadow := Polygon2D.new()
+	shadow.name = "Shadow"
+	var pts := PackedVector2Array()
+	var n := 16
+	for i in n:
+		var ang := TAU * i / float(n)
+		pts.append(Vector2(cos(ang) * w * 0.5, sin(ang) * w * 0.22))
+	shadow.polygon = pts
+	shadow.color = Color(0, 0, 0, 0.25)
+	shadow.position = Vector2(0, 2.0)   # 脚底位置
+	shadow.z_index = -10   # 在角色 sprite 后面
+	add_child(shadow)
 
 
 ## 把 sprite_height_px 应用到 _sprite 和 _outline 的 scale 与 position（脚底对齐碰撞中心）。
@@ -111,6 +138,18 @@ func _play_anim(name: String) -> void:
 		_outline.play(name)
 
 
+## 演出自动行走：momo 自动走向目标点（世界坐标），速度 speed；到达后自动停止（idle）。
+## 由 Game 演出状态机调用（f1_r7 boss 演出）。input_locked 期间仍可走。
+func auto_walk_to(target: Vector2, speed: float) -> void:
+	_auto_target = target
+	_auto_speed = speed
+
+
+## 是否还在自动行走（Game 演出状态机轮询判断是否到达）。
+func is_auto_walking() -> bool:
+	return _auto_target != Vector2.INF
+
+
 ## 设置描边可见性（0=隐藏，1=最亮）。攻击/终极/受伤时调 focus，平时调 idle。
 func _set_outline_alpha(a: float) -> void:
 	if _outline != null:
@@ -121,6 +160,19 @@ func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 	if _dead:
+		z_index = int(global_position.y)
+		return
+	# 演出自动行走（f1_r7 boss 演出：momo 自动走向 boss）。优先级高于输入锁——
+	# 演出期间 input_locked=true，但 momo 必须能走；走到目标即停（后续由锁接管站立）。
+	if _auto_target != Vector2.INF:
+		var to := _auto_target - global_position
+		if to.length() < 6.0:
+			_auto_target = Vector2.INF   # 到达：停住（播 idle）
+			velocity = Vector2.ZERO
+		else:
+			velocity = to.normalized() * _auto_speed
+		_anim_update(delta)
+		move_and_slide()
 		z_index = int(global_position.y)
 		return
 	if _is_gm_locked():
@@ -232,14 +284,13 @@ func hit_by(dmg: float) -> void:
 		return
 	GameManager.damage_player(dmg)
 	_invuln = 0.6
-	_sprite.modulate = Color(1, 0.4, 0.4)
-	_set_outline_alpha(outline_alpha_focus)  # 受伤时描边亮一下
+	# 受击只亮描边提示，不再让角色整体变红（用户反馈：身上不该有红光）
+	_set_outline_alpha(outline_alpha_focus)
 	var t := get_tree().create_tween()
-	t.tween_property(_sprite, "modulate", Color(1, 1, 1), 0.3)
-	# 描边 0.3s 后回到柔和
-	t.parallel().tween_property(_outline, "modulate",
-		Color(outline_color.r, outline_color.g, outline_color.b, outline_alpha_idle), 0.3)
-	if GameManager.hp <= 0:
+	if _outline != null:
+		t.tween_property(_outline, "modulate",
+			Color(outline_color.r, outline_color.g, outline_color.b, outline_alpha_idle), 0.3)
+	if GameManager.hp <= 0 and not GameManager.god_mode:
 		_on_died(true)
 
 

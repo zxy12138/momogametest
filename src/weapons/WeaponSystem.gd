@@ -150,6 +150,7 @@ func _spawn_skill_proj(pos: Vector2, dir: Vector2, dmg: int, speed: float, pierc
 
 
 ## 前方矩形直线伤害（剑气/突刺）：宽 width、长 length 的矩形区域内敌人全伤。
+## 判定含敌人半径（边缘接触即命中），与普通攻击口径一致。
 func _skill_line(pos: Vector2, aim: Vector2, dmg: int, length: float, width: float) -> void:
 	var fwd := aim.normalized()
 	var right := Vector2(-fwd.y, fwd.x)
@@ -157,23 +158,24 @@ func _skill_line(pos: Vector2, aim: Vector2, dmg: int, length: float, width: flo
 		var e := en as Node2D
 		if e == null or not e.has_method("take_damage"):
 			continue
+		var er := _enemy_radius(e)
 		var rel := e.global_position - pos
 		var along: float = rel.dot(fwd)
-		if along < 0.0 or along > length:
+		if along < -er or along > length + er:
 			continue
 		var across: float = absf(rel.dot(right))
-		if across > width * 0.5:
+		if across > width * 0.5 + er:
 			continue
 		e.call("take_damage", dmg, false, "", 0.0)
 
 
-## 360° 环斩（镰刀）：周围 radius 内全伤。
+## 360° 环斩（镰刀）：周围 radius 内全伤（含敌人半径）。
 func _skill_ring(pos: Vector2, dmg: int, radius: float) -> void:
 	for en in get_tree().get_nodes_in_group("enemy"):
 		var e := en as Node2D
 		if e == null or not e.has_method("take_damage"):
 			continue
-		if e.global_position.distance_to(pos) <= radius:
+		if e.global_position.distance_to(pos) <= radius + _enemy_radius(e):
 			e.call("take_damage", dmg, false, "", 0.0)
 
 
@@ -185,7 +187,7 @@ func _skill_blast(pos: Vector2, dmg: int, radius: float, knockback: float) -> vo
 			continue
 		var to := e.global_position - pos
 		var dist := to.length()
-		if dist > radius:
+		if dist > radius + _enemy_radius(e):
 			continue
 		e.call("take_damage", dmg, false, "", 0.0)
 		if e.has_method("knockback") and dist > 1.0:
@@ -200,7 +202,7 @@ func _skill_control(pos: Vector2, aim: Vector2, dmg: int, arc_deg: float, radius
 			continue
 		var to := e.global_position - pos
 		var dist := to.length()
-		if dist > radius:
+		if dist > radius + _enemy_radius(e):
 			continue
 		var ang := aim.angle_to(to)
 		ang = fmod(ang + PI, TAU) - PI
@@ -217,7 +219,7 @@ func _skill_buff_aoe(pos: Vector2, dmg: int, radius: float, atk_speed_bonus: flo
 		var e := en as Node2D
 		if e == null or not e.has_method("take_damage"):
 			continue
-		if e.global_position.distance_to(pos) <= radius:
+		if e.global_position.distance_to(pos) <= radius + _enemy_radius(e):
 			e.call("take_damage", dmg, false, "", 0.0)
 	var base: float = GameManager.atk_speed_mult
 	GameManager.atk_speed_mult = base + atk_speed_bonus
@@ -287,24 +289,29 @@ func _melee(pos: Vector2, aim: Vector2, w: Dictionary, dmg: int, is_crit: bool) 
 	var arc_deg: float = float(w.get("arc", 90))
 	var aoe: float = float(w.get("aoe", 0.0))
 	var ring: bool = arc_deg >= 360.0
-	var center := pos + aim * reach * 0.5
+	# 特效/范围中心前移到刀锋前沿（reach 是武器长度，弧光应画在武器尖端附近而非正中间），
+	# 让视觉弧光与判定区一致，避免"看着打到但没判定"。
+	var center := pos + aim * reach * 0.75
 	for en in get_tree().get_nodes_in_group("enemy"):
 		var e := en as Node2D
 		if e == null or not e.has_method("take_damage"):
 			continue
 		var to := e.global_position - pos
 		var dist := to.length()
+		# 命中判定把敌人"身体半径"算进去：中心点距离 ≤ reach + 敌人半径 = 身体边缘接触刀锋即命中，
+		# 修复近战范围偏小（视觉扫过但中心点未进 reach）的问题。
+		var er := _enemy_radius(e)
 		var hit := false
 		if ring:
-			hit = dist <= reach
+			hit = dist <= reach + er
 		else:
-			if dist <= reach:
+			if dist <= reach + er:
 				var ang := aim.angle_to(to)
 				ang = fmod(ang + PI, TAU) - PI
 				if abs(ang) <= deg_to_rad(arc_deg) * 0.5:
 					hit = true
 		if not hit and aoe > 0.0:
-			if e.global_position.distance_to(center) <= aoe:
+			if e.global_position.distance_to(center) <= aoe + er:
 				hit = true
 		if not hit:
 			continue
@@ -318,6 +325,18 @@ func _melee(pos: Vector2, aim: Vector2, w: Dictionary, dmg: int, is_crit: bool) 
 	if bool(w.get("dash", false)):
 		get_parent().call("dash", aim)
 	_melee_fx(w, center, aim, reach, aoe)
+
+
+## 取敌人碰撞半径：命中判定把敌人"身体半径"算进去（中心点距离 → 边缘接触即命中）。
+## 敌人碰撞框已改为 RectangleShape2D（方形贴合身体）；用长边一半作等效半径。兜底 20。
+func _enemy_radius(e: Node2D) -> float:
+	var cs := e.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if cs != null and cs.shape is CircleShape2D:
+		return (cs.shape as CircleShape2D).radius
+	if cs != null and cs.shape is RectangleShape2D:
+		var s: Vector2 = (cs.shape as RectangleShape2D).size
+		return maxf(s.x, s.y) * 0.5
+	return 20.0
 
 
 func _melee_fx(w: Dictionary, center: Vector2, aim: Vector2, reach: float, aoe: float) -> void:

@@ -3,8 +3,10 @@
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://br7xu8uye5q8n" path="res://assets/tiles/S_002_3ro4.png" id="2_pw8db"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="4_nh53i"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_ypp8r"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="5_ypp8r"]
+[ext_resource type="Script" uid="uid://da124w81aw0i5" path="res://src/rooms/handles/EnemyHandle.gd" id="7_a8nc3"]
 
 [node name="Room" type="Node2D" unique_id=1364615586]
 script = ExtResource("1")
@@ -27,11 +29,20 @@ script = ExtResource("2")
 target = "r2"
 layer = 2
 
+[node name="SizeHandle" type="Node2D" parent="Door_r2" unique_id=2147423330]
+position = Vector2(22, 22)
+script = ExtResource("4_nh53i")
+
 [node name="Door_r5" type="Node2D" parent="." unique_id=899901375]
 position = Vector2(0, 224)
 script = ExtResource("2")
 target = "r5"
 layer = 2
+door_size = Vector2(136, 20)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r5" unique_id=1342983759]
+position = Vector2(68, 10)
+script = ExtResource("4_nh53i")
 
 [node name="Blocked" type="Node2D" parent="." unique_id=927361870]
 position = Vector2(0, -234)
@@ -1457,3 +1468,23 @@ idx = 2
 position = Vector2(-4, 12)
 script = ExtResource("5_ypp8r")
 idx = 3
+
+[node name="Enemy" type="Node2D" parent="." unique_id=10059088]
+position = Vector2(8, -11)
+script = ExtResource("7_a8nc3")
+enemy_type = 6
+
+[node name="Enemy_2" type="Node2D" parent="." unique_id=448520082]
+position = Vector2(-190, -7)
+script = ExtResource("7_a8nc3")
+enemy_type = 7
+
+[node name="Enemy_3" type="Node2D" parent="." unique_id=643627203]
+position = Vector2(-87, -2)
+script = ExtResource("7_a8nc3")
+enemy_type = 7
+
+[node name="Enemy_4" type="Node2D" parent="." unique_id=1131746524]
+position = Vector2(130, -10)
+script = ExtResource("7_a8nc3")
+enemy_type = 6

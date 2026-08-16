@@ -1,6 +1,331 @@
-[gd_scene load_steps=2 format=3 uid="uid://main0001"]
+[gd_scene format=3 uid="uid://main0001"]
 
-[ext_resource type="Script" path="res://src/scenes/Main.gd" id="1"]
+[ext_resource type="Script" uid="uid://c3bpbwesfja0t" path="res://src/scenes/Main.gd" id="1_script"]
+[ext_resource type="VideoStream" uid="uid://b1fm2jk65mkwk" path="res://assets/ui/标题循环.ogv" id="2_video"]
+[ext_resource type="Texture2D" uid="uid://lnc1xcxhpnts" path="res://assets/ui/UI-022_button_normal.png" id="3_btn_n"]
+[ext_resource type="Texture2D" uid="uid://qsmtrwoekfdb" path="res://assets/ui/UI-023_button_hover.png" id="4_btn_h"]
+[ext_resource type="Texture2D" uid="uid://d25gsqqvuqiyh" path="res://assets/ui/UI-024_button_pressed.png" id="5_btn_p"]
 
-[node name="Main" type="Control"]
-script = ExtResource("1")
+[sub_resource type="StyleBoxEmpty" id="sb_focus"]
+
+[sub_resource type="StyleBoxTexture" id="sb_hover"]
+texture = ExtResource("4_btn_h")
+texture_margin_left = 16.0
+texture_margin_top = 8.0
+texture_margin_right = 16.0
+texture_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxTexture" id="sb_normal"]
+texture = ExtResource("3_btn_n")
+texture_margin_left = 16.0
+texture_margin_top = 8.0
+texture_margin_right = 16.0
+texture_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxTexture" id="sb_pressed"]
+texture = ExtResource("5_btn_p")
+texture_margin_left = 16.0
+texture_margin_top = 8.0
+texture_margin_right = 16.0
+texture_margin_bottom = 8.0
+
+[sub_resource type="Theme" id="theme_main"]
+Button/colors/font_color = Color(1, 1, 1, 1)
+Button/colors/font_focus_color = Color(1, 1, 1, 1)
+Button/colors/font_hover_color = Color(1, 0.95, 0.78, 1)
+Button/colors/font_outline_color = Color(0, 0, 0, 1)
+Button/colors/font_pressed_color = Color(1, 0.9, 0.6, 1)
+Button/constants/outline_size = 4
+Button/font_sizes/font_size = 18
+Button/styles/focus = SubResource("sb_focus")
+Button/styles/hover = SubResource("sb_hover")
+Button/styles/normal = SubResource("sb_normal")
+Button/styles/pressed = SubResource("sb_pressed")
+
+[node name="Main" type="Control" unique_id=12810258]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("theme_main")
+script = ExtResource("1_script")
+
+[node name="VideoBG" type="VideoStreamPlayer" parent="." unique_id=349943226]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+audio_track = -1
+stream = ExtResource("2_video")
+autoplay = true
+expand = true
+loop = true
+
+[node name="Overlay" type="ColorRect" parent="." unique_id=1266642128]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.35)
+
+[node name="TitleShadow" type="Label" parent="." unique_id=200353370]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 70.0
+offset_right = 400.0
+offset_bottom = 180.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 76
+text = "梦境逐影"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TitleCN" type="Label" parent="." unique_id=379202216]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 63.0
+offset_right = 400.0
+offset_bottom = 173.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.98, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.02, 0.1, 1)
+theme_override_constants/outline_size = 16
+theme_override_font_sizes/font_size = 189
+text = "梦境逐影"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TitleEN" type="Label" parent="." unique_id=1792347539]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 330.0
+offset_right = 400.0
+offset_bottom = 376.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.02, 0.1, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 70
+text = "DREAM CHASER"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TitleEN2" type="Label" parent="." unique_id=135140071]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 330.0
+offset_right = 400.0
+offset_bottom = 376.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.02, 0.1, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 70
+text = "DREAM CHASER"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PressAny" type="Label" parent="." unique_id=1709158248]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 643.0
+offset_right = 200.0
+offset_bottom = 683.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 20
+text = "按任意键继续"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MenuRoot" type="CenterContainer" parent="." unique_id=2108310256]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = 187.0
+offset_right = -2.0
+offset_bottom = 187.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MenuPanel" type="VBoxContainer" parent="MenuRoot" unique_id=340208311]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="NewBtn" type="Button" parent="MenuRoot/MenuPanel" unique_id=500313608]
+custom_minimum_size = Vector2(240, 52)
+layout_mode = 2
+text = "新游戏"
+
+[node name="ContinueBtn" type="Button" parent="MenuRoot/MenuPanel" unique_id=1494769986]
+custom_minimum_size = Vector2(240, 52)
+layout_mode = 2
+text = "继续游戏"
+
+[node name="SettingsBtn" type="Button" parent="MenuRoot/MenuPanel" unique_id=1613437836]
+custom_minimum_size = Vector2(240, 52)
+layout_mode = 2
+text = "设置"
+
+[node name="QuitBtn" type="Button" parent="MenuRoot/MenuPanel" unique_id=99923610]
+custom_minimum_size = Vector2(240, 52)
+layout_mode = 2
+text = "退出游戏"
+
+[node name="SettingsWrap" type="CenterContainer" parent="." unique_id=664281222]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SettingsPanel" type="PanelContainer" parent="SettingsWrap" unique_id=278246346]
+custom_minimum_size = Vector2(360, 260)
+layout_mode = 2
+theme_override_styles/panel = SubResource("sb_normal")
+
+[node name="SettingsBox" type="VBoxContainer" parent="SettingsWrap/SettingsPanel" unique_id=1653196391]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="STitle" type="Label" parent="SettingsWrap/SettingsPanel/SettingsBox" unique_id=793289590]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 28
+text = "设  置"
+horizontal_alignment = 1
+
+[node name="VolRow" type="HBoxContainer" parent="SettingsWrap/SettingsPanel/SettingsBox" unique_id=423930427]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="VolLabel" type="Label" parent="SettingsWrap/SettingsPanel/SettingsBox/VolRow" unique_id=882697808]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "主音量"
+
+[node name="VolSlider" type="HSlider" parent="SettingsWrap/SettingsPanel/SettingsBox/VolRow" unique_id=847092265]
+layout_mode = 2
+size_flags_horizontal = 3
+value = 80.0
+
+[node name="VolValue" type="Label" parent="SettingsWrap/SettingsPanel/SettingsBox/VolRow" unique_id=1092572759]
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "80%"
+
+[node name="VolHint" type="Label" parent="SettingsWrap/SettingsPanel/SettingsBox" unique_id=566499124]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
+theme_override_font_sizes/font_size = 12
+text = "滑到 0 即静音 · 设置会自动保存"
+
+[node name="F12MapToggle" type="CheckButton" parent="SettingsWrap/SettingsPanel/SettingsBox" unique_id=810001]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "F12 全开地图"
+
+[node name="F11KillToggle" type="CheckButton" parent="SettingsWrap/SettingsPanel/SettingsBox" unique_id=810002]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "F11 秒杀敌人"
+
+[node name="CloseBtn" type="Button" parent="SettingsWrap/SettingsPanel/SettingsBox" unique_id=1779099183]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "返回"
+
+[node name="BlinkTimer" type="Timer" parent="." unique_id=401555072]
+wait_time = 0.55
+autostart = true
+
+[node name="SaveWrap" type="CenterContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SavePanel" type="PanelContainer" parent="SaveWrap"]
+custom_minimum_size = Vector2(400, 320)
+layout_mode = 2
+theme_override_styles/panel = SubResource("sb_normal")
+
+[node name="SaveBox" type="VBoxContainer" parent="SaveWrap/SavePanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SaveTitle" type="Label" parent="SaveWrap/SavePanel/SaveBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+text = "选择存档"
+horizontal_alignment = 1
+
+[node name="Slot1Btn" type="Button" parent="SaveWrap/SavePanel/SaveBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "存档 1 · 空"
+
+[node name="Slot2Btn" type="Button" parent="SaveWrap/SavePanel/SaveBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "存档 2 · 空"
+
+[node name="Slot3Btn" type="Button" parent="SaveWrap/SavePanel/SaveBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "存档 3 · 空"
+
+[node name="SaveHint" type="Label" parent="SaveWrap/SavePanel/SaveBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
+text = "点击有存档的槽位进入 · 游戏内 ESC 可手动存档"
+horizontal_alignment = 1
+
+[node name="SaveCloseBtn" type="Button" parent="SaveWrap/SavePanel/SaveBox"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "返回"

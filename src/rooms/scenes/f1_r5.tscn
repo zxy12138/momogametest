@@ -4,7 +4,9 @@
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://d1fna2f4jdaqi" path="res://assets/tiles/S_001_5.png" id="2_uskxu"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_ndmri"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="4_t5bto"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="5_ndmri"]
+[ext_resource type="Script" uid="uid://da124w81aw0i5" path="res://src/rooms/handles/EnemyHandle.gd" id="7_i1u0k"]
 
 [node name="Room" type="Node2D" unique_id=1681451724]
 script = ExtResource("1")
@@ -21,19 +23,34 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="Door_r3" type="Node2D" parent="." unique_id=1942259024]
-position = Vector2(-252, -226)
+position = Vector2(-240, -226)
 script = ExtResource("2")
 target = "r3"
+door_size = Vector2(124, 16)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r3" unique_id=553972315]
+position = Vector2(62, 1)
+script = ExtResource("4_t5bto")
 
 [node name="Door_r4" type="Node2D" parent="." unique_id=2102650473]
-position = Vector2(251, -219)
+position = Vector2(265, -224)
 script = ExtResource("2")
 target = "r4"
+door_size = Vector2(126, 16)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r4" unique_id=915425993]
+position = Vector2(63, 6)
+script = ExtResource("4_t5bto")
 
 [node name="Door_r6" type="Node2D" parent="." unique_id=276165038]
-position = Vector2(-4, 234)
+position = Vector2(3, 235)
 script = ExtResource("2")
 target = "r6"
+door_size = Vector2(142, 16)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r6" unique_id=1278734354]
+position = Vector2(71, 1)
+script = ExtResource("4_t5bto")
 
 [node name="Blocked" type="Node2D" parent="." unique_id=1377708582]
 position = Vector2(-392, -246)
@@ -2859,3 +2876,13 @@ idx = 2
 position = Vector2(-148, 4)
 script = ExtResource("5_ndmri")
 idx = 3
+
+[node name="Enemy" type="Node2D" parent="." unique_id=1527093738]
+position = Vector2(38, -25)
+script = ExtResource("7_i1u0k")
+enemy_type = 4
+
+[node name="Enemy_2" type="Node2D" parent="." unique_id=1908495254]
+position = Vector2(-1, 158)
+script = ExtResource("7_i1u0k")
+enemy_type = 4

@@ -29,6 +29,36 @@ const _MIN_POINTS: int = 3
 ## 运行期（非编辑器进程）不受影响：F5/F6 是新进程，静态变量不共享。
 static var s_hidden_all: bool = false
 
+## 项目设置键：把「隐藏禁区可视化」持久化到 project.godot，
+## 让运行期（F5/F6 是新进程）也能读到——插件勾选隐藏后，进游戏同样不显示红色禁区。
+const HIDE_VISUAL_SETTING := "momogame/hide_blocked_visuals"
+
+
+## 运行期读取：是否隐藏禁区红色可视化（默认 false）。
+static func is_visual_hidden() -> bool:
+	return bool(ProjectSettings.get_setting(HIDE_VISUAL_SETTING, false))
+
+
+## 编辑器写入：勾选/取消「隐藏禁区可视化」时持久化，供运行期读取。
+static func set_visual_hidden(hide: bool) -> void:
+	ProjectSettings.set_setting(HIDE_VISUAL_SETTING, hide)
+	ProjectSettings.save()
+
+
+## 项目设置键：门判定框可视化隐藏开关（插件「隐藏门判定框」写入、运行期与编辑器 DoorHandle 读取）。
+const HIDE_DOOR_VISUAL_SETTING := "momogame/hide_door_visuals"
+
+
+## 读取：是否隐藏门判定框可视化（默认 false=显示）。编辑器 DoorHandle 与运行期 RoomManager 共用。
+static func is_door_visual_hidden() -> bool:
+	return bool(ProjectSettings.get_setting(HIDE_DOOR_VISUAL_SETTING, false))
+
+
+## 写入：勾选/取消「隐藏门判定框」时持久化。
+static func set_door_visual_hidden(hide: bool) -> void:
+	ProjectSettings.set_setting(HIDE_DOOR_VISUAL_SETTING, hide)
+	ProjectSettings.save()
+
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
@@ -160,8 +190,9 @@ func _redraw() -> void:
 			continue   # 保留顶点子节点
 		c.queue_free()
 	# 全局隐藏（插件「隐藏禁区可视化」）：清空可视化子节点后直接返回，不绘制红框/边框。
-	# 用静态标志而非 visible，避免 visible=false 被 Ctrl+S 存进 .tscn 造成永久隐藏。
-	if s_hidden_all:
+	# 用静态标志 + 持久化设置两者判断：s_hidden_all 是编辑器会话内即时开关，is_visual_hidden()
+	# 读 project.godot 持久化值——否则关掉软件重开后静态标志重置，禁区又会显示（须重新勾选）。
+	if s_hidden_all or is_visual_hidden():
 		return
 	# 收集点（多边形模式优先读子节点，否则回退 points；矩形模式用 rect_size）
 	var pts: PackedVector2Array

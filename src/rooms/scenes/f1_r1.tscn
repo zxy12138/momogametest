@@ -7,6 +7,9 @@
 [ext_resource type="Script" uid="uid://xare6cnk2cgh" path="res://src/rooms/handles/SpawnPointHandle.gd" id="4_shhap"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="5_w72pm"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="6_es2o2"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="6_uyiay"]
+[ext_resource type="PackedScene" uid="uid://b3p0isvs7ra7g" path="res://assets/tiles/Dynamic_objects/S_001_1_opendoor.tscn" id="8_il13e"]
+[ext_resource type="Script" uid="uid://c3aljtohj5u5l" path="res://src/rooms/handles/PortalHandle.gd" id="9_portal"]
 
 [node name="Room" type="Node2D" unique_id=925041757]
 script = ExtResource("1")
@@ -39,10 +42,23 @@ script = ExtResource("2_utt3b")
 position = Vector2(126, 49.999992)
 script = ExtResource("4_shhap")
 
+[node name="Portal" type="Node2D" parent="." unique_id=1546915774]
+position = Vector2(-189, -63.000004)
+scale = Vector2(0.405, 0.405)
+script = ExtResource("9_portal")
+shape_type = 0
+rect_size = Vector2(80, 80)
+points = PackedVector2Array()
+
 [node name="Door_r2" type="Node2D" parent="." unique_id=917166414]
-position = Vector2(304, -120)
+position = Vector2(314, -147)
 script = ExtResource("2_door")
 target = "r2"
+door_size = Vector2(78, 124)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r2" unique_id=498770471]
+position = Vector2(39, 62)
+script = ExtResource("6_uyiay")
 
 [node name="Blocked" type="Node2D" parent="." unique_id=1523062116]
 position = Vector2(47.502132, -50.985073)
@@ -323,3 +339,13 @@ idx = 2
 position = Vector2(72, -40)
 script = ExtResource("6_es2o2")
 idx = 3
+
+[node name="Polygon2D" type="Polygon2D" parent="." unique_id=216516197]
+clip_children = 1
+polygon = PackedVector2Array(284, -220, 400, -219, 396, -35, 324, -3, 239, -58)
+
+[node name="S_001_1_opendoor" parent="Polygon2D" unique_id=1241176606 instance=ExtResource("8_il13e")]
+position = Vector2(173, -258)
+scale = Vector2(0.7128204, 0.71282077)
+frame_progress = 0.05931639
+metadata/_edit_lock_ = true

@@ -1,0 +1,356 @@
+[gd_scene format=3 uid="uid://c7kne7kd10t8i"]
+
+[ext_resource type="Script" uid="uid://cjw1gihy777ws" path="res://src/scenes/CharacterUI.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://cmk2bb74kj5g8" path="res://assets/Live2d/momo/momo_happy.png" id="2_portrait"]
+[ext_resource type="Texture2D" uid="uid://dcjaulvh0vtfy" path="res://assets/ui/avatar_ring_mask.png" id="3_ring"]
+[ext_resource type="Texture2D" uid="uid://dcim11qylu0ei" path="res://assets/ui/UI-001_hp_bar_frame.png" id="4_hpbg"]
+[ext_resource type="Texture2D" uid="uid://bf6w6rdtsavep" path="res://assets/ui/UI-002_hp_bar_fill.png" id="5_hpfill"]
+[ext_resource type="Texture2D" uid="uid://dhu2djrpdbf8a" path="res://assets/ui/UI-003_exp_bar_frame.png" id="6_xpbg"]
+[ext_resource type="Texture2D" uid="uid://7n5u7vb435rb" path="res://assets/ui/UI-004_exp_bar_fill.png" id="7_xpfill"]
+[ext_resource type="Texture2D" uid="uid://b2mwxakl3rjip" path="res://assets/ui/UI-010_dream_crystal_counter_icon.png" id="8_gvicon"]
+
+[sub_resource type="StyleBoxFlat" id="sb_ring"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.95, 0.8, 0.4, 1)
+corner_radius_top_left = 128
+corner_radius_top_right = 128
+corner_radius_bottom_right = 128
+corner_radius_bottom_left = 128
+
+[sub_resource type="StyleBoxTexture" id="sb_hp_bg"]
+texture = ExtResource("4_hpbg")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="sb_hp_fill"]
+texture = ExtResource("5_hpfill")
+texture_margin_left = 2.0
+texture_margin_top = 2.0
+texture_margin_right = 2.0
+texture_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="sb_mp_bg"]
+bg_color = Color(0.05, 0.12, 0.26, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.7, 0.85, 1, 0.55)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="sb_mp_fill"]
+bg_color = Color(0.3, 0.6, 1, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxTexture" id="sb_xp_bg"]
+texture = ExtResource("6_xpbg")
+texture_margin_left = 3.0
+texture_margin_top = 3.0
+texture_margin_right = 3.0
+texture_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxTexture" id="sb_xp_fill"]
+texture = ExtResource("7_xpfill")
+texture_margin_left = 2.0
+texture_margin_top = 2.0
+texture_margin_right = 2.0
+texture_margin_bottom = 2.0
+
+[node name="CharacterUI" type="Control" unique_id=110306379]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1")
+
+[node name="AvatarBox" type="Control" parent="." unique_id=1674525180]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 208.0
+offset_bottom = 208.0
+mouse_filter = 2
+
+[node name="PortraitRect" type="TextureRect" parent="AvatarBox" unique_id=921194055]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -3.0
+offset_top = 9.0
+offset_right = -3.0
+offset_bottom = 254.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_portrait")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="RingMask" type="TextureRect" parent="AvatarBox" unique_id=303892502]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_ring")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GoldRing" type="Panel" parent="AvatarBox" unique_id=623672589]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("sb_ring")
+
+[node name="BarsBox" type="Control" parent="." unique_id=363682834]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 221.0
+offset_top = 65.0
+offset_right = 601.0
+offset_bottom = 177.0
+mouse_filter = 2
+
+[node name="HPIcon" type="Label" parent="BarsBox" unique_id=1952379756]
+layout_mode = 0
+offset_top = 2.0
+offset_right = 30.0
+offset_bottom = 26.0
+theme_override_colors/font_color = Color(1, 0.35, 0.45, 1)
+theme_override_font_sizes/font_size = 20
+text = "♥"
+
+[node name="HPName" type="Label" parent="BarsBox" unique_id=13843960]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 2.0
+offset_right = 70.0
+offset_bottom = 26.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "HP"
+
+[node name="HPBar" type="ProgressBar" parent="BarsBox" unique_id=1963831921]
+layout_mode = 0
+offset_left = 72.0
+offset_right = 372.0
+offset_bottom = 20.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("sb_hp_bg")
+theme_override_styles/fill = SubResource("sb_hp_fill")
+value = 100.0
+show_percentage = false
+
+[node name="MPIcon" type="Label" parent="BarsBox" unique_id=1073816371]
+layout_mode = 0
+offset_top = 42.0
+offset_right = 30.0
+offset_bottom = 64.0
+theme_override_colors/font_color = Color(0.4, 0.65, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "♦"
+
+[node name="MPName" type="Label" parent="BarsBox" unique_id=670517043]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 40.0
+offset_right = 70.0
+offset_bottom = 64.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "MP"
+
+[node name="MPBar" type="ProgressBar" parent="BarsBox" unique_id=1935834112]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 38.0
+offset_right = 372.0
+offset_bottom = 54.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("sb_mp_bg")
+theme_override_styles/fill = SubResource("sb_mp_fill")
+value = 100.0
+show_percentage = false
+
+[node name="EXPIcon" type="Label" parent="BarsBox" unique_id=1398508767]
+layout_mode = 0
+offset_top = 76.0
+offset_right = 30.0
+offset_bottom = 98.0
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+theme_override_font_sizes/font_size = 20
+text = "★"
+
+[node name="EXPName" type="Label" parent="BarsBox" unique_id=1529394708]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 74.0
+offset_right = 82.0
+offset_bottom = 98.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "EXP"
+
+[node name="EXPBar" type="ProgressBar" parent="BarsBox" unique_id=1588146393]
+layout_mode = 0
+offset_left = 84.0
+offset_top = 74.0
+offset_right = 384.0
+offset_bottom = 86.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("sb_xp_bg")
+theme_override_styles/fill = SubResource("sb_xp_fill")
+show_percentage = false
+
+[node name="InfoBox" type="Control" parent="." unique_id=198560181]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 53.0
+offset_top = 227.0
+offset_right = 349.0
+offset_bottom = 311.0
+mouse_filter = 2
+
+[node name="LvLabel" type="Label" parent="InfoBox" unique_id=1860752971]
+layout_mode = 0
+offset_right = 120.0
+offset_bottom = 24.0
+theme_override_colors/font_color = Color(1, 0.95, 0.7, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 17
+text = "Lv.1"
+
+[node name="CritLabel" type="Label" parent="InfoBox" unique_id=571074576]
+layout_mode = 0
+offset_top = 26.0
+offset_right = 160.0
+offset_bottom = 46.0
+theme_override_colors/font_color = Color(1, 0.6, 0.1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 13
+text = "暴击 5%"
+
+[node name="WepLabel" type="Label" parent="InfoBox" unique_id=1420476861]
+layout_mode = 0
+offset_top = 48.0
+offset_right = 296.0
+offset_bottom = 68.0
+theme_override_colors/font_color = Color(0.8, 0.7, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 13
+text = "武器：未装备"
+
+[node name="UltLabel" type="Label" parent="InfoBox" unique_id=470718253]
+layout_mode = 0
+offset_top = 70.0
+offset_right = 296.0
+offset_bottom = 90.0
+theme_override_colors/font_color = Color(0.6, 1, 0.7, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 13
+
+[node name="GVRow" type="HBoxContainer" parent="." unique_id=1833969935]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -170.0
+offset_top = -54.0
+offset_right = -24.0
+offset_bottom = -30.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="GVIcon" type="TextureRect" parent="GVRow" unique_id=1533229226]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("8_gvicon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GVLabel" type="Label" parent="GVRow" unique_id=427632428]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "GV 0"
+
+[node name="Hint" type="Label" parent="." unique_id=2038569688]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -420.0
+offset_top = -34.0
+offset_right = 420.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.8, 0.8, 0.9, 0.85)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 12
+text = "WASD 移动 · 鼠标瞄准 · 左键攻击 · E 武器技能 · F 拾取/交互 · M 地图"
+horizontal_alignment = 1
+
+[node name="ToggleHint" type="Label" parent="." unique_id=30110600]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 436.0
+offset_top = -34.0
+offset_right = 566.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 0.9)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 12
+text = "按 H 隐藏"
+horizontal_alignment = 2

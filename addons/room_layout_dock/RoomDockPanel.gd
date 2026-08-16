@@ -19,6 +19,7 @@ var _blocked_ops: HBoxContainer = null
 var _dir_edit: LineEdit   ## 黑白图导入默认文件夹（文件选择器打开时定位到这里）
 var _plugin: EditorPlugin = null   ## 插件引用（取撤销管理器等插件级能力）
 var _hide_blocked: CheckBox   ## 隐藏禁区可视化（测试用）
+var _hide_door_visual: CheckBox   ## 隐藏门判定框（测试用）
 
 ## 房间世界尺寸（与 RoomManager.W/H 一致，用于黑白图→房间坐标映射）
 const ROOM_W := 880.0
@@ -98,14 +99,23 @@ func _ready() -> void:
 	var row2 := HBoxContainer.new()
 	row2.add_child(_btn("+ 出生点", _add_spawn))
 	row2.add_child(_btn("+ 武器", _add_weapon))
+	row2.add_child(_btn("+ 驿站", _add_inn))
 	row2.add_child(_btn("+ 装饰", _add_decoration))
 	row2.add_child(_btn("+ 下一层门", _add_next_door))
 	add_child(row2)
 	# 隐藏禁区可视化（测试用）：一键隐藏当前场景所有禁区手柄的编辑器显示
 	_hide_blocked = CheckBox.new()
 	_hide_blocked.text = "隐藏禁区可视化（测试）"
+	# 与持久化设置同步：重启后勾选框状态对齐 project.godot 里的值，避免"框没勾但游戏里仍隐藏"的困惑
+	_hide_blocked.button_pressed = BlockedHandle.is_visual_hidden()
 	_hide_blocked.toggled.connect(_on_hide_blocked)
 	add_child(_hide_blocked)
+	# 隐藏门判定框（测试用）：勾选后进游戏不显示门的 44×44 判定框可视化（project.godot 持久化）
+	_hide_door_visual = CheckBox.new()
+	_hide_door_visual.text = "隐藏门判定框（测试）"
+	_hide_door_visual.button_pressed = BlockedHandle.is_door_visual_hidden()
+	_hide_door_visual.toggled.connect(_on_hide_door_visual)
+	add_child(_hide_door_visual)
 	# 黑白图导入生成禁区（黑=禁区 / 白=可行走）+ 默认文件夹
 	var dir_row := HBoxContainer.new()
 	dir_row.add_child(_label("文件夹:"))
@@ -181,6 +191,7 @@ func _update_info() -> void:
 	var n_door := 0
 	var n_enemy := 0
 	var n_blocked := 0
+	var n_inn := 0
 	var n_spawn := 0
 	var n_weapon := 0
 	var n_deco := 0
@@ -190,6 +201,8 @@ func _update_info() -> void:
 			n_door += 1
 		elif c is EnemyHandle:
 			n_enemy += 1
+		elif c is InnHandle:
+			n_inn += 1   # 驿站继承禁区：先判断子类
 		elif c is BlockedHandle:
 			n_blocked += 1
 		elif c is SpawnPointHandle:
@@ -200,7 +213,7 @@ func _update_info() -> void:
 			n_deco += 1
 		elif c is NextDoorHandle:
 			n_next += 1
-	_count.text = "门 %d · 敌人 %d · 禁区 %d · 出生点 %d · 武器 %d · 装饰 %d · 门%d" % [n_door, n_enemy, n_blocked, n_spawn, n_weapon, n_deco, n_next]
+	_count.text = "门 %d · 敌人 %d · 禁区 %d · 驿站 %d · 出生点 %d · 武器 %d · 装饰 %d · 门%d" % [n_door, n_enemy, n_blocked, n_inn, n_spawn, n_weapon, n_deco, n_next]
 
 
 func _add_handle(h: Node2D) -> void:
@@ -213,6 +226,8 @@ func _add_handle(h: Node2D) -> void:
 		base = "Door"
 	elif h is EnemyHandle:
 		base = "Enemy"
+	elif h is InnHandle:
+		base = "Inn"   # 驿站继承禁区：先判断子类
 	elif h is BlockedHandle:
 		base = "Blocked"
 	elif h is SpawnPointHandle:
@@ -247,6 +262,10 @@ func _add_enemy() -> void:
 
 func _add_blocked() -> void:
 	_add_handle(BlockedHandle.new())
+
+
+func _add_inn() -> void:
+	_add_handle(InnHandle.new())
 
 
 func _add_spawn() -> void:
@@ -343,15 +362,37 @@ func _on_boss_drop(idx: int) -> void:
 		_sel_boss.boss_type = idx
 
 
-## 隐藏/显示禁区可视化（测试用）：设置 BlockedHandle 类级静态标志 + 刷新当前场景所有禁区。
+## 隐藏/显示禁区可视化（测试用）：设置 BlockedHandle 类级静态标志 + 刷新当前场景所有禁区，
+## 并持久化到 project.godot，让运行期（F5/F6 新进程）进游戏后同样不显示红色禁区。
 ## 不直接改 visible（否则 Ctrl+S 会把 visible=false 存进 .tscn，导致该房间禁区永久隐藏）。
 func _on_hide_blocked(hide: bool) -> void:
 	BlockedHandle.s_hidden_all = hide
+	BlockedHandle.set_visual_hidden(hide)
 	var root := _current_root()
 	if root == null:
 		return
 	for b in _collect_blocked(root):
 		b.call("_redraw")
+
+
+## 隐藏/显示门判定框：持久化到 project.godot，让运行期进游戏后同样不显示门的判定框可视化；
+## 并重绘当前场景所有 DoorHandle，让编辑器里勾选/取消即时生效（不勾=显示，勾=隐藏）。
+func _on_hide_door_visual(hide: bool) -> void:
+	BlockedHandle.set_door_visual_hidden(hide)
+	var root := _current_root()
+	if root == null:
+		return
+	for d in _collect_door(root):
+		d.call("_redraw")
+
+
+func _collect_door(node: Node) -> Array[DoorHandle]:
+	var out: Array[DoorHandle] = []
+	for c in node.get_children():
+		if c is DoorHandle:
+			out.append(c)
+		out.append_array(_collect_door(c))
+	return out
 
 
 func _collect_blocked(node: Node) -> Array[BlockedHandle]:

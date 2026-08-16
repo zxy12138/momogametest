@@ -125,7 +125,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			_open_map()
 		return
 	# 地图界面按 F12 临时全开 / 恢复迷雾（只影响显示与可传送，不改进度数据）
+	# 需在设置里开启「F12 全开地图」（GameManager.debug_full_map，默认关闭）。
 	if _open and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F12:
+		if not GameManager.debug_full_map:
+			return
 		MapData.full_map_override = not MapData.full_map_override
 		_draw_map()
 

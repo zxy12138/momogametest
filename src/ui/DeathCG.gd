@@ -31,9 +31,8 @@ func _ready() -> void:
 	skip.pressed.connect(_show_retry)
 	add_child(skip)
 
-	# 数秒后自动出现重试界面
+	# 数秒后自动出现重试界面（SceneTreeTimer 本身即一次性，无 one_shot 属性）
 	var tm := get_tree().create_timer(3.5)
-	tm.one_shot = true
 	tm.connect("timeout", _show_retry)
 
 func _show_retry() -> void:

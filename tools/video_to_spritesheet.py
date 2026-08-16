@@ -12,11 +12,12 @@ video_to_spritesheet.py —— 视频转透明序列帧 / 精灵图集 工具
   6. 导出透明 PNG（默认只拼成一张精灵表；可勾选「同时导出 PNG 序列」保留单独帧）
   7. 写出与游戏序列帧插件兼容的 index.json（含每帧 x/y/w/h/t）
 
-依赖：Python 3.8+、Pillow、tkinter（标准库）、ffmpeg/ffprobe（外部程序，可配置）。
+依赖：Python 3.8+、Pillow、tkinter（标准库）、ffmpeg（外部程序，可配置；本脚本用 ffmpeg -i 读信息，无需 ffprobe）。
 核心函数均为模块级，可用 `python video_to_spritesheet.py --selftest` 无头自测。
 """
 
 import os
+import re
 import sys
 import json
 import math
@@ -29,24 +30,30 @@ from typing import Optional, List, Tuple, Dict, Any
 
 # GUI 仅在需要时才 import，方便无头自测
 try:
-    from PIL import Image, ImageTk, ImageDraw
+    from PIL import Image, ImageDraw
 except Exception as exc:  # pragma: no cover
-    Image = ImageTk = ImageDraw = None
+    Image = ImageDraw = None
     _PIL_ERROR = exc
+
+# ImageTk 依赖 tkinter，与核心图像功能解耦：无 tkinter 时 GUI 不可用，但无头自测/核心管线仍可用。
+try:
+    from PIL import ImageTk
+except Exception:  # pragma: no cover
+    ImageTk = None
 
 
 # ============================================================================
 # ffmpeg 路径探测
 # ============================================================================
 _FFMPEG_CANDIDATES = [
-    r"E:\python project\ffmpeg\bin\ffmpeg.exe",
-    r"E:/python project/ffmpeg/bin/ffmpeg.exe",
-    r"E:/obs/RVC/ffmpeg.exe",
-    r"C:/Users/dapeng/Desktop/Portable360ToolKit/bin/ffmpeg.exe",
-    r"/e/python project/ffmpeg/bin/ffmpeg.exe",
-    r"/e/obs/RVC/ffmpeg.exe",
-    r"/c/ffmpeg/bin/ffmpeg.exe",
-    r"/d/ffmpeg/bin/ffmpeg.exe",
+    r"D:\Pythonproject\.venv\Scripts\ffmpeg.exe",
+    r"D:/Pythonproject/.venv/Scripts/ffmpeg.exe",
+    r"/d/Pythonproject/.venv/Scripts/ffmpeg.exe",
+    r"D:\Pythonproject\pythonProject\.venv\Scripts\ffmpeg.exe",
+    r"D:/Pythonproject/pythonProject/.venv/Scripts/ffmpeg.exe",
+    r"/d/Pythonproject/pythonProject/.venv/Scripts/ffmpeg.exe",
+    r"C:/ffmpeg/bin/ffmpeg.exe",
+    r"D:/ffmpeg/bin/ffmpeg.exe",
 ]
 
 
@@ -66,63 +73,38 @@ def find_ffmpeg(explicit: str = "") -> str:
     return ""
 
 
-def ffprobe_path(ffmpeg_path: str) -> str:
-    """ffprobe 通常与 ffmpeg 同目录。"""
-    if not ffmpeg_path:
-        return ""
-    d = os.path.dirname(ffmpeg_path)
-    cand = os.path.join(d, "ffprobe.exe")
-    if os.path.isfile(cand):
-        return cand
-    cand2 = os.path.join(d, "ffprobe")
-    if os.path.isfile(cand2):
-        return cand2
-    p = shutil.which("ffprobe")
-    return p or cand
-
-
 # ============================================================================
 # 核心管线（模块级，可无头调用）
 # ============================================================================
-def _parse_fraction(s: str) -> float:
-    try:
-        if "/" in s:
-            a, b = s.split("/")
-            a_f, b_f = float(a), float(b)
-            return a_f / b_f if b_f else 0.0
-        return float(s)
-    except Exception:
-        return 0.0
-
-
 def probe_video(ffmpeg_path: str, video_path: str) -> Dict[str, Any]:
-    """用 ffprobe 读取视频元数据。返回 dict（含 width/height/fps/duration/has_alpha）。"""
-    fb = ffprobe_path(ffmpeg_path)
-    if not fb:
-        raise RuntimeError("找不到 ffprobe，无法读取视频信息。")
-    cmd = [
-        fb, "-v", "error",
-        "-select_streams", "v:0",
-        "-show_entries", "stream=width,height,r_frame_rate,avg_frame_rate,pix_fmt",
-        "-show_entries", "format=duration",
-        "-of", "json", video_path,
-    ]
-    out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, text=True)
-    data = json.loads(out)
-    streams = data.get("streams", [])
-    fmt = data.get("format", {})
-    st = streams[0] if streams else {}
-    width = int(st.get("width", 0) or 0)
-    height = int(st.get("height", 0) or 0)
-    r_fps = _parse_fraction(str(st.get("r_frame_rate", "0/1")))
-    a_fps = _parse_fraction(str(st.get("avg_frame_rate", "0/1")))
-    fps = a_fps if a_fps > 0 else r_fps
-    pix = str(st.get("pix_fmt", "")).lower()
+    """用 ffmpeg -i 读取视频元数据（不依赖 ffprobe）。返回 dict（width/height/fps/duration/pix_fmt/has_alpha）。"""
+    cmd = [ffmpeg_path, "-hide_banner", "-i", video_path]
+    # encoding="utf-8" + errors="replace"：ffmpeg 输出（含视频元数据里的中文/UTF-8 字符）不会被
+    # Windows 默认 GBK 解码崩掉，无法解码的字节用 � 替换（probe 只取 ASCII 字段，不影响结果）。
+    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                       text=True, encoding="utf-8", errors="replace")
+    info = (p.stderr or "") + "\n" + (p.stdout or "")
+    # 分辨率：取第一个 Video 流里的 WxH
+    width, height = 0, 0
+    m = re.search(r"Video:.*?(\d{2,5})x(\d{2,5})", info)
+    if m:
+        width, height = int(m.group(1)), int(m.group(2))
+    # 帧率：第一个 "N fps"
+    fps = 0.0
+    m = re.search(r"(\d+(?:\.\d+)?)\s*fps", info)
+    if m:
+        fps = float(m.group(1))
+    # 像素格式：Video: codec (…), pixfmt(…)，取逗号后、左括号前的 token
+    pix = ""
+    m = re.search(r"Video:.*?,\s*([a-z0-9_]+)\s*\(", info)
+    if m:
+        pix = m.group(1).lower()
     has_alpha = ("a" in pix) and (pix not in ("gray", "monob", "gray8"))
-    # 时长优先用 format，回退 stream
-    dur = _parse_fraction(str(fmt.get("duration", "")))
-    if dur <= 0 and st.get("duration"):
-        dur = _parse_fraction(str(st.get("duration")))
+    # 时长：Duration: HH:MM:SS.cc
+    dur = 0.0
+    m = re.search(r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)", info)
+    if m:
+        dur = int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3))
     return {
         "width": width,
         "height": height,
@@ -325,6 +307,7 @@ def _build_gui() -> None:
             self._drag = None           # 拖拽状态
             self._scale = 1.0
             self._off = (0, 0)
+            self._proxy_size = (0, 0)   # 当前预览的代理帧尺寸（extract_proxy 缩放到 max_w=440，可能与原始视频尺寸不同）
             self._playing = False
             self._play_idx = 0
 
@@ -582,6 +565,7 @@ def _build_gui() -> None:
             disp = im.resize((dw, dh), Image.BILINEAR if not self.alpha_var.get() else Image.NEAREST)
             self._scale = scale
             self._off = ((cw - dw) // 2, (ch - dh) // 2)
+            self._proxy_size = (sw, sh)  # 记录代理帧尺寸，供裁剪坐标在「原始视频 ↔ 画布」间换算
             self.canvas.delete("all")
             self._photo = ImageTk.PhotoImage(disp)
             self.canvas.create_image(self._off[0], self._off[1], image=self._photo, anchor="nw")
@@ -590,21 +574,35 @@ def _build_gui() -> None:
         def _draw_crop(self) -> None:
             if not self.meta:
                 return
-            scale = self._scale
-            ox, oy = self._off
+            self.canvas.delete("crop")  # 先清掉上一帧的裁剪框，避免拖拽时矩形/角标叠加残留
+            # 原始视频坐标 → 代理帧坐标 → 画布坐标（代理帧缩放到 max_w=440，与原始尺寸不同需换算）
+            if self._proxy_size[0] > 0 and self._proxy_size[1] > 0:
+                kx = self._proxy_size[0] / float(self.meta["width"])
+                ky = self._proxy_size[1] / float(self.meta["height"])
+            else:
+                kx = ky = 1.0
             x, y, w, h = self.crop
-            dx, dy, dw, dh = x * scale + ox, y * scale + oy, w * scale, h * scale
-            self.canvas.create_rectangle(dx, dy, dx + dw, dy + dh, outline="#ffcc00", width=2)
+            dx = x * kx * self._scale + self._off[0]
+            dy = y * ky * self._scale + self._off[1]
+            dw = w * kx * self._scale
+            dh = h * ky * self._scale
+            self.canvas.create_rectangle(dx, dy, dx + dw, dy + dh,
+                                         outline="#ffcc00", width=2, tags="crop")
             # 角标
             for cx, cy in [(dx, dy), (dx + dw, dy), (dx, dy + dh), (dx + dw, dy + dh)]:
-                self.canvas.create_oval(cx - 3, cy - 3, cx + 3, cy + 3, fill="#ffcc00", outline="")
+                self.canvas.create_oval(cx - 3, cy - 3, cx + 3, cy + 3,
+                                        fill="#ffcc00", outline="", tags="crop")
 
         # ---------------- 裁剪交互 ----------------
         def _canvas_to_src(self, cx: int, cy: int) -> Tuple[int, int]:
-            scale = self._scale
-            ox, oy = self._off
-            sx = (cx - ox) / scale
-            sy = (cy - oy) / scale
+            # 画布坐标 → 代理帧坐标 → 原始视频坐标
+            if self._proxy_size[0] > 0 and self._proxy_size[1] > 0:
+                kx = self.meta["width"] / float(self._proxy_size[0])
+                ky = self.meta["height"] / float(self._proxy_size[1])
+            else:
+                kx = ky = 1.0
+            sx = (cx - self._off[0]) / self._scale * kx
+            sy = (cy - self._off[1]) / self._scale * ky
             return int(round(sx)), int(round(sy))
 
         def _on_down(self, event) -> None:

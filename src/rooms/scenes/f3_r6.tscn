@@ -3,6 +3,9 @@
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://bcmu2pgq8aaeo" path="res://assets/tiles/S_003_6.png" id="2_u7h05"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="4_tnesg"]
+[ext_resource type="Script" uid="uid://d1m7ritvgqp6f" path="res://src/rooms/handles/InnHandle.gd" id="5_wldul"]
+[ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="6_5p3q2"]
 
 [node name="Room" type="Node2D" unique_id=280816054]
 script = ExtResource("1")
@@ -21,13 +24,47 @@ stretch_mode = 6
 metadata/_edit_lock_ = true
 
 [node name="Door_r5" type="Node2D" parent="." unique_id=1918628560]
-position = Vector2(-426, 89)
+position = Vector2(-425, 23)
 script = ExtResource("2")
 target = "r5"
 layer = 3
+door_size = Vector2(44, 184)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r5" unique_id=1701581974]
+position = Vector2(22, 92)
+script = ExtResource("4_tnesg")
 
 [node name="Door_r7" type="Node2D" parent="." unique_id=1480093681]
-position = Vector2(-6, -10)
+position = Vector2(-2, -57)
 script = ExtResource("2")
 target = "r7"
 layer = 3
+door_size = Vector2(130, 210)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r7" unique_id=425712222]
+position = Vector2(65, 105)
+script = ExtResource("4_tnesg")
+
+[node name="Inn" type="Node2D" parent="." unique_id=1481254551]
+position = Vector2(213, -61)
+script = ExtResource("5_wldul")
+points = PackedVector2Array(-69, -82, 97, -82, 98, 196, -68, 196)
+
+[node name="@Node2D@106356" type="Node2D" parent="Inn" unique_id=858361393]
+position = Vector2(-69, -82)
+script = ExtResource("6_5p3q2")
+
+[node name="@Node2D@106359" type="Node2D" parent="Inn" unique_id=899762156]
+position = Vector2(97, -82)
+script = ExtResource("6_5p3q2")
+idx = 1
+
+[node name="@Node2D@106362" type="Node2D" parent="Inn" unique_id=1104125753]
+position = Vector2(98, 196)
+script = ExtResource("6_5p3q2")
+idx = 2
+
+[node name="@Node2D@106365" type="Node2D" parent="Inn" unique_id=1709061667]
+position = Vector2(-68, 196)
+script = ExtResource("6_5p3q2")
+idx = 3

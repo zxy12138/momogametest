@@ -6,7 +6,7 @@ mp4 -> ogv (Theora) 转换器
 面向 Godot 4 的 Theora 视频导入：Godot 只认 .ogv（.ogg 会被当音频导入，视频不显示），
 且分辨率需为 16 的倍数（如 1072 而非 1080），否则导入后画面异常。
 
-纯 tkinter 实现，无第三方依赖。ffmpeg 路径默认指向 E:/python project/ffmpeg/bin。
+纯 tkinter 实现，无第三方依赖。ffmpeg/ffprobe 默认指向用户 venv: D:/Pythonproject/.venv/Scripts。
 """
 
 import os
@@ -18,8 +18,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 # ---- ffmpeg 路径（按需修改） ----
-FFMPEG = r"E:\python project\ffmpeg\bin\ffmpeg.exe"
-FFPROBE = r"E:\python project\ffmpeg\bin\ffprobe.exe"
+FFMPEG = r"D:\Pythonproject\.venv\Scripts\ffmpeg.exe"
+FFPROBE = r"D:\Pythonproject\.venv\Scripts\ffprobe.exe"
 
 CREATE_NO_WINDOW = 0x08000000  # Windows: 不弹黑框
 

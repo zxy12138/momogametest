@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://dqa1yw2yp1wjk" path="res://assets/tiles/S_003_0.png" id="2_8aing"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="4_f5t8v"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_ud06h"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="5_ud06h"]
 [ext_resource type="Script" uid="uid://xare6cnk2cgh" path="res://src/rooms/handles/SpawnPointHandle.gd" id="7_spawn"]
@@ -24,10 +25,15 @@ stretch_mode = 6
 metadata/_edit_lock_ = true
 
 [node name="Door_r1" type="Node2D" parent="." unique_id=2021904126]
-position = Vector2(126, 50)
+position = Vector2(113, -11)
 script = ExtResource("2")
 target = "r1"
 layer = 3
+door_size = Vector2(140, 56)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r1" unique_id=2112143274]
+position = Vector2(70, 28)
+script = ExtResource("4_f5t8v")
 
 [node name="Blocked" type="Node2D" parent="." unique_id=1159020690]
 position = Vector2(0, -194)
@@ -1805,5 +1811,5 @@ script = ExtResource("5_ud06h")
 idx = 3
 
 [node name="Spawn" type="Node2D" parent="." unique_id=1181743535]
-position = Vector2(52, 201)
+position = Vector2(-182, 206)
 script = ExtResource("7_spawn")

@@ -1,10 +1,15 @@
-# 《梦境逐影》存档管理器（user://save.json）
-# 自动存档点：击败每层 Boss 后。记录等级 / 武器 / 地图解锁进度。
+# 《梦境逐影》存档管理器（多槽位：user://save_1.json ~ save_3.json）
+# 自动存档点：击败每层 Boss 后（默认槽 1）。手动存档：ESC 菜单/标题界面可选槽 1/2/3。
+# 记录等级 / 武器 / 地图解锁进度 + 存档时间戳。
 extends Node
 
-const SAVE_PATH := "user://save.json"
+const SLOTS := 3
 
-func save_game() -> void:
+func _path(slot: int) -> String:
+	return "user://save_%d.json" % clampi(slot, 1, SLOTS)
+
+
+func save_game(slot: int = 1) -> void:
 	var gm := GameManager
 	var data := {
 		"level": gm.level,
@@ -19,22 +24,23 @@ func save_game() -> void:
 		"boss_cleared": gm.boss_cleared,
 		"visited": gm.visited,
 		"birthday": gm.birthday,
+		"saved_at": Time.get_datetime_string_from_system(false, true),
 	}
 	var json := JSON.stringify(data)
-	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var f := FileAccess.open(_path(slot), FileAccess.WRITE)
 	if f != null:
 		f.store_string(json)
 		f.close()
 
 
-func has_save() -> bool:
-	return FileAccess.file_exists(SAVE_PATH)
+func has_save(slot: int = 1) -> bool:
+	return FileAccess.file_exists(_path(slot))
 
 
-func load_game() -> Dictionary:
-	if not has_save():
+func load_game(slot: int = 1) -> Dictionary:
+	if not has_save(slot):
 		return {}
-	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var f := FileAccess.open(_path(slot), FileAccess.READ)
 	if f == null:
 		return {}
 	var txt := f.get_as_text()
@@ -43,6 +49,23 @@ func load_game() -> Dictionary:
 	if parsed == null:
 		return {}
 	return parsed as Dictionary
+
+
+## 存档槽描述（标题存档选择界面显示用）：如「第 2 层 · 2026-08-16 21:45」；空槽返回 ""。
+func slot_desc(slot: int) -> String:
+	if not has_save(slot):
+		return ""
+	var d := load_game(slot)
+	var layer: int = int(d.get("layer_index", 1))
+	var time_str: String = str(d.get("saved_at", ""))
+	var lname: String = "第一层"
+	if layer == 2:
+		lname = "第二层"
+	elif layer == 3:
+		lname = "第三层"
+	if time_str != "" and time_str.length() >= 16:
+		time_str = time_str.substr(5, 11)   # MM-DD HH:MM
+	return "%s · %s" % [lname, time_str]
 
 
 func apply_to_state(dict: Dictionary) -> void:
@@ -65,6 +88,7 @@ func apply_to_state(dict: Dictionary) -> void:
 	gm.emit_signal("stats_changed")
 
 
-func clear_save() -> void:
-	if FileAccess.file_exists(SAVE_PATH):
-		DirAccess.remove_absolute(SAVE_PATH)
+func clear_save(slot: int = 1) -> void:
+	var p := _path(slot)
+	if FileAccess.file_exists(p):
+		DirAccess.remove_absolute(p)

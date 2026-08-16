@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
 [ext_resource type="Script" uid="uid://cbkyfb5lc3d3k" path="res://src/rooms/handles/NextDoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://c2tjntt2wwqcr" path="res://assets/tiles/S_002_7.png" id="2_jj5ge"]
+[ext_resource type="Script" uid="uid://c5cyvu8iabyoh" path="res://src/rooms/handles/BossHandle.gd" id="3"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_wirt4"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="6_hvmxt"]
 
@@ -750,3 +751,8 @@ idx = 2
 position = Vector2(-440, 12)
 script = ExtResource("6_hvmxt")
 idx = 3
+
+[node name="Boss" type="Node2D" parent="." unique_id=481429100]
+position = Vector2(0, -60)
+script = ExtResource("3")
+boss_type = 1

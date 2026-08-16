@@ -53,12 +53,4 @@ func _redraw() -> void:
 	sp.scale = Vector2(display_scale, display_scale)
 	sp.z_index = 80
 	add_child(sp)
-	var w: Dictionary = Weapons.get_weapon(wid)
-	var nm := str(w.get("name", wid)) if not w.is_empty() else wid
-	var lab := Label.new()
-	lab.text = nm
-	lab.position = Vector2(-26, 20)
-	lab.add_theme_font_size_override("font_size", 12)
-	lab.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
-	lab.z_index = 81
-	add_child(lab)
+	# 场景文字已去除（2026-08-16）：不显示武器名标签，仅保留贴图预览。

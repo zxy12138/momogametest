@@ -3,8 +3,12 @@
 [ext_resource type="Script" uid="uid://cf5xrf2cq4sgw" path="res://src/rooms/RoomManager.gd" id="1"]
 [ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://bbrbgd3aex8nb" path="res://assets/tiles/S_001_3or4.png" id="2_0isvt"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="4_h2gmp"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="4_rj7jd"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="5_h2gmp"]
+[ext_resource type="PackedScene" uid="uid://bjfyvmr3200ep" path="res://assets/tiles/Dynamic_objects/huatan.tscn" id="7_h2gmp"]
+[ext_resource type="PackedScene" uid="uid://k12ni0s450v3" path="res://assets/tiles/Dynamic_objects/S_001_3or4_right.tscn" id="8_0ydj0"]
+[ext_resource type="Script" uid="uid://da124w81aw0i5" path="res://src/rooms/handles/EnemyHandle.gd" id="9_jpc7m"]
 
 [node name="Room" type="Node2D" unique_id=1434076494]
 script = ExtResource("1")
@@ -21,14 +25,24 @@ expand_mode = 1
 stretch_mode = 6
 
 [node name="Door_r2" type="Node2D" parent="." unique_id=1209930357]
-position = Vector2(174, -162)
+position = Vector2(176, -177)
 script = ExtResource("2")
 target = "r2"
+door_size = Vector2(46, 86)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r2" unique_id=91669781]
+position = Vector2(23, 43)
+script = ExtResource("4_h2gmp")
 
 [node name="Door_r5" type="Node2D" parent="." unique_id=2077240866]
-position = Vector2(226, 237)
+position = Vector2(226, 236)
 script = ExtResource("2")
 target = "r5"
+door_size = Vector2(166, 24)
+
+[node name="SizeHandle" type="Node2D" parent="Door_r5" unique_id=1284448028]
+position = Vector2(83, 12)
+script = ExtResource("4_h2gmp")
 
 [node name="Blocked" type="Node2D" parent="." unique_id=586063826]
 position = Vector2(-368, -230)
@@ -754,3 +768,39 @@ idx = 2
 position = Vector2(-40, 32)
 script = ExtResource("5_h2gmp")
 idx = 3
+
+[node name="huatan" parent="." unique_id=218514040 instance=ExtResource("7_h2gmp")]
+position = Vector2(-449, -253)
+scale = Vector2(0.702, 0.702)
+metadata/_edit_lock_ = true
+
+[node name="S_001_3or4_right" parent="." unique_id=1557940085 instance=ExtResource("8_0ydj0")]
+position = Vector2(107.00001, -251.00002)
+scale = Vector2(0.7109375, 0.7109375)
+frame = 68
+frame_progress = 0.07299374
+
+[node name="Enemy" type="Node2D" parent="." unique_id=16846746]
+position = Vector2(302, 51)
+script = ExtResource("9_jpc7m")
+enemy_type = 2
+
+[node name="Enemy_2" type="Node2D" parent="." unique_id=413885877]
+position = Vector2(299, 188)
+script = ExtResource("9_jpc7m")
+enemy_type = 3
+
+[node name="Enemy_3" type="Node2D" parent="." unique_id=1567600008]
+position = Vector2(140, 173)
+script = ExtResource("9_jpc7m")
+enemy_type = 3
+
+[node name="Enemy_4" type="Node2D" parent="." unique_id=300483422]
+position = Vector2(208, 67)
+script = ExtResource("9_jpc7m")
+enemy_type = 3
+
+[node name="Enemy_5" type="Node2D" parent="." unique_id=633611842]
+position = Vector2(215, 182)
+script = ExtResource("9_jpc7m")
+enemy_type = 2

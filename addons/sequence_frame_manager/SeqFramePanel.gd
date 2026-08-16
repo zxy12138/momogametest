@@ -12,7 +12,7 @@ class_name SeqFramePanel
 ##   4. ③ 生成 SpriteFrames(.tres) + AnimatedSprite2D(.tscn)。
 ##   5. ⑤ 右栏「素材库」自动列出输出目录已生成的素材，循环预览，可直接拖入任意场景。
 
-const DEFAULT_OUTPUT := "res://Artssucai/gen/"
+const DEFAULT_OUTPUT := "res://assets/tiles/Dynamic_objects/"
 
 var _texture: Texture2D = null
 var _texture_path: String = ""
@@ -68,10 +68,12 @@ func _ready() -> void:
 func _build_ui() -> void:
 	# 自适应：根铺满父容器（Tab），内部用可拖拽的 VSplitContainer 上下两段独立 ScrollContainer——
 	# 拖动中间分割条即可调整「配置」与「素材库」的高度比例，宽窄 Dock 都不挤，绝不横滚。
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# 注意：SeqFramePanel 是普通 Control（非容器），作为 TabContainer 子节点须用 size_flags 撑满；
+	# 根 VSplitContainer 作为普通 Control 的子节点，size_flags 无效，须用锚点铺满（否则只占左上角一小块）。
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var root := VSplitContainer.new()
-	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(root)
 
 	# ---------- 第一段：配置 + 预览（独立滚动）----------
@@ -262,6 +264,9 @@ func _build_ui() -> void:
 	add_child(_lib_timer)
 	_lib_timer.start()
 
+	# 分割条默认位置：配置段固定 300px（可滚动），素材库段占剩余高度、延伸到底部（充分利用底部空间）。
+	root.split_offset = 300
+
 	# 设置项变更实时重算（仅已选图时）
 	_frame_w.value_changed.connect(_on_settings_changed)
 	_frame_h.value_changed.connect(_on_settings_changed)
@@ -314,7 +319,7 @@ func _on_image_selected(path: String, fd: EditorFileDialog) -> void:
 		_set_status("无法加载为纹理：%s" % path, true)
 		return
 
-	_atlas = _find_atlas(path.get_base_dir())
+	_atlas = _find_atlas(path.get_base_dir(), path.get_file().get_basename())
 	_auto_detect.button_pressed = true
 	_auto_detect.disabled = false
 	_grid_box.visible = true
@@ -352,19 +357,28 @@ func _on_image_selected(path: String, fd: EditorFileDialog) -> void:
 # ----------------------------------------------------------------------------
 # 图集探测与帧矩形收集
 # ----------------------------------------------------------------------------
-func _find_atlas(dir_path: String) -> Dictionary:
+func _find_atlas(dir_path: String, img_basename: String = "") -> Dictionary:
 	var da := DirAccess.open(dir_path)
 	if da == null:
 		return {}
+	var fallback: Dictionary = {}
 	for f in da.get_files():
-		if f.get_extension().to_lower() == "json":
-			var txt := FileAccess.get_file_as_string(dir_path.path_join(f))
-			if txt.is_empty():
-				continue
-			var parsed: Variant = JSON.parse_string(txt)
-			if parsed is Dictionary and (parsed as Dictionary).has("frames"):
+		if f.get_extension().to_lower() != "json":
+			continue
+		var txt := FileAccess.get_file_as_string(dir_path.path_join(f))
+		if txt.is_empty():
+			continue
+		var parsed: Variant = JSON.parse_string(txt)
+		if parsed is Dictionary and (parsed as Dictionary).has("frames"):
+			# 优先匹配与图片同名的 json（目录里可能有多个 json 对应不同图，帧宽高不同）
+			if img_basename != "" and f.get_basename() == img_basename:
 				_json_name = f
 				return parsed as Dictionary
+			if fallback.is_empty():
+				fallback = parsed as Dictionary
+				_json_name = f
+	if not fallback.is_empty():
+		return fallback
 	return {}
 
 
