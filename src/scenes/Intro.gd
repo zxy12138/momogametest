@@ -13,6 +13,8 @@ var _finished := false
 @onready var _hint: Label = $SkipHint
 
 func _ready() -> void:
+	# A-001 开场动画期间暂停全局 BGM，播完/跳过恢复。
+	GameManager.pause_bgm()
 	# 视频流在 .tscn 里已通过 ext_resource 指定；这里仅确保播放并接信号。
 	if _video.stream != null:
 		_video.play()
@@ -42,4 +44,5 @@ func _skip() -> void:
 
 func _advance() -> void:
 	_finished = true
+	GameManager.resume_bgm()   # A-001 播完/跳过，恢复 BGM
 	get_tree().change_scene_to_file(NEXT_SCENE)

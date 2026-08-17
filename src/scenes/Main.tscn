@@ -266,6 +266,11 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "F11 秒杀敌人"
 
+[node name="GodModeToggle" type="CheckButton" parent="SettingsWrap/SettingsPanel/SettingsBox" unique_id=810003]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "无敌模式（血量为 0 也不死亡）"
+
 [node name="CloseBtn" type="Button" parent="SettingsWrap/SettingsPanel/SettingsBox" unique_id=1779099183]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2

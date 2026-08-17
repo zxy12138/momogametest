@@ -36,16 +36,6 @@ door_size = Vector2(174, 98)
 position = Vector2(87, 49)
 script = ExtResource("4_oiyuf")
 
-[node name="Polygon2D" type="Polygon2D" parent="Door_r2" unique_id=363590979]
-clip_children = 1
-position = Vector2(-160, -162)
-scale = Vector2(0.70481926, 0.7142857)
-polygon = PackedVector2Array(75.19658, 109.20001, 75.19658, 406.00003, 385.91455, 407.40002, 384.49573, 109.20001)
-
-[node name="S_002_1_opendoor" parent="Door_r2/Polygon2D" unique_id=1836730784 instance=ExtResource("5_cdqm8")]
-frame = 108
-frame_progress = 0.076816
-
 [node name="Blocked" type="Node2D" parent="." unique_id=1654069912]
 position = Vector2(4, -246)
 script = ExtResource("4_r6f2b")
@@ -1561,3 +1551,11 @@ script = ExtResource("6_du8e4")
 [node name="Spawn" type="Node2D" parent="." unique_id=1041012235]
 position = Vector2(-243, 98)
 script = ExtResource("7_spawn")
+
+[node name="Polygon2D" type="Polygon2D" parent="." unique_id=1979751056]
+clip_children = 1
+polygon = PackedVector2Array(-114, -171, -115, 34, 126, 36, 123, -188)
+
+[node name="S_002_1_opendoor" parent="Polygon2D" unique_id=1836730784 instance=ExtResource("5_cdqm8")]
+position = Vector2(-161, -257.00003)
+scale = Vector2(0.7008033, 0.7008035)

@@ -48,6 +48,9 @@ var _doors_enabled := false   ## 门判定框是否已生效（防止 _process �
 var _enter_door_anim: AnimatedSprite2D = null   ## f1_r3/f1_r4 进入关卡开门动画（S_001_3or4_left/right）
 var _bg_video: VideoStreamPlayer = null   ## f1_r7 分段背景视频（S_001_7_All.ogv）：0-4s boss 出场，4-8s boss 死亡后场景
 var _bg_phase := 0   ## 视频分段状态：0=停第一帧(演出前) 1=第一段播放中 2=暂停在4s(战斗中) 3=第二段播放中(boss死) 4=完成(固定末帧)
+var _f2r2_video: VideoStreamPlayer = null   ## f2_r2 背景视频（S_002_2.ogv）：小怪全死后才播，播到剩 1s 停
+var _f2r2_started := false
+const _F2R2_STOP_T := 5.25   # S_002_2.ogv 总长 6.25s，剩 1s 即播到 5.25s 停
 var _pending_boss: Array = []   ## f1_r7 演出：boss 延迟生成（[bid, pos] 列表，Game 触发 spawn_boss_now）
 var _boss_blocks: Array[StaticBody2D] = []   ## f1_r7 Boss 战禁区（Blocked_2/3）：打 boss 时出现、boss 死后消失
 
@@ -184,6 +187,21 @@ func _add_video_floor(stream: VideoStream, base_pos: Vector2, base_scale: Vector
 		vp.loop = false
 		_bg_video = vp
 		_bg_phase = 0
+	# f2_r2（S_002_2.ogv）：小怪全死后才播，播到剩 1s 停（不循环）。
+	var f2r2 := (_rid == "r2" and _layer == 2)
+	if f2r2:
+		vp.loop = false
+		_f2r2_video = vp
+		_f2r2_started = false
+	# f3_r0/f3_r1（S_003_0/S_003_1.ogv）：只放一次，播完固定最后帧（不循环）。
+	var f3_once := (_layer == 3 and (_rid == "r0" or _rid == "r1"))
+	if f3_once:
+		vp.loop = false
+		vp.finished.connect(func() -> void:
+			if is_instance_valid(vp):
+				vp.paused = true
+				vp.set_stream_position(999999.0)   # clamp 到末尾，固定最后帧
+		)
 	# play() 必须在节点进入场景树后调用（VideoStreamPlayer 要求 is_inside_tree()）。
 	# 用 tree_entered 信号保证时序，但【必须在 add_child 之前 connect】——
 	# tree_entered 在 add_child 时同步发出，connect 写在 add_child 之后会错过信号，play() 永不执行 → 背景黑屏。
@@ -207,6 +225,14 @@ func _add_video_floor(stream: VideoStream, base_pos: Vector2, base_scale: Vector
 				_bg_phase = 4
 			else:
 				vp.paused = true   # 停第一帧（首帧已渲染）
+		if f2r2:
+			if Engine.is_editor_hint():
+				return   # 编辑器预览：直接放视频
+			# 停第一帧等怪死光（_process 检测 enemy 组空后播放）。
+			await vp.get_tree().process_frame
+			await vp.get_tree().process_frame
+			if is_instance_valid(vp):
+				vp.paused = true   # 停第一帧
 	)
 	add_child(vp)
 
@@ -401,7 +427,9 @@ func _add_door_visual(pos: Vector2, size: Vector2) -> void:
 ## 2026-08-16：动画可能被用户套在 Polygon2D(clip_children) 蒙版下（非根直接子节点）——
 ## 用 find_children 递归查找（同 f1_r3/r4 的坑），别假设 get_node_or_null 直达。
 func _find_door_anim() -> void:
-	var found := find_children("S_001_1_opendoor", "AnimatedSprite2D", true, false)
+	# 通用匹配各层的开门动画（S_001_1_opendoor / S_002_1_opendoor 等），
+	# 不再硬编码 f1_r1 的名字——否则 f2_r1 的 S_002_1_opendoor 找不到，会 autoplay 循环播放。
+	var found := find_children("S_00*_opendoor", "AnimatedSprite2D", true, false)
 	_door_anim = found[0] as AnimatedSprite2D if found.size() > 0 else null
 	if _door_anim == null:
 		return   # 无开门动画：门等怪死（_process 检测 all_dead → enable）
@@ -511,6 +539,14 @@ func _process(_delta: float) -> void:
 			_bg_phase = 2
 		elif _bg_phase == 3 and _bg_video.stream_position >= _BG_FINAL_T:
 			_seek_bg_end()
+	# f2_r2 背景视频：小怪全死后开始播，播到剩 1s 停（_F2R2_STOP_T）
+	if _f2r2_video != null and is_instance_valid(_f2r2_video):
+		if not _f2r2_started:
+			if get_tree().get_nodes_in_group("enemy").is_empty():
+				_f2r2_started = true
+				_f2r2_video.paused = false   # 开始播放
+		elif _f2r2_video.stream_position >= _F2R2_STOP_T:
+			_f2r2_video.paused = true
 	if not get_tree().get_nodes_in_group("enemy").is_empty():
 		return
 	# 敌人已清空
@@ -766,25 +802,26 @@ func _build_next_door() -> void:
 		add_child(d)
 		_next_doors.append(d)
 		# 下一层门可视化：金色半透明矩形 + 边框（与 NextDoorHandle 编辑器预览一致）。
-		# 不用 chuansongmen.png —— 那是第一关「测试传送门(PortalHandle)」专用素材，下一层门只画黄框。
-		# 门初始隐藏（d.visible=false），Boss 击败后 enable_next_door() 设 visible=true 时随 d 一起显示。
-		var half_w := h.door_size.x * 0.5
-		var half_h := h.door_size.y * 0.5
-		var nbox := Polygon2D.new()
-		nbox.polygon = PackedVector2Array([
-			Vector2(-half_w, -half_h), Vector2(half_w, -half_h),
-			Vector2(half_w, half_h), Vector2(-half_w, half_h)])
-		nbox.color = Color(1.0, 0.85, 0.3, 0.30)
-		nbox.z_index = 90
-		d.add_child(nbox)
-		var nframe := Line2D.new()
-		nframe.points = PackedVector2Array([
-			Vector2(-half_w, -half_h), Vector2(half_w, -half_h),
-			Vector2(half_w, half_h), Vector2(-half_w, half_h), Vector2(-half_w, -half_h)])
-		nframe.width = 2
-		nframe.default_color = Color(1.0, 0.85, 0.3, 0.95)
-		nframe.z_index = 91
-		d.add_child(nframe)
+		# 仅开发者模式/编辑器预览显示（正常游戏不画黄框，玩家看不到调试框）。
+		# 不用 chuansongmen.png —— 那是第一关「测试传送门(PortalHandle)」专用素材。
+		if _debug_visuals_on():
+			var half_w := h.door_size.x * 0.5
+			var half_h := h.door_size.y * 0.5
+			var nbox := Polygon2D.new()
+			nbox.polygon = PackedVector2Array([
+				Vector2(-half_w, -half_h), Vector2(half_w, -half_h),
+				Vector2(half_w, half_h), Vector2(-half_w, half_h)])
+			nbox.color = Color(1.0, 0.85, 0.3, 0.30)
+			nbox.z_index = 90
+			d.add_child(nbox)
+			var nframe := Line2D.new()
+			nframe.points = PackedVector2Array([
+				Vector2(-half_w, -half_h), Vector2(half_w, -half_h),
+				Vector2(half_w, half_h), Vector2(-half_w, half_h), Vector2(-half_w, -half_h)])
+			nframe.width = 2
+			nframe.default_color = Color(1.0, 0.85, 0.3, 0.95)
+			nframe.z_index = 91
+			d.add_child(nframe)
 
 
 ## Boss 击败后启用本房所有下一层传送门（由 Game.on_boss_defeated 调用）。
@@ -798,6 +835,9 @@ func enable_next_door() -> void:
 func _spawn_content() -> void:
 	var type: String = _data.get("type", "combat")
 	if type == "boss":
+		# Boss 房的普通门（Door_r6 回驿站）进房即生效——玩家不打 Boss 也能退回上一层。
+		# 下一层传送门（NextDoor）仍等 Boss 死后 enable_next_door 才开。
+		_enable_doors()
 		var cleared: bool = GameManager.boss_cleared.get(_layer, false)
 		if not cleared:
 			# Boss 不再自动生成：由场景 BossHandle 决定（插件摆放，3 种可选）。
@@ -811,6 +851,9 @@ func _spawn_content() -> void:
 			else:
 				for h in _boss_handles:
 					_start_boss_intro(h.boss_id(), h.position, h)
+		else:
+			# Boss 已清：重进 boss 房不生成 Boss，且去下一层的传送门保持开启（否则会消失）。
+			enable_next_door()
 		return
 	# 起点房(start)现在也从 enemy_placements 刷怪（满足「起始场景也能刷怪」需求）；
 	# 驿站(inn)仍不刷，保持为安全休整区。
@@ -870,6 +913,9 @@ func _spawn_enemy(eid: String, pos: Vector2, handle: Node = null) -> void:
 		h_scale = float(handle.get("scale_mult"))
 	if handle != null and handle.get("collision_mult") != null:
 		h_coll = float(handle.get("collision_mult"))
+	if handle != null and handle.get("scale") != null:
+		var hs: Vector2 = handle.get("scale")
+		h_scale *= hs.x   # 编辑器里拖手柄 Transform.scale 也生效（所见即所得）
 	e.call("set_scale_mult", g_scale * h_scale)
 	e.call("set_collision_mult", g_coll * h_coll)
 	e.position = pos   # 房间局部坐标（房间挂锚点下）
@@ -887,6 +933,9 @@ func _spawn_boss(bid: String, pos: Vector2, handle: Variant = null) -> void:
 	var h_scale: float = 1.0
 	if handle != null and handle.get("boss_scale_mult") != null:
 		h_scale = float(handle.get("boss_scale_mult"))
+	if handle != null and handle.get("scale") != null:
+		var bs: Vector2 = handle.get("scale")
+		h_scale *= bs.x   # 编辑器里拖手柄 Transform.scale 也生效（所见即所得）
 	b.call("set_scale_mult", g_scale * h_scale)
 	b.call("set_collision_mult", g_coll)
 	b.position = pos   # 房间局部坐标（房间挂锚点下；位置由场景 BossHandle 决定）

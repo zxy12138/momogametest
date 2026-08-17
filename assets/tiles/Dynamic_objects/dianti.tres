@@ -1,6 +1,6 @@
 [gd_resource type="SpriteFrames" format=3 uid="uid://mddxuwddnjyy"]
 
-[ext_resource type="Texture2D" uid="uid://djv2hw51ot2dp" path="res://Artssucai/dongtaichangjing/S_001_2/dianti/dianti.png" id="1_10btb"]
+[ext_resource type="Texture2D" path="res://assets/tiles/Dynamic_objects/dianti.png" id="1_10btb"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_awcii"]
 atlas = ExtResource("1_10btb")

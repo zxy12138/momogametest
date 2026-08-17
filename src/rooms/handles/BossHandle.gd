@@ -64,7 +64,7 @@ func _redraw() -> void:
 		sp.texture = tex
 		sp.hframes = maxi(int(f1.get("fi", f1.get("fwd", 8))), 1)
 		sp.frame = 0
-		sp.scale = Vector2(0.45, 0.45) * eff_scale
+		sp.scale = Vector2(eff_scale, eff_scale)   # 与运行期 Boss._apply_form 一致（Boss 不乘 0.45）
 		sp.z_index = 90
 		add_child(sp)
 	# 半透明底框提示：按 ScaleConfig 形状（矩形/三角/圆/多边形）+ 中心偏移绘制，

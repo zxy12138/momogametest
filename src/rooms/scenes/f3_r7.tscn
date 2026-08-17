@@ -5,6 +5,9 @@
 [ext_resource type="Texture2D" uid="uid://oq4mn6osqqec" path="res://assets/tiles/S_003_7_1.png" id="2_6at17"]
 [ext_resource type="Script" uid="uid://bjrvnf28dn2gh" path="res://src/rooms/handles/BlockedHandle.gd" id="3_pwkso"]
 [ext_resource type="Script" uid="uid://qsomrfvjokf1" path="res://src/rooms/handles/PolygonPointHandle.gd" id="4_dk8bp"]
+[ext_resource type="Script" uid="uid://xare6cnk2cgh" path="res://src/rooms/handles/SpawnPointHandle.gd" id="6_3qwhe"]
+[ext_resource type="Script" uid="uid://dlvob655ashqj" path="res://src/rooms/handles/DoorHandle.gd" id="7_no2rq"]
+[ext_resource type="Script" uid="uid://c5dq8fx0tsgrq" path="res://src/rooms/handles/DoorSizeHandle.gd" id="8_kuky4"]
 
 [node name="Room" type="Node2D" unique_id=1424249248]
 script = ExtResource("1")
@@ -20,6 +23,7 @@ offset_bottom = 250.0
 texture = ExtResource("2_6at17")
 expand_mode = 1
 stretch_mode = 6
+metadata/_edit_lock_ = true
 
 [node name="Blocked" type="Node2D" parent="." unique_id=1191792834]
 position = Vector2(0, -190)
@@ -47,7 +51,7 @@ script = ExtResource("4_dk8bp")
 idx = 3
 
 [node name="@Node2D@919003" type="Node2D" parent="." unique_id=2101603125]
-position = Vector2(-28, -118)
+position = Vector2(-1, -125)
 script = ExtResource("3_pwkso")
 points = PackedVector2Array(-412, -12, 412, -12, 412, 12, -412, 12)
 auto_seed_points = false
@@ -1046,56 +1050,6 @@ position = Vector2(-20, 4)
 script = ExtResource("4_dk8bp")
 idx = 3
 
-[node name="@Node2D@919523" type="Node2D" parent="." unique_id=1365387910]
-position = Vector2(296, 18)
-script = ExtResource("3_pwkso")
-points = PackedVector2Array(-8, -4, 8, -4, 8, 4, -8, 4)
-auto_seed_points = false
-
-[node name="@Node2D@8847737" type="Node2D" parent="@Node2D@919523" unique_id=424238769]
-position = Vector2(-8, -4)
-script = ExtResource("4_dk8bp")
-
-[node name="@Node2D@8847740" type="Node2D" parent="@Node2D@919523" unique_id=1989493186]
-position = Vector2(8, -4)
-script = ExtResource("4_dk8bp")
-idx = 1
-
-[node name="@Node2D@8847743" type="Node2D" parent="@Node2D@919523" unique_id=1588457222]
-position = Vector2(8, 4)
-script = ExtResource("4_dk8bp")
-idx = 2
-
-[node name="@Node2D@8847746" type="Node2D" parent="@Node2D@919523" unique_id=371016458]
-position = Vector2(-8, 4)
-script = ExtResource("4_dk8bp")
-idx = 3
-
-[node name="@Node2D@919536" type="Node2D" parent="." unique_id=1456244871]
-position = Vector2(348, 18)
-script = ExtResource("3_pwkso")
-points = PackedVector2Array(-28, -4, 28, -4, 28, 4, -28, 4)
-auto_seed_points = false
-
-[node name="@Node2D@8847749" type="Node2D" parent="@Node2D@919536" unique_id=1839424374]
-position = Vector2(-28, -4)
-script = ExtResource("4_dk8bp")
-
-[node name="@Node2D@8847752" type="Node2D" parent="@Node2D@919536" unique_id=502425013]
-position = Vector2(28, -4)
-script = ExtResource("4_dk8bp")
-idx = 1
-
-[node name="@Node2D@8847755" type="Node2D" parent="@Node2D@919536" unique_id=766480268]
-position = Vector2(28, 4)
-script = ExtResource("4_dk8bp")
-idx = 2
-
-[node name="@Node2D@8847758" type="Node2D" parent="@Node2D@919536" unique_id=939988802]
-position = Vector2(-28, 4)
-script = ExtResource("4_dk8bp")
-idx = 3
-
 [node name="@Node2D@919549" type="Node2D" parent="." unique_id=475270154]
 position = Vector2(-372, 26)
 script = ExtResource("3_pwkso")
@@ -1118,31 +1072,6 @@ idx = 2
 
 [node name="@Node2D@8847770" type="Node2D" parent="@Node2D@919549" unique_id=329203380]
 position = Vector2(-68, 4)
-script = ExtResource("4_dk8bp")
-idx = 3
-
-[node name="@Node2D@919562" type="Node2D" parent="." unique_id=1599496166]
-position = Vector2(324, 26)
-script = ExtResource("3_pwkso")
-points = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
-auto_seed_points = false
-
-[node name="@Node2D@8847773" type="Node2D" parent="@Node2D@919562" unique_id=83396699]
-position = Vector2(-4, -4)
-script = ExtResource("4_dk8bp")
-
-[node name="@Node2D@8847776" type="Node2D" parent="@Node2D@919562" unique_id=1681956458]
-position = Vector2(4, -4)
-script = ExtResource("4_dk8bp")
-idx = 1
-
-[node name="@Node2D@8847779" type="Node2D" parent="@Node2D@919562" unique_id=1260341074]
-position = Vector2(4, 4)
-script = ExtResource("4_dk8bp")
-idx = 2
-
-[node name="@Node2D@8847782" type="Node2D" parent="@Node2D@919562" unique_id=1972646576]
-position = Vector2(-4, 4)
 script = ExtResource("4_dk8bp")
 idx = 3
 
@@ -2401,3 +2330,17 @@ position = Vector2(-4.23851, 40.84729)
 script = ExtResource("2")
 boss_type = 2
 boss_scale_mult = 1.8
+
+[node name="Spawn" type="Node2D" parent="." unique_id=288767856]
+position = Vector2(264, 43)
+script = ExtResource("6_3qwhe")
+
+[node name="Door" type="Node2D" parent="." unique_id=1406111193]
+position = Vector2(378, 47)
+script = ExtResource("7_no2rq")
+target = "r6"
+door_size = Vector2(36.000015, 70)
+
+[node name="SizeHandle" type="Node2D" parent="Door" unique_id=802261476]
+position = Vector2(18.000008, 35)
+script = ExtResource("8_kuky4")

@@ -60,6 +60,8 @@ var _near_pickup: Node2D = null
 var _pickups: Array[Node2D] = []
 var _pickup_panel: Panel = null
 var _pickup_label: Label = null
+var _a002_active := false            # A-002 过场视频播放中（ESC 跳过）
+var _a002_layer: CanvasLayer = null
 const _PICKUP_RADIUS := 64.0
 
 # Fade 必须挂在 CanvasLayer（屏幕空间）下，否则会被相机 zoom+跟随推到屏幕外，
@@ -102,7 +104,7 @@ func _ready() -> void:
 	_build_toast()
 	_build_dev_label()
 	_build_pickup_prompt()
-	transition_to(LevelData.start_room(1), true)
+	transition_to(LevelData.start_room(GameManager.layer_index), true)
 
 	# 新游戏：先强制播放开场序列（醒来独白 + 镜头拉近），结束后才生成可选武器。
 	# 「继续」/「死亡重开」不会置 prologue_pending，因此直接进正常玩法。
@@ -397,10 +399,53 @@ func on_boss_defeated(layer: int, _boss: Node) -> void:
 			_play_boss_defeat_dialogue(layer)
 		)
 	else:
-		# 第3层Boss：进入结局剧情场景（Epilogue · 花海三段式），
+		# 第3层Boss：先播 A-002 过场视频，播完进结局剧情场景（Epilogue · 花海三段式），
 		# 剧情播完后再回到 Game 时会进入「通关状态」UI。
 		GameManager.game_completed = true
-		_goto_epilogue()
+		_play_a002_then_epilogue()
+
+
+## 击败第3层 Boss 后的过场视频（A-002.ogv）：全屏播完自动进花海；期间暂停 BGM、可按 ESC 跳过。
+func _play_a002_then_epilogue() -> void:
+	_set_gm_locked(true)
+	GameManager.pause_bgm()   # 过场动画暂停 BGM，播完/跳过恢复
+	var cl := CanvasLayer.new()
+	cl.layer = 120
+	add_child(cl)
+	_a002_layer = cl
+	_a002_active = true
+	var vp := VideoStreamPlayer.new()
+	vp.stream = load("res://assets/Anime/A-002.ogv")
+	vp.expand = true
+	var vs := get_viewport().get_visible_rect().size
+	vp.position = Vector2.ZERO
+	vp.size = vs
+	cl.add_child(vp)
+	# 右上角「按 ESC 跳过」提示
+	var hint := Label.new()
+	hint.text = "按 ESC 跳过"
+	hint.position = Vector2(vs.x - 200.0, 24.0)
+	hint.size = Vector2(180.0, 28.0)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	hint.add_theme_font_size_override("font_size", 20)
+	hint.add_theme_color_override("font_color", Color(1, 1, 1, 0.85))
+	hint.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	hint.add_theme_constant_override("outline_size", 4)
+	cl.add_child(hint)
+	vp.finished.connect(_finish_a002)
+	vp.play()
+
+
+## A-002 播完/ESC 跳过：恢复 BGM，进花海。
+func _finish_a002() -> void:
+	if not _a002_active:
+		return
+	_a002_active = false
+	GameManager.resume_bgm()
+	if _a002_layer != null and is_instance_valid(_a002_layer):
+		_a002_layer.queue_free()
+	_a002_layer = null
+	_goto_epilogue()
 
 
 ## Boss 击败过场对话（v4.0 §5.3）：f1/f2 击败后的弥绘台词，播完启用下一层传送门。
@@ -601,6 +646,11 @@ func _birthday() -> void:
 # 开场序列进行中：ESC 在这里优先被 _input 拦截并消费（跳过序列），
 # 因此 _unhandled_input 直接 return，避免误触发暂停菜单。
 func _input(event: InputEvent) -> void:
+	# A-002 过场：ESC 跳过（优先拦截，避免误触发暂停菜单）
+	if _a002_active and event.is_action_pressed("ui_cancel"):
+		_finish_a002()
+		get_viewport().set_input_as_handled()
+		return
 	if _prologue_active and event.is_action_pressed("ui_cancel"):
 		_end_prologue()
 		get_viewport().set_input_as_handled()
@@ -1258,8 +1308,7 @@ func set_portal_nearby(v: bool) -> void:
 ## 测试用：一键跳到结尾剧情（花海）。置 game_completed 让花海播完回 Game 进通关态（两选项）。
 func _jump_to_epilogue() -> void:
 	GameManager.game_completed = true
-	_set_gm_locked(true)
-	get_tree().change_scene_to_file("res://src/scenes/Epilogue.tscn")
+	_play_a002_then_epilogue()   # 先播 A-002 过场动画，播完进花海
 
 
 func _confirm_inn_heal() -> void:

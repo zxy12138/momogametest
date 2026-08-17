@@ -14,6 +14,24 @@ extends Control
 @onready var _toggle_hint: Label = $ToggleHint
 
 
+func _ready() -> void:
+	# 圆形头像裁剪：AvatarBox 内容只在圆形内显示（clip_contents 先裁矩形，canvas_item shader 再 discard 圆外像素）。
+	var shader := Shader.new()
+	shader.code = """
+shader_type canvas_item;
+void fragment() {
+	if (length(UV - vec2(0.5)) > 0.5) {
+		discard;
+	}
+}
+"""
+	var mat := ShaderMaterial.new()
+	mat.shader = shader
+	var av := $AvatarBox as Control
+	av.material = mat
+	av.clip_contents = true
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	# H 键切换底部操作提示的显示/隐藏
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_H:

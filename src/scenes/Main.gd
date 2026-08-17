@@ -14,6 +14,7 @@ extends Control
 @onready var _vol_value: Label = $SettingsWrap/SettingsPanel/SettingsBox/VolRow/VolValue
 @onready var _f12_toggle: CheckButton = $SettingsWrap/SettingsPanel/SettingsBox/F12MapToggle
 @onready var _f11_toggle: CheckButton = $SettingsWrap/SettingsPanel/SettingsBox/F11KillToggle
+@onready var _god_toggle: CheckButton = $SettingsWrap/SettingsPanel/SettingsBox/GodModeToggle
 @onready var _blink: Timer = $BlinkTimer
 @onready var _slot_btns: Array = [$SaveWrap/SavePanel/SaveBox/Slot1Btn, $SaveWrap/SavePanel/SaveBox/Slot2Btn, $SaveWrap/SavePanel/SaveBox/Slot3Btn]
 
@@ -21,8 +22,8 @@ var _menu_shown := false
 
 
 func _ready() -> void:
-	# 回到标题：停止全局 BGM（游戏里才播）。
-	GameManager.stop_bgm()
+	# 标题界面即开始播放全局 BGM（音乐从进入游戏就开始）。
+	GameManager.play_bgm()
 	# 重置视口相机变换：Game 每帧写 viewport.canvas_transform 做缩放跟随，返回标题后该变换残留，
 	# 会导致标题 UI 整体被放大/偏移（change_scene 不会自动重置 canvas_transform）。
 	get_viewport().set_canvas_transform(Transform2D.IDENTITY)
@@ -45,11 +46,13 @@ func _ready() -> void:
 	_settings_wrap.visible = false
 	_save_wrap.visible = false
 	_vol_slider.value_changed.connect(_on_vol_changed)
-	# 调试开关：F12 全开地图 / F11 秒杀敌人（默认关闭）
+	# 调试开关：F12 全开地图 / F11 秒杀敌人 / 无敌模式（默认关闭）
 	_f12_toggle.button_pressed = GameManager.debug_full_map
 	_f11_toggle.button_pressed = GameManager.debug_kill_all
+	_god_toggle.button_pressed = GameManager.god_mode
 	_f12_toggle.toggled.connect(func(on: bool) -> void: GameManager.debug_full_map = on)
 	_f11_toggle.toggled.connect(func(on: bool) -> void: GameManager.debug_kill_all = on)
+	_god_toggle.toggled.connect(func(on: bool) -> void: GameManager.god_mode = on)
 	$MenuRoot/MenuPanel/NewBtn.pressed.connect(_new_game)
 	$MenuRoot/MenuPanel/ContinueBtn.pressed.connect(_open_save_select)
 	$MenuRoot/MenuPanel/SettingsBtn.pressed.connect(_open_settings)

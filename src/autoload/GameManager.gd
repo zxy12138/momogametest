@@ -11,8 +11,8 @@ signal weak_changed(is_weak)
 var level := 1
 var xp := 0
 var xp_needed := 100
-var max_hp := 100
-var hp := 100
+var max_hp := 5000   # momo 血量 ×50（基础 100 → 5000）
+var hp := 5000
 # ---- 蓝条（技能资源，v5.0）----
 var max_mana := 100.0      # 技能法力上限：任何武器技能释放消耗全部
 var mana := 100.0          # 当前法力，开局满
@@ -41,7 +41,7 @@ var weak_window := false
 var birthday := false
 var input_locked := false   # 驿站/地图/死亡界面时锁输入
 var dev_mode := false        # 开发者模式：地图内选层跳关（F2 切换；不再自动全开地图）
-var god_mode := true         # 无敌模式：血量为 0 也不死亡（测试用，默认开启；游戏内按 F3 切换）
+var god_mode := false        # 无敌模式：血量为 0 也不死亡（默认关闭；设置里可开，游戏内 F3 切换）
 var debug_full_map := false  # F12 全开地图开关（设置里控制，默认关闭）
 var debug_kill_all := false  # F11 秒杀全屏怪开关（设置里控制，默认关闭）
 var ground_weapons := {}     # 地面武器剩余状态：key="f{层}-{rid}" -> Array[String]（未拾取的武器 id，按 WeaponHandle 顺序）
@@ -97,6 +97,21 @@ func play_bgm() -> void:
 func stop_bgm() -> void:
 	if _bgm != null:
 		_bgm.stop()
+
+
+## 暂停 BGM（A-001/A-002 过场动画播放时调用，播完 resume_bgm 继续）。
+func pause_bgm() -> void:
+	if _bgm != null and _bgm.playing:
+		_bgm.stream_paused = true
+
+
+## 恢复 BGM（过场动画播完/跳过时调用）。
+func resume_bgm() -> void:
+	if _bgm != null:
+		if _bgm.stream_paused:
+			_bgm.stream_paused = false
+		elif not _bgm.playing and _bgm.stream != null:
+			_bgm.play()
 
 
 # 蓝条自动恢复（恒定速率，不因战斗/移动中断）
@@ -188,7 +203,7 @@ func apply_death() -> void:
 # ============ 属性成长 ============
 func compute_stats() -> void:
 	var tf := level >= 26
-	max_hp = 100 + (level - 1) * 8
+	max_hp = 5000 + (level - 1) * 8
 	if level >= 10: max_hp += 20
 	if level >= 20: max_hp += 20
 	if level >= 30: max_hp += 20

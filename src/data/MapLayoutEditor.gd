@@ -42,7 +42,7 @@ var _last_pos: Dictionary = {}     # key -> 上次记录的格子位置（_proce
 func _ready() -> void:
 	if not Engine.is_editor_hint():
 		return
-	_layout = (load(LAYOUT_PATH) as MapLayoutData) if FileAccess.file_exists(LAYOUT_PATH) else MapLayoutData.new()
+	_layout = (load(LAYOUT_PATH) as MapLayoutData) if ResourceLoader.exists(LAYOUT_PATH) else MapLayoutData.new()
 	_build_ui()
 
 # ---------------------------------------------------------------- 构建

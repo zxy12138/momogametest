@@ -253,7 +253,9 @@ func is_visible(floor_i: int, rid: String) -> bool:
 func _manual_pos(floor_i: int, rid: String) -> Variant:
 	if _manual_layout == null:
 		var p := "res://src/data/map_layout.tres"
-		_manual_layout = (load(p) as MapLayoutData) if FileAccess.file_exists(p) else MapLayoutData.new()
+		# 用 ResourceLoader.exists 而非 FileAccess.file_exists——后者对打包后 pck 里的资源返回 false，
+		# 会导致自定义地图布局（map_layout.tres）在导出后失效、回退默认布局。
+		_manual_layout = (load(p) as MapLayoutData) if ResourceLoader.exists(p) else MapLayoutData.new()
 	return _manual_layout.positions.get("f%d-%s" % [floor_i, rid], null)
 
 

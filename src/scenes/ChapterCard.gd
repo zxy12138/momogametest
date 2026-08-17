@@ -10,6 +10,9 @@ const NEXT_SCENE := "res://src/scenes/Game.tscn"
 var _finished := false
 
 func _ready() -> void:
+	# 重置视口相机变换：Game 每帧手写 canvas_transform 缩放跟随玩家，切到本章节场景后残留，
+	# 会把黑屏+标题推/缩放到屏幕外（之前「第二章/第三章不显示」的根因）。
+	get_viewport().set_canvas_transform(Transform2D.IDENTITY)
 	# 提示稍后浮现，避免与画面同时出现造成视觉拥挤
 	_hint.modulate.a = 0.0
 	var t := get_tree().create_tween()

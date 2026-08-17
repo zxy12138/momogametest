@@ -23,8 +23,8 @@ const SHAPE_POLY := 3
 
 ## 读整个配置（无缓存，每次读文件，编辑器实时改动即时生效）。
 static func _load() -> Dictionary:
-	if not FileAccess.file_exists(PATH):
-		return {}
+	# 不要用 FileAccess.file_exists 判断——它对打包后 pck 里的资源返回 false，导致配置失效；
+	# 直接 open 判断 null（FileAccess.open 能读 res:// 打包内文件）。
 	var f := FileAccess.open(PATH, FileAccess.READ)
 	if f == null:
 		return {}
