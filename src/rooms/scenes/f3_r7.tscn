@@ -2396,7 +2396,8 @@ position = Vector2(-8, 4)
 script = ExtResource("4_dk8bp")
 idx = 3
 
-[node name="Boss" type="Node2D" parent="." unique_id=381699350]
-position = Vector2(-6, 0)
+[node name="Handle" type="Node2D" parent="." unique_id=1721302996]
+position = Vector2(-4.23851, 40.84729)
 script = ExtResource("2")
 boss_type = 2
+boss_scale_mult = 1.8

@@ -14,6 +14,7 @@ layer = 2
 room_id = "r4"
 
 [node name="Floor" type="TextureRect" parent="." unique_id=69057878]
+visible = false
 z_index = -4000
 offset_left = -440.0
 offset_top = -250.0

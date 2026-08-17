@@ -18,8 +18,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 # ---- ffmpeg 路径（按需修改） ----
-FFMPEG = r"D:\Pythonproject\.venv\Scripts\ffmpeg.exe"
-FFPROBE = r"D:\Pythonproject\.venv\Scripts\ffprobe.exe"
+FFMPEG = r"E:\python project\ffmpeg\bin\ffmpeg.exe"
+FFPROBE = r"E:\python project\ffmpeg\bin\ffprobe.exe"
 
 CREATE_NO_WINDOW = 0x08000000  # Windows: 不弹黑框
 

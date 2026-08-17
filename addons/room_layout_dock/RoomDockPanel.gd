@@ -11,6 +11,25 @@ var _count: Label
 var _enemy_drop: OptionButton   ## 敌人类型下拉（+ 敌人 时用当前选中值；选中场景 EnemyHandle 时双向同步）
 var _weapon_drop: OptionButton  ## 武器类型下拉（+ 武器 时用当前选中值；选中场景 WeaponHandle 时双向同步）
 var _boss_drop: OptionButton    ## Boss 类型下拉（+ Boss 时用当前选中值；选中场景 BossHandle 时双向同步）
+var _adj_kind: OptionButton     ## 全局调节目标：小怪 / Boss
+var _adj_type: OptionButton     ## 全局调节具体类型（按 _adj_kind 填充敌人/Boss 列表）
+var _adj_scale_slider: HSlider  ## 全局体型倍率（应用到所有同类型，写 ScaleConfig）
+var _adj_scale_label: Label
+var _adj_coll_slider: HSlider   ## 全局碰撞倍率（应用到所有同类型，写 ScaleConfig）
+var _adj_coll_label: Label
+var _adj_shape_drop: OptionButton  ## 碰撞形状：矩形/三角/圆/多边形
+var _adj_w_slider: HSlider         ## 碰撞宽（世界单位，缺省回落 CB 基础宽）
+var _adj_w_label: Label
+var _adj_h_slider: HSlider         ## 碰撞高（世界单位）
+var _adj_h_label: Label
+var _adj_ox_slider: HSlider        ## 碰撞中心 X 偏移（相对 sprite 中心）
+var _adj_ox_label: Label
+var _adj_oy_slider: HSlider        ## 碰撞中心 Y 偏移
+var _adj_oy_label: Label
+var _poly_box: VBoxContainer       ## 多边形顶点编辑器（仅形状=多边形时显示）
+var _poly_list: VBoxContainer      ## 顶点行容器
+var _poly_count_label: Label
+var _poly_syncing := false         ## 防止多边形顶点编辑时反向写回
 var _sel_enemy: EnemyHandle = null
 var _sel_weapon: WeaponHandle = null
 var _sel_boss: BossHandle = null
@@ -20,6 +39,7 @@ var _dir_edit: LineEdit   ## 黑白图导入默认文件夹（文件选择器打
 var _plugin: EditorPlugin = null   ## 插件引用（取撤销管理器等插件级能力）
 var _hide_blocked: CheckBox   ## 隐藏禁区可视化（测试用）
 var _hide_door_visual: CheckBox   ## 隐藏门判定框（测试用）
+var _adj_syncing := false   ## 防止滑块值在同步时反向触发写回
 
 ## 房间世界尺寸（与 RoomManager.W/H 一致，用于黑白图→房间坐标映射）
 const ROOM_W := 880.0
@@ -39,7 +59,7 @@ func _ready() -> void:
 	_info.custom_minimum_size = Vector2(0, 36)
 	add_child(_info)
 	var hint := Label.new()
-	hint.text = "打开房间场景（src/rooms/scenes/f{层}_{房}.tscn）后点下方按钮添加手柄：\n· 直接拖动手柄定位\n· 选中手柄在 Inspector 改属性（敌人类型/武器/大小/门目标/禁区形状/下一层）\n· Ctrl+S 保存进场景\n· 运行期手柄自动隐藏，由 RoomManager 生成真实内容"
+	hint.text = "打开房间场景（src/rooms/scenes/f{层}_{房}.tscn）后点下方按钮添加手柄：\n· 直接拖动手柄定位\n· 选中手柄在 Inspector 改属性（敌人类型/武器/门目标/禁区形状等）\n· Ctrl+S 保存进场景\n· 下方「全局体型/碰撞」按类型统一调所有同类型怪（小怪+Boss 都可调体型与碰撞）"
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 11)
 	hint.modulate = Color(1, 1, 1, 0.65)
@@ -146,12 +166,494 @@ func _ready() -> void:
 	_blocked_ops.add_child(_btn("切换矩形/多边形", _toggle_blocked_shape))
 	_blocked_ops.visible = false
 	add_child(_blocked_ops)
+	# 全局类型级调节组：按类型统一调整所有同类型小怪/Boss 的体型与碰撞范围（写 ScaleConfig JSON）
+	var adj_sep := HSeparator.new()
+	adj_sep.add_theme_constant_override("separation", 8)
+	add_child(adj_sep)
+	var adj_title := Label.new()
+	adj_title.text = "全局体型 / 碰撞（应用到同类型所有怪）"
+	adj_title.add_theme_font_size_override("font_size", 12)
+	adj_title.modulate = Color(1, 1, 0.8, 0.9)
+	add_child(adj_title)
+	# 目标切换：小怪 / Boss
+	var kind_row := HBoxContainer.new()
+	kind_row.add_child(_label("目标:"))
+	_adj_kind = OptionButton.new()
+	_adj_kind.add_item("小怪", 0)
+	_adj_kind.add_item("Boss", 1)
+	_adj_kind.selected = 0
+	_adj_kind.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_adj_kind.item_selected.connect(_on_adj_kind)
+	kind_row.add_child(_adj_kind)
+	add_child(kind_row)
+	# 具体类型下拉（按目标填充敌人/Boss 列表）
+	var type_row := HBoxContainer.new()
+	type_row.add_child(_label("类型:"))
+	_adj_type = OptionButton.new()
+	_adj_type.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_adj_type.item_selected.connect(_on_adj_type)
+	type_row.add_child(_adj_type)
+	add_child(type_row)
+	# 体型滑块
+	var scale_row := HBoxContainer.new()
+	scale_row.add_child(_label("体型:"))
+	_adj_scale_slider = HSlider.new()
+	_adj_scale_slider.min_value = 0.1
+	_adj_scale_slider.max_value = 3.0
+	_adj_scale_slider.step = 0.05
+	_adj_scale_slider.value = 1.0
+	_adj_scale_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scale_row.add_child(_adj_scale_slider)
+	_adj_scale_label = Label.new()
+	_adj_scale_label.custom_minimum_size = Vector2(48, 0)
+	_adj_scale_label.text = "%.2f" % _adj_scale_slider.value
+	scale_row.add_child(_adj_scale_label)
+	add_child(scale_row)
+	_adj_scale_slider.value_changed.connect(_on_adj_scale_changed)
+	# 碰撞滑块
+	var coll_row := HBoxContainer.new()
+	coll_row.add_child(_label("碰撞:"))
+	_adj_coll_slider = HSlider.new()
+	_adj_coll_slider.min_value = 0.1
+	_adj_coll_slider.max_value = 3.0
+	_adj_coll_slider.step = 0.05
+	_adj_coll_slider.value = 1.0
+	_adj_coll_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	coll_row.add_child(_adj_coll_slider)
+	_adj_coll_label = Label.new()
+	_adj_coll_label.custom_minimum_size = Vector2(48, 0)
+	_adj_coll_label.text = "%.2f" % _adj_coll_slider.value
+	coll_row.add_child(_adj_coll_label)
+	add_child(coll_row)
+	_adj_coll_slider.value_changed.connect(_on_adj_coll_changed)
+	# —— 碰撞形状 / 尺寸 / 中心点 / 多边形（按类型全局控制，写 ScaleConfig）——
+	var shape_sep := HSeparator.new()
+	shape_sep.add_theme_constant_override("separation", 6)
+	add_child(shape_sep)
+	# 形状下拉
+	var shape_row := HBoxContainer.new()
+	shape_row.add_child(_label("形状:"))
+	_adj_shape_drop = OptionButton.new()
+	_adj_shape_drop.add_item("矩形", ScaleConfig.SHAPE_RECT)
+	_adj_shape_drop.add_item("三角形", ScaleConfig.SHAPE_TRI)
+	_adj_shape_drop.add_item("圆形", ScaleConfig.SHAPE_CIRCLE)
+	_adj_shape_drop.add_item("多边形", ScaleConfig.SHAPE_POLY)
+	_adj_shape_drop.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_adj_shape_drop.item_selected.connect(_on_adj_shape_changed)
+	shape_row.add_child(_adj_shape_drop)
+	add_child(shape_row)
+	# 宽 / 高
+	var w_row := HBoxContainer.new()
+	w_row.add_child(_label("宽:"))
+	_adj_w_slider = HSlider.new()
+	_adj_w_slider.min_value = 4.0
+	_adj_w_slider.max_value = 320.0
+	_adj_w_slider.step = 1.0
+	_adj_w_slider.value = 40.0
+	_adj_w_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	w_row.add_child(_adj_w_slider)
+	_adj_w_label = Label.new()
+	_adj_w_label.custom_minimum_size = Vector2(48, 0)
+	_adj_w_label.text = "%.0f" % _adj_w_slider.value
+	w_row.add_child(_adj_w_label)
+	add_child(w_row)
+	_adj_w_slider.value_changed.connect(_on_adj_w_changed)
+	var h_row := HBoxContainer.new()
+	h_row.add_child(_label("高:"))
+	_adj_h_slider = HSlider.new()
+	_adj_h_slider.min_value = 4.0
+	_adj_h_slider.max_value = 320.0
+	_adj_h_slider.step = 1.0
+	_adj_h_slider.value = 40.0
+	_adj_h_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	h_row.add_child(_adj_h_slider)
+	_adj_h_label = Label.new()
+	_adj_h_label.custom_minimum_size = Vector2(48, 0)
+	_adj_h_label.text = "%.0f" % _adj_h_slider.value
+	h_row.add_child(_adj_h_label)
+	add_child(h_row)
+	_adj_h_slider.value_changed.connect(_on_adj_h_changed)
+	# 中心点 X / Y 偏移
+	var ox_row := HBoxContainer.new()
+	ox_row.add_child(_label("中心X:"))
+	_adj_ox_slider = HSlider.new()
+	_adj_ox_slider.min_value = -160.0
+	_adj_ox_slider.max_value = 160.0
+	_adj_ox_slider.step = 1.0
+	_adj_ox_slider.value = 0.0
+	_adj_ox_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ox_row.add_child(_adj_ox_slider)
+	_adj_ox_label = Label.new()
+	_adj_ox_label.custom_minimum_size = Vector2(48, 0)
+	_adj_ox_label.text = "%.0f" % _adj_ox_slider.value
+	ox_row.add_child(_adj_ox_label)
+	add_child(ox_row)
+	_adj_ox_slider.value_changed.connect(_on_adj_ox_changed)
+	var oy_row := HBoxContainer.new()
+	oy_row.add_child(_label("中心Y:"))
+	_adj_oy_slider = HSlider.new()
+	_adj_oy_slider.min_value = -160.0
+	_adj_oy_slider.max_value = 160.0
+	_adj_oy_slider.step = 1.0
+	_adj_oy_slider.value = 0.0
+	_adj_oy_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	oy_row.add_child(_adj_oy_slider)
+	_adj_oy_label = Label.new()
+	_adj_oy_label.custom_minimum_size = Vector2(48, 0)
+	_adj_oy_label.text = "%.0f" % _adj_oy_slider.value
+	oy_row.add_child(_adj_oy_label)
+	add_child(oy_row)
+	_adj_oy_slider.value_changed.connect(_on_adj_oy_changed)
+	# 多边形顶点编辑器（仅形状=多边形时显示）
+	_poly_box = VBoxContainer.new()
+	var poly_info := Label.new()
+	poly_info.text = "多边形顶点（局部坐标，中心在原点）"
+	poly_info.add_theme_font_size_override("font_size", 10)
+	poly_info.modulate = Color(1, 1, 1, 0.7)
+	_poly_box.add_child(poly_info)
+	var poly_ops := HBoxContainer.new()
+	poly_ops.add_child(_btn("+ 顶点", _on_poly_add))
+	poly_ops.add_child(_btn("- 顶点", _on_poly_remove))
+	poly_ops.add_child(_btn("重置为矩形", _on_poly_reset))
+	_poly_box.add_child(poly_ops)
+	_poly_count_label = Label.new()
+	_poly_count_label.add_theme_font_size_override("font_size", 10)
+	_poly_count_label.modulate = Color(1, 1, 1, 0.7)
+	_poly_box.add_child(_poly_count_label)
+	_poly_list = VBoxContainer.new()
+	_poly_box.add_child(_poly_list)
+	_poly_box.visible = false
+	add_child(_poly_box)
+	# 初始化类型列表
+	_fill_adj_types()
 
 
 func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		_update_info()
 		_sync_selection()
+
+
+## 按当前目标（小怪/Boss）填充类型下拉。
+func _fill_adj_types() -> void:
+	if _adj_type == null or _adj_kind == null:
+		return
+	_adj_type.clear()
+	if _adj_kind.selected == 0:
+		for id in EnemyHandle.IDS:
+			var ed: Dictionary = {}
+			var raw: Variant = Enemies.get_enemy(id)
+			if raw is Dictionary:
+				ed = raw
+			_adj_type.add_item("%s · %s" % [str(ed.get("name", id)), id])
+	else:
+		for id in BossHandle.BIDS:
+			var bd: Dictionary = {}
+			var braw: Variant = Enemies.get_boss(id)
+			if braw is Dictionary:
+				bd = braw
+			_adj_type.add_item("%s · %s" % [str(bd.get("name", id)), id])
+	_adj_type.select(0)
+	_refresh_adj_sliders()
+
+
+## 当前选中的调节类型 id。
+func _adj_type_id() -> String:
+	if _adj_kind.selected == 0:
+		return EnemyHandle.IDS[clampi(_adj_type.selected, 0, EnemyHandle.IDS.size() - 1)]
+	return BossHandle.BIDS[clampi(_adj_type.selected, 0, BossHandle.BIDS.size() - 1)]
+
+
+## 滑块改全局 ScaleConfig 后：对当前编辑场景里「同类型」的所有 EnemyHandle / BossHandle 触发 _redraw，
+## 让编辑器场景里的怪物预览实时反映大小/碰撞变化（之前只写 JSON，手柄预览不刷新）。递归查找，
+## 兼容手柄被嵌套在子节点下的场景结构。
+func _redraw_handles_of_type(id: String, is_boss: bool) -> void:
+	var root := _current_root()
+	if root == null:
+		return
+	_collect_redraw(root, id, is_boss)
+
+
+func _collect_redraw(node: Node, id: String, is_boss: bool) -> void:
+	for c in node.get_children():
+		var match_id := ""
+		if is_boss and c is BossHandle:
+			match_id = (c as BossHandle).boss_id()
+		elif not is_boss and c is EnemyHandle:
+			match_id = (c as EnemyHandle).enemy_id()
+		if match_id == id and c.has_method("_redraw"):
+			c.call("_redraw")
+		_collect_redraw(c, id, is_boss)
+
+
+## 当前选中类型的 CB 基础值（用于 w/h/ox/oy 缺省回落）。
+func _cb_defaults(id: String, is_boss: bool) -> Vector4:
+	if is_boss:
+		var b: Variant = Enemies.get_boss(id)
+		if b is Dictionary:
+			var fd: Dictionary = (b as Dictionary).get("form1", {})
+			return (fd as Dictionary).get("cb", Vector4(80, 90, 0, 4))
+		return Vector4(80, 90, 0, 4)
+	return Enemy.CB.get(id, Vector4(32, 32, 0, 0))
+
+
+## 把滑块同步到当前选中类型的全局值（切换类型/目标时调用）。
+func _refresh_adj_sliders() -> void:
+	if _adj_scale_slider == null:
+		return
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	var cb := _cb_defaults(id, is_boss)
+	_adj_syncing = true
+	if is_boss:
+		_adj_scale_slider.value = ScaleConfig.get_boss_scale(id)
+		_adj_coll_slider.value = ScaleConfig.get_boss_collision(id)
+		_adj_shape_drop.selected = ScaleConfig.get_boss_shape(id, ScaleConfig.SHAPE_RECT)
+		_adj_w_slider.value = ScaleConfig.get_boss_w(id, cb.x)
+		_adj_h_slider.value = ScaleConfig.get_boss_h(id, cb.y)
+		_adj_ox_slider.value = ScaleConfig.get_boss_ox(id, cb.z)
+		_adj_oy_slider.value = ScaleConfig.get_boss_oy(id, cb.w)
+	else:
+		_adj_scale_slider.value = ScaleConfig.get_enemy_scale(id)
+		_adj_coll_slider.value = ScaleConfig.get_enemy_collision(id)
+		_adj_shape_drop.selected = ScaleConfig.get_enemy_shape(id, ScaleConfig.SHAPE_RECT)
+		_adj_w_slider.value = ScaleConfig.get_enemy_w(id, cb.x)
+		_adj_h_slider.value = ScaleConfig.get_enemy_h(id, cb.y)
+		_adj_ox_slider.value = ScaleConfig.get_enemy_ox(id, cb.z)
+		_adj_oy_slider.value = ScaleConfig.get_enemy_oy(id, cb.w)
+	_adj_scale_label.text = "%.2f" % _adj_scale_slider.value
+	_adj_coll_label.text = "%.2f" % _adj_coll_slider.value
+	_adj_w_label.text = "%.0f" % _adj_w_slider.value
+	_adj_h_label.text = "%.0f" % _adj_h_slider.value
+	_adj_ox_label.text = "%.0f" % _adj_ox_slider.value
+	_adj_oy_label.text = "%.0f" % _adj_oy_slider.value
+	_adj_syncing = false
+	# 形状=多边形时显示顶点编辑器并重建
+	_poly_box.visible = (_adj_shape_drop.selected == ScaleConfig.SHAPE_POLY)
+	if _poly_box.visible:
+		_build_poly_ui()
+
+
+## 目标切换（小怪/Boss）→ 重填类型下拉。
+func _on_adj_kind(_idx: int) -> void:
+	_fill_adj_types()
+
+
+## 类型切换 → 滑块同步到该类型全局值。
+func _on_adj_type(_idx: int) -> void:
+	_refresh_adj_sliders()
+
+
+## 体型滑块 → 写回全局类型缩放（应用到所有同类型怪）。
+func _on_adj_scale_changed(v: float) -> void:
+	_adj_scale_label.text = "%.2f" % v
+	if _adj_syncing:
+		return
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	if is_boss:
+		ScaleConfig.set_boss_scale(id, v)
+	else:
+		ScaleConfig.set_enemy_scale(id, v)
+	_redraw_handles_of_type(id, is_boss)
+
+
+## 碰撞滑块 → 写回全局类型碰撞（应用到所有同类型怪）。
+func _on_adj_coll_changed(v: float) -> void:
+	_adj_coll_label.text = "%.2f" % v
+	if _adj_syncing:
+		return
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	if is_boss:
+		ScaleConfig.set_boss_collision(id, v)
+	else:
+		ScaleConfig.set_enemy_collision(id, v)
+	_redraw_handles_of_type(id, is_boss)
+
+
+## 形状下拉 → 写回全局类型形状（矩形/三角/圆/多边形）。
+func _on_adj_shape_changed(v: int) -> void:
+	if _adj_syncing:
+		return
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	if is_boss:
+		ScaleConfig.set_boss_shape(id, v)
+	else:
+		ScaleConfig.set_enemy_shape(id, v)
+	_poly_box.visible = (v == ScaleConfig.SHAPE_POLY)
+	if _poly_box.visible:
+		_build_poly_ui()
+	_redraw_handles_of_type(id, is_boss)
+
+
+## 宽滑块 → 写回全局类型碰撞宽（世界单位，缺省回落 CB）。
+func _on_adj_w_changed(v: float) -> void:
+	_adj_w_label.text = "%.0f" % v
+	if _adj_syncing:
+		return
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	if is_boss:
+		ScaleConfig.set_boss_w(id, v)
+	else:
+		ScaleConfig.set_enemy_w(id, v)
+	_redraw_handles_of_type(id, is_boss)
+
+
+## 高滑块 → 写回全局类型碰撞高。
+func _on_adj_h_changed(v: float) -> void:
+	_adj_h_label.text = "%.0f" % v
+	if _adj_syncing:
+		return
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	if is_boss:
+		ScaleConfig.set_boss_h(id, v)
+	else:
+		ScaleConfig.set_enemy_h(id, v)
+	_redraw_handles_of_type(id, is_boss)
+
+
+## 中心 X 偏移滑块 → 写回全局类型碰撞中心 X。
+func _on_adj_ox_changed(v: float) -> void:
+	_adj_ox_label.text = "%.0f" % v
+	if _adj_syncing:
+		return
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	if is_boss:
+		ScaleConfig.set_boss_ox(id, v)
+	else:
+		ScaleConfig.set_enemy_ox(id, v)
+	_redraw_handles_of_type(id, is_boss)
+
+
+## 中心 Y 偏移滑块 → 写回全局类型碰撞中心 Y。
+func _on_adj_oy_changed(v: float) -> void:
+	_adj_oy_label.text = "%.0f" % v
+	if _adj_syncing:
+		return
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	if is_boss:
+		ScaleConfig.set_boss_oy(id, v)
+	else:
+		ScaleConfig.set_enemy_oy(id, v)
+	_redraw_handles_of_type(id, is_boss)
+
+
+## 重建多边形顶点编辑列表（切换类型/形状/顶点数时调用）。
+func _build_poly_ui() -> void:
+	if _poly_list == null:
+		return
+	for c in _poly_list.get_children():
+		c.queue_free()
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	var poly := ScaleConfig.get_enemy_poly(id) if not is_boss else ScaleConfig.get_boss_poly(id)
+	if poly.size() < 3:
+		var hint := Label.new()
+		hint.text = "尚未创建顶点：点「重置为矩形」或「+ 顶点」（至少 3 个）"
+		hint.add_theme_font_size_override("font_size", 10)
+		hint.modulate = Color(1, 0.8, 0.6, 0.9)
+		_poly_list.add_child(hint)
+		_poly_count_label.text = "顶点数: %d" % poly.size()
+		return
+	_poly_syncing = true
+	for i in poly.size():
+		var row := HBoxContainer.new()
+		row.add_child(_label("顶点%d" % i))
+		var sx := SpinBox.new()
+		sx.min_value = -400.0
+		sx.max_value = 400.0
+		sx.step = 1.0
+		sx.value = poly[i].x
+		sx.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		sx.value_changed.connect(_on_poly_vertex_changed.bind(i, 0))
+		row.add_child(sx)
+		var sy := SpinBox.new()
+		sy.min_value = -400.0
+		sy.max_value = 400.0
+		sy.step = 1.0
+		sy.value = poly[i].y
+		sy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		sy.value_changed.connect(_on_poly_vertex_changed.bind(i, 1))
+		row.add_child(sy)
+		_poly_list.add_child(row)
+	_poly_syncing = false
+	_poly_count_label.text = "顶点数: %d（至少 3 个）" % poly.size()
+
+
+## 多边形顶点 x/y 改变 → 写回顶点数组（value, idx, axis 顺序由 bind 决定）。
+func _on_poly_vertex_changed(v: float, idx: int, axis: int) -> void:
+	if _poly_syncing:
+		return
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	var poly := ScaleConfig.get_enemy_poly(id) if not is_boss else ScaleConfig.get_boss_poly(id)
+	if idx < 0 or idx >= poly.size():
+		return
+	var p := poly[idx]
+	if axis == 0:
+		p.x = v
+	else:
+		p.y = v
+	poly[idx] = p
+	if is_boss:
+		ScaleConfig.set_boss_poly(id, poly)
+	else:
+		ScaleConfig.set_enemy_poly(id, poly)
+	_redraw_handles_of_type(id, is_boss)
+
+
+## 多边形 + 顶点（新顶点放在末尾顶点附近偏移 16）。
+func _on_poly_add() -> void:
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	var poly := ScaleConfig.get_enemy_poly(id) if not is_boss else ScaleConfig.get_boss_poly(id)
+	var nv := Vector2(16.0, 16.0)
+	if poly.size() > 0:
+		nv = poly[poly.size() - 1] + Vector2(16.0, 16.0)
+	poly.append(nv)
+	if is_boss:
+		ScaleConfig.set_boss_poly(id, poly)
+	else:
+		ScaleConfig.set_enemy_poly(id, poly)
+	_build_poly_ui()
+	_redraw_handles_of_type(id, is_boss)
+
+
+## 多边形 - 顶点（至少保留 3 个）。
+func _on_poly_remove() -> void:
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	var poly := ScaleConfig.get_enemy_poly(id) if not is_boss else ScaleConfig.get_boss_poly(id)
+	if poly.size() <= 3:
+		return
+	poly.remove_at(poly.size() - 1)
+	if is_boss:
+		ScaleConfig.set_boss_poly(id, poly)
+	else:
+		ScaleConfig.set_enemy_poly(id, poly)
+	_build_poly_ui()
+	_redraw_handles_of_type(id, is_boss)
+
+
+## 多边形重置为当前 w/h 的矩形四顶点。
+func _on_poly_reset() -> void:
+	var id := _adj_type_id()
+	var is_boss := _adj_kind.selected == 1
+	var w := _adj_w_slider.value
+	var h := _adj_h_slider.value
+	var poly := PackedVector2Array([Vector2(-w * 0.5, -h * 0.5), Vector2(w * 0.5, -h * 0.5), Vector2(w * 0.5, h * 0.5), Vector2(-w * 0.5, h * 0.5)])
+	if is_boss:
+		ScaleConfig.set_boss_poly(id, poly)
+	else:
+		ScaleConfig.set_enemy_poly(id, poly)
+	_build_poly_ui()
+	_redraw_handles_of_type(id, is_boss)
 
 
 func _label(text: String) -> Label:

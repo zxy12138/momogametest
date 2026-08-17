@@ -54,7 +54,7 @@ layer = 3
 door_size = Vector2(16, 100)
 
 [node name="SizeHandle" type="Node2D" parent="Door_r4" unique_id=210090661]
-position = Vector2(5, 50)
+position = Vector2(8, 50)
 script = ExtResource("4_2846b")
 
 [node name="Blocked" type="Node2D" parent="." unique_id=965329151]

@@ -20,24 +20,9 @@ func _ready() -> void:
 func _redraw() -> void:
 	for c in get_children():
 		c.queue_free()
-	# 门框贴图（素材暂缺，用 exists 守卫避免 load 失败报错；素材准备好后放到该路径即自动生效）
-	var door_tex: Texture2D = null
-	if ResourceLoader.exists("res://assets/tiles/chuansongmen.png"):
-		door_tex = load("res://assets/tiles/chuansongmen.png") as Texture2D
-	if door_tex != null:
-		var ds := door_tex.get_size()
-		var fw := ds.x   # 单图（chuansongmen.png），不再 4 帧分割
-		var dw := 96.0 * fw / ds.y
-		var spr := Sprite2D.new()
-		spr.texture = door_tex
-		spr.hframes = 1
-		spr.frame = 0
-		spr.scale = Vector2(dw / fw, 96.0 / ds.y)
-		spr.z_index = 90
-		add_child(spr)
-	# 场景文字已去除（2026-08-16）：不显示「↑ 下一层」标签，仅保留门框贴图 + 判定框。
-	# 传送门判定框可视化（金色半透明矩形 + 边框）：与运行期 _build_next_door 生成的
-	# Area2D 判定范围一致，让用户在编辑器里直接看到/调整门的碰撞范围（所见即所得）。
+	# 下一层门可视化：金色半透明矩形 + 边框（与运行期 _build_next_door 一致）。
+	# 不用 chuansongmen.png —— 那是第一关「测试传送门(PortalHandle)」专用素材。
+	# 金色框与运行期 Area2D 判定范围一致，让用户在编辑器里直接看到/调整门的碰撞范围（所见即所得）。
 	var half_w := door_size.x * 0.5
 	var half_h := door_size.y * 0.5
 	var poly := Polygon2D.new()

@@ -19,6 +19,14 @@ var enemy_type: int = 0
 		if Engine.is_editor_hint() and is_inside_tree():
 			_redraw()
 
+## 碰撞范围倍率（独立于 size 的碰撞框缩放，0.3~3.0）；仅放大身体碰撞/受击框，不动 sprite 视觉大小。
+## 预览方块同步缩放，便于直观看到碰撞范围变化。
+@export_range(0.3, 3.0, 0.05) var collision_mult: float = 1.0:
+	set(v):
+		collision_mult = v
+		if Engine.is_editor_hint() and is_inside_tree():
+			_redraw()
+
 var _last_type := -1
 
 
@@ -52,9 +60,30 @@ func _redraw() -> void:
 	var elite: bool = bool(ed.get("is_elite", false))
 	var nm: String = str(ed.get("name", eid))
 	var col := Color(0.3, 0.9, 0.9) if not elite else Color(0.8, 0.5, 1.0)
-	# 半透明底框（青=普通 / 紫=精英），提示这是可编辑手柄区域
+	# 全局类型级缩放/碰撞（插件面板按类型统一调，应用到所有同类型怪）× 逐实例手柄微调，
+	# 编辑器预览与运行期 RoomManager._spawn_enemy 完全一致——这样在场景里拖动插件滑块能实时看到
+	# 该类型所有怪的大小 / 碰撞范围变化（之前手柄预览只读逐实例值，全局调节看不到效果）。
+	var g_scale: float = ScaleConfig.get_enemy_scale(eid)
+	var g_coll: float = ScaleConfig.get_enemy_collision(eid)
+	var eff_scale: float = g_scale * scale_mult
+	var eff_coll: float = g_coll * collision_mult
+	# 半透明底框（青=普通 / 紫=精英），按 ScaleConfig 形状（矩形/三角/圆/多边形）+ 中心偏移绘制，
+	# 直观反映该怪实际碰撞范围（与运行期 _apply_collision_box / Enemy._shape_points 完全一致——
+	# 插件面板里调形状/尺寸/中心点，场景里所有同类型怪的预览实时变化）。
+	var cb: Vector4 = Enemy.CB.get(eid, Vector4(32, 32, 0, 0))
+	var shape := int(ScaleConfig.get_enemy_shape(eid, ScaleConfig.SHAPE_RECT))
+	var w := float(ScaleConfig.get_enemy_w(eid, cb.x))
+	var h := float(ScaleConfig.get_enemy_h(eid, cb.y))
+	var ox := float(ScaleConfig.get_enemy_ox(eid, cb.z))
+	var oy := float(ScaleConfig.get_enemy_oy(eid, cb.w))
+	var poly := ScaleConfig.get_enemy_poly(eid)
+	var sc := eff_scale * eff_coll
+	var off := Vector2(ox * sc, oy * sc - 4.0)
 	var sq := Polygon2D.new()
-	sq.polygon = PackedVector2Array([Vector2(-40, -40), Vector2(40, -40), Vector2(40, 40), Vector2(-40, 40)])
+	var pp := PackedVector2Array()
+	for v in Enemy._shape_points(shape, w, h, poly, sc):
+		pp.append(v + off)
+	sq.polygon = pp
 	sq.color = Color(col.r, col.g, col.b, 0.15)
 	sq.z_index = 89
 	add_child(sq)
@@ -75,7 +104,7 @@ func _redraw() -> void:
 		sp.texture = tex
 		sp.hframes = maxi(int(ed.get(fkey, 8)), 1)
 		sp.frame = 0
-		sp.scale = Vector2(0.45, 0.45) * scale_mult
+		sp.scale = Vector2(0.45, 0.45) * eff_scale
 		sp.z_index = 90
 		add_child(sp)
 	# 场景文字已去除（2026-08-16）：不显示怪名标签，仅保留精灵预览。

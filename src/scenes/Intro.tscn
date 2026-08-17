@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://src/scenes/Intro.gd" id="1"]
-[ext_resource type="VideoStream" path="res://assets/Anime/A_001.ogv" id="2"]
+[ext_resource type="VideoStream" path="res://assets/Anime/A-001.ogv" id="2"]
 
 [node name="Intro" type="Control"]
 script = ExtResource("1")
@@ -18,7 +18,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 stream = ExtResource("2")
 autoplay = true
-stretch_mode = 2
+expand = true
 z_index = 0
 mouse_filter = 2
 

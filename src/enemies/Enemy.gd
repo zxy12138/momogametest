@@ -166,9 +166,15 @@ func _sync_outline() -> void:
 ## 房间编辑器调整怪物大小：scale_mult 倍率（视觉 sprite 缩放 + 碰撞/受击半径同步缩放）。
 ## 由 RoomManager 在刷怪时调用（handle 上配置的 scale_mult）；默认 1.0 不变。
 var _scale_mult := 1.0
+var _collision_mult := 1.0
 func set_scale_mult(sm: float) -> void:
 	_scale_mult = maxf(0.1, sm)
 	_apply_scale_mult()
+
+## 独立碰撞范围倍率（仅放大碰撞框，不动 sprite 视觉大小）。
+func set_collision_mult(cm: float) -> void:
+	_collision_mult = maxf(0.1, cm)
+	_apply_collision_box()
 
 
 func _apply_scale_mult() -> void:
@@ -178,24 +184,79 @@ func _apply_scale_mult() -> void:
 	_apply_collision_box()
 
 
-## 设置方形判定框（RectangleShape2D）贴合身体：身体碰撞框 + 受击框都按 CB 配置的宽高与中心偏移。
-## 偏移 y 再减 4（sprite.position.y = -4，让碰撞框中心对齐视觉身体中心）。
+## 把形状参数（shape/w/h/ox/oy/poly）按 CB 基础值补全后，应用到身体碰撞框 + 受击框。
+## 形状：0 矩形(RectangleShape2D) / 1 三角形(CollisionPolygon2D) / 2 圆(CircleShape2D) / 3 多边形(CollisionPolygon2D)。
+## 三角/多边形走 CollisionPolygon2D；矩形/圆走 CollisionShape2D。两套节点并存，按形状启用其一、禁用另一。
+## 尺寸/中心点的最终值 = ScaleConfig 基础值 × (scale_mult × collision_mult)，与编辑器预览完全一致。
 func _apply_collision_box() -> void:
 	var cb: Vector4 = CB.get(_eid, Vector4(32, 32, 0, 0))
-	var sz := Vector2(cb.x, cb.y) * _scale_mult
-	var off := Vector2(cb.z * _scale_mult, cb.w * _scale_mult - 4.0)
-	var cs := get_node_or_null("CollisionShape2D")
-	if cs != null:
-		var sh := RectangleShape2D.new()
-		sh.size = sz
-		cs.shape = sh
-		cs.position = off
-	var hs := get_node_or_null("Hitbox/CollisionShape2D")
-	if hs != null:
-		var hsh := RectangleShape2D.new()
-		hsh.size = sz
-		hs.shape = hsh
-		hs.position = off
+	var sc := _scale_mult * _collision_mult
+	var shape := int(ScaleConfig.get_enemy_shape(_eid, ScaleConfig.SHAPE_RECT))
+	var w := float(ScaleConfig.get_enemy_w(_eid, cb.x))
+	var h := float(ScaleConfig.get_enemy_h(_eid, cb.y))
+	var ox := float(ScaleConfig.get_enemy_ox(_eid, cb.z))
+	var oy := float(ScaleConfig.get_enemy_oy(_eid, cb.w))
+	var poly := ScaleConfig.get_enemy_poly(_eid)
+	_apply_shape_to_colliders(shape, w, h, ox, oy, poly, sc)
+
+
+## 返回形状对应的「局部多边形顶点」（中心在原点，已乘缩放 sc）。
+## 矩形/圆统一用矩形近似（圆在运行期改用 CircleShape2D，这里仅为兜底/预览）；三角与多边形返回真实顶点。
+static func _shape_points(shape: int, w: float, h: float, poly: PackedVector2Array, sc: float) -> PackedVector2Array:
+	if shape == ScaleConfig.SHAPE_TRI:
+		var hw := w * 0.5 * sc
+		var hh := h * 0.5 * sc
+		return PackedVector2Array([Vector2(-hw, hh), Vector2(hw, hh), Vector2(0.0, -hh)])
+	if shape == ScaleConfig.SHAPE_CIRCLE:
+		var r := 0.5 * w * sc
+		var pp := PackedVector2Array()
+		var n := 24
+		for i in n:
+			var a := TAU * float(i) / float(n)
+			pp.append(Vector2(cos(a) * r, sin(a) * r))
+		return pp
+	if shape == ScaleConfig.SHAPE_POLY and poly.size() >= 3:
+		var pp := PackedVector2Array()
+		for v in poly:
+			pp.append(v * sc)
+		return pp
+	# 矩形 / 退化兜底
+	var hw := w * 0.5 * sc
+	var hh := h * 0.5 * sc
+	return PackedVector2Array([Vector2(-hw, -hh), Vector2(hw, -hh), Vector2(hw, hh), Vector2(-hw, hh)])
+
+
+## 把解析后的形状参数应用到身体碰撞框 + 受击框（两者同形同尺寸同偏移）。
+func _apply_shape_to_colliders(shape: int, w: float, h: float, ox: float, oy: float, poly: PackedVector2Array, sc: float) -> void:
+	var off := Vector2(ox * sc, oy * sc - 4.0)   # -4 对齐 sprite.position.y = -4 的视觉身体中心
+	var pts := _shape_points(shape, w, h, poly, sc)
+	_set_collider(get_node_or_null("CollisionShape2D"), get_node_or_null("CollisionPolygon2D"), shape, w, h, sc, off, pts)
+	_set_collider(get_node_or_null("Hitbox/CollisionShape2D"), get_node_or_null("Hitbox/CollisionPolygon2D"), shape, w, h, sc, off, pts)
+
+
+## 对单个碰撞器（身体或受击）按形状设置：三角/多边形→CollisionPolygon2D，矩形/圆→CollisionShape2D。
+func _set_collider(cs: CollisionShape2D, cp: CollisionPolygon2D, shape: int, w: float, h: float, sc: float, off: Vector2, pts: PackedVector2Array) -> void:
+	if shape == ScaleConfig.SHAPE_TRI or shape == ScaleConfig.SHAPE_POLY:
+		if cs != null:
+			cs.disabled = true
+		if cp != null:
+			cp.disabled = false
+			cp.position = off
+			cp.polygon = pts
+	else:
+		if cp != null:
+			cp.disabled = true
+		if cs != null:
+			cs.disabled = false
+			cs.position = off
+			if shape == ScaleConfig.SHAPE_CIRCLE:
+				var sh := CircleShape2D.new()
+				sh.radius = 0.5 * w * sc
+				cs.shape = sh
+			else:
+				var sh := RectangleShape2D.new()
+				sh.size = Vector2(w, h) * sc
+				cs.shape = sh
 
 
 func is_boss() -> bool:

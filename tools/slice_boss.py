@@ -13,7 +13,9 @@ import sys
 import statistics
 from PIL import Image
 
-SRC = r"H:/GodotProject/momogametest/assets/sprites/bosses"
+SRC = r"E:/Godot/Godot_Project/momogametest/assets/sprites/bosses"
+# 本次只重切 layer3（F3_B_001 / F3_B_002）；需要全部层时设 None。
+TARGET_LAYER = "layer3"
 FRAME = 192          # 输出帧格（boss 用大帧格；内容缩放后统一 192 高，宽自适应居中）
 ALPHA_THRESH = 60    # 行带检测阈值
 
@@ -136,14 +138,37 @@ def make_strip(im, y0, y1, frames, x_off=0, x_limit=1024):
     """按「透明间隙内容带」切帧（复用 slice_enemy_rows v3 策略）：
     1) 内容带（透明间隙分隔的独立内容块）数量 == 目标帧数 → 直接用内容带，每帧=一个内容块；
     2) 帧数不符（内容粘连/身体分离）→ 帧间距中位数分析：均匀切 + 跳空帧。
+    2026-08-17 改进粘连帧识别：剔除 ≤MIN_FRAG_W 的碎片带 → 检测过宽带（>MERGE_RATIO×中位宽 = 多帧粘连）→ 均匀拆分 → 再判断。
     x_off/x_limit：跨行合并时限制 x 范围。"""
+    MIN_FRAG_W = 4          # 剔除宽度 ≤ 4px 的碎片带（AI 描边/抗锯齿残留）
+    MERGE_RATIO = 1.55      # 带宽 > 中位宽 × 此值 → 视为多帧粘连
     xa = x_off
     xb = min(x_limit, im.size[0]) - 1
-    bands = content_bands(im, y0, y1)
-    # 过滤 x 范围外的带
-    bands = [b for b in bands if b[0] >= xa and b[1] <= xb]
+    raw_bands = content_bands(im, y0, y1)
+    # 过滤 x 范围外 + 剔除小碎片带
+    bands = [b for b in raw_bands if b[0] >= xa and b[1] <= xb]
+    bands = [b for b in bands if (b[1] - b[0] + 1) >= MIN_FRAG_W]
     if not bands:
         return None
+    # 检测并拆分粘连带：带宽 > MERGE_RATIO × 中位宽 → 均匀拆分为 k 帧
+    if len(bands) >= 2:
+        widths = [b[1] - b[0] + 1 for b in bands]
+        med_w = statistics.median(widths)
+        if med_w > 0:
+            split_bands: list[tuple[int, int]] = []
+            for b in bands:
+                w = b[1] - b[0] + 1
+                if w > med_w * MERGE_RATIO:
+                    # 该带过宽 → 按中位宽估算帧数并均匀拆分
+                    k = max(2, round(w / med_w))
+                    seg = w / float(k)
+                    for j in range(k):
+                        sx0 = b[0] + int(round(j * seg))
+                        sx1 = b[0] + int(round((j + 1) * seg)) - 1
+                        split_bands.append((sx0, sx1))
+                else:
+                    split_bands.append(b)
+            bands = split_bands
     # 情况1：内容带数量 == 目标帧数 → 直接用透明间隙切的内容带
     if len(bands) == frames:
         cells = []
@@ -240,17 +265,27 @@ def build_transform(layer, fid, json_name):
 
 
 def _mirror(layer, fid, base, left):
+    """逐帧水平翻转（保持帧序，不整条翻转）：每个 FRAME 宽单元格单独镜像。
+    旧实现直接对整条精灵条 FLIP_LEFT_RIGHT，会把帧序整体反转（第 i 帧落到 N-1-i 位），
+    导致 walk/dead/melee 等动画倒放。这里改为逐单元格翻转，动画顺序与右手版完全一致。"""
     src = os.path.join(SRC, layer, f"{fid}_{base}.png")
     if not os.path.exists(src):
         return
-    img = Image.open(src).transpose(Image.FLIP_LEFT_RIGHT)
-    out = os.path.join(SRC, layer, f"{fid}_{left}.png")
-    img.save(out)
-    print(f"  [mirror] {left} <- {base}")
+    img = Image.open(src).convert("RGBA")
+    W, H = img.size
+    n = W // FRAME
+    out = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    for i in range(n):
+        cell = img.crop((i * FRAME, 0, (i + 1) * FRAME, H))
+        out.paste(cell.transpose(Image.FLIP_LEFT_RIGHT), (i * FRAME, 0))
+    out.save(os.path.join(SRC, layer, f"{fid}_{left}.png"))
+    print(f"  [mirror] {left} <- {base}（逐帧翻转，{n}帧）")
 
 
 def main() -> int:
     for fid, anim_map in ROWS.items():
+        if TARGET_LAYER is not None and LAYER_OF[fid] != TARGET_LAYER:
+            continue
         layer = LAYER_OF[fid]
         src = os.path.join(SRC, layer, f"{fid}.png")
         if not os.path.exists(src):

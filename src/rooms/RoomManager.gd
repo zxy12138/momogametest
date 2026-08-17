@@ -765,23 +765,26 @@ func _build_next_door() -> void:
 		d.visible = false
 		add_child(d)
 		_next_doors.append(d)
-		# 可见门框 + 标签（挂在传送门下，随 d 一起显示/隐藏）；素材暂缺用 exists 守卫避免报错
-		var door_tex: Texture2D = null
-		if ResourceLoader.exists("res://assets/tiles/chuansongmen.png"):
-			door_tex = load("res://assets/tiles/chuansongmen.png") as Texture2D
-		if door_tex != null:
-			var ds := door_tex.get_size()
-			var dh := 96.0
-			var fw := ds.x   # 单图（chuansongmen.png），不再 4 帧分割
-			var dw := dh * fw / ds.y
-			var spr := Sprite2D.new()
-			spr.texture = door_tex
-			spr.hframes = 1
-			spr.frame = 0
-			spr.scale = Vector2(dw / fw, dh / ds.y)
-			spr.z_index = 4
-			d.add_child(spr)
-		# 场景文字已去除（2026-08-16）：不显示「↑ 下一层」标签，仅保留门框贴图。
+		# 下一层门可视化：金色半透明矩形 + 边框（与 NextDoorHandle 编辑器预览一致）。
+		# 不用 chuansongmen.png —— 那是第一关「测试传送门(PortalHandle)」专用素材，下一层门只画黄框。
+		# 门初始隐藏（d.visible=false），Boss 击败后 enable_next_door() 设 visible=true 时随 d 一起显示。
+		var half_w := h.door_size.x * 0.5
+		var half_h := h.door_size.y * 0.5
+		var nbox := Polygon2D.new()
+		nbox.polygon = PackedVector2Array([
+			Vector2(-half_w, -half_h), Vector2(half_w, -half_h),
+			Vector2(half_w, half_h), Vector2(-half_w, half_h)])
+		nbox.color = Color(1.0, 0.85, 0.3, 0.30)
+		nbox.z_index = 90
+		d.add_child(nbox)
+		var nframe := Line2D.new()
+		nframe.points = PackedVector2Array([
+			Vector2(-half_w, -half_h), Vector2(half_w, -half_h),
+			Vector2(half_w, half_h), Vector2(-half_w, half_h), Vector2(-half_w, -half_h)])
+		nframe.width = 2
+		nframe.default_color = Color(1.0, 0.85, 0.3, 0.95)
+		nframe.z_index = 91
+		d.add_child(nframe)
 
 
 ## Boss 击败后启用本房所有下一层传送门（由 Game.on_boss_defeated 调用）。
@@ -804,10 +807,10 @@ func _spawn_content() -> void:
 				# 调 spawn_boss_now()），配合 S_001_7_All 第一段视频一起出场。
 				_pending_boss.clear()
 				for h in _boss_handles:
-					_pending_boss.append([h.boss_id(), h.position])
+					_pending_boss.append([h.boss_id(), h.position, h])
 			else:
 				for h in _boss_handles:
-					_start_boss_intro(h.boss_id(), h.position)
+					_start_boss_intro(h.boss_id(), h.position, h)
 		return
 	# 起点房(start)现在也从 enemy_placements 刷怪（满足「起始场景也能刷怪」需求）；
 	# 驿站(inn)仍不刷，保持为安全休整区。
@@ -858,18 +861,34 @@ func _spawn_decoration(path: String, pos: Vector2, scale_xy: Vector2, rot_deg: f
 func _spawn_enemy(eid: String, pos: Vector2, handle: Node = null) -> void:
 	var e := ENEMY.instantiate() as Node2D
 	e.call("setup", eid)
-	# 应用房间手柄配置的怪物大小倍率（scale_mult，默认 1.0）
+	# 全局类型级缩放（插件面板按类型统一调，应用到所有同类型怪） × 逐实例手柄缩放（单个微调）
+	var g_scale: float = ScaleConfig.get_enemy_scale(eid)
+	var g_coll: float = ScaleConfig.get_enemy_collision(eid)
+	var h_scale: float = 1.0
+	var h_coll: float = 1.0
 	if handle != null and handle.get("scale_mult") != null:
-		e.call("set_scale_mult", float(handle.get("scale_mult")))
+		h_scale = float(handle.get("scale_mult"))
+	if handle != null and handle.get("collision_mult") != null:
+		h_coll = float(handle.get("collision_mult"))
+	e.call("set_scale_mult", g_scale * h_scale)
+	e.call("set_collision_mult", g_coll * h_coll)
 	e.position = pos   # 房间局部坐标（房间挂锚点下）
 	e.z_index = int(pos.y)
 	# 加进本房间节点：切换房间时 _room.queue_free() 会一并销毁，避免跨房叠加
 	add_child(e)
 
 
-func _spawn_boss(bid: String, pos: Vector2) -> void:
+func _spawn_boss(bid: String, pos: Vector2, handle: Variant = null) -> void:
 	var b := load(BOSS_PATH).instantiate() as Node2D
 	b.call("setup", bid)
+	# 全局类型级缩放（插件面板按类型统一调，应用到所有同类型 Boss） × 逐实例 BossHandle 缩放
+	var g_scale: float = ScaleConfig.get_boss_scale(bid)
+	var g_coll: float = ScaleConfig.get_boss_collision(bid)
+	var h_scale: float = 1.0
+	if handle != null and handle.get("boss_scale_mult") != null:
+		h_scale = float(handle.get("boss_scale_mult"))
+	b.call("set_scale_mult", g_scale * h_scale)
+	b.call("set_collision_mult", g_coll)
 	b.position = pos   # 房间局部坐标（房间挂锚点下；位置由场景 BossHandle 决定）
 	b.z_index = int(b.position.y)
 	# 加进本房间节点：随房间销毁
@@ -880,7 +899,7 @@ func _spawn_boss(bid: String, pos: Vector2) -> void:
 ## 视频第一段由 Game 演出单独调 play_bg_segment1()（视频先播→boss 再出，顺序由 Game 控制）。
 func spawn_boss_now() -> void:
 	for p in _pending_boss:
-		_spawn_boss(str(p[0]), p[1] as Vector2)
+		_spawn_boss(str(p[0]), p[1] as Vector2, p[2] if p.size() > 2 else null)
 	_pending_boss.clear()
 
 
@@ -893,7 +912,7 @@ func get_boss_local() -> Vector2:
 # Boss 房入场：先显示「入场图」(boss_intro_img，如 S_003_7)，播放入场动画（计时 boss_intro_time 秒），
 # 动画结束再切换为正式地图 (scene_img，如 S_003_7_1) 并开始 boss 战。
 # 仅当房间带 boss_intro_img 且未清空时生效；普通 boss 房（无该字段）intro 为空则直接出 boss。
-func _start_boss_intro(bid: String, pos: Vector2) -> void:
+func _start_boss_intro(bid: String, pos: Vector2, handle: Variant = null) -> void:
 	var intro: String = _data.get("boss_intro_img", "")
 	var real: String = _data.get("scene_img", "")
 	var intro_time: float = float(_data.get("boss_intro_time", 0.0))
@@ -901,13 +920,13 @@ func _start_boss_intro(bid: String, pos: Vector2) -> void:
 	if intro != "" and _floor != null:
 		_floor.texture = load(intro) as Texture2D
 	if intro_time <= 0.0:
-		_spawn_boss(bid, pos)
+		_spawn_boss(bid, pos, handle)
 		return
 	var timer := get_tree().create_timer(intro_time)
 	timer.timeout.connect(func():
 		if is_instance_valid(_floor) and real != "":
 			_floor.texture = load(real) as Texture2D
-		_spawn_boss(bid, pos)
+		_spawn_boss(bid, pos, handle)
 	)
 
 

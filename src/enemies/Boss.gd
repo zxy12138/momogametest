@@ -16,6 +16,31 @@ var _layer := 1
 var _charge_cd := 0.0         # 公交冲撞冷却
 var _summon_cd := 0.0         # 昆虫召唤冷却（form2 完全昆虫/电脑机可召唤）
 var _spin_a := 0.0
+# 逐实例体型倍率（编辑器 BossHandle 配置，默认 1.0）；乘到形态 scale 与碰撞框 cb 上。
+var _boss_scale_mult := 1.0
+# Boss 碰撞范围倍率（独立于体型，仅放大碰撞/受击框，不动 sprite 视觉大小）。
+# 由全局类型配置 ScaleConfig + 逐实例 BossHandle 传入；默认 1.0。
+var _boss_collision_mult := 1.0
+
+## 编辑器/运行时设置 Boss 体型倍率（仅视觉与碰撞框，不改数值）。
+func set_scale_mult(sm: float) -> void:
+	_boss_scale_mult = maxf(0.1, sm)
+	_apply_boss_scale()
+
+## 编辑器/运行时设置 Boss 碰撞范围倍率（独立于体型；仅碰撞框，不动 sprite）。
+func set_collision_mult(cm: float) -> void:
+	_boss_collision_mult = maxf(0.1, cm)
+	_apply_boss_scale()
+
+## 按当前形态 scale × _boss_scale_mult 设置 sprite 缩放、碰撞框、阴影（双形态共用）。
+## 碰撞框额外乘 _boss_collision_mult（视觉 sprite 不受影响）。
+func _apply_boss_scale() -> void:
+	if _sprite == null:
+		return
+	var sc: float = float(_form_data.get("scale", 1.0)) * _boss_scale_mult
+	_sprite.scale = Vector2(sc, sc)
+	_apply_form_cb(_form_data)
+	_add_shadow_boss(sc)
 
 
 func setup(bid: String) -> void:
@@ -83,10 +108,8 @@ func _enter_form(form: int, is_start: bool) -> void:
 	behavior = str(_form_data.get("behavior", "chase"))
 	contact_dmg = float(b.get("contact_dmg", 18))
 	# 尺寸：sprite scale（素材切 192 帧格；base 1.0 = 视觉帧格约 192px，形态 scale 微调体型）
-	var sc: float = float(_form_data.get("scale", 1.0))
-	_sprite.scale = Vector2(sc, sc)
-	_apply_form_cb(_form_data)
-	_add_shadow_boss(sc)
+	# 再乘逐实例 boss_scale_mult（编辑器 BossHandle 配置）
+	_apply_boss_scale()
 	# 动画：idle 优先，无 idle 用 walk_down（公交）
 	if _sprite.sprite_frames.has_animation("idle"):
 		_sprite.play("idle")
@@ -96,24 +119,18 @@ func _enter_form(form: int, is_start: bool) -> void:
 		GameManager.fx("res://assets/fx/FX-024_level_up_effect.png", global_position, 64, 64, 8, 0.8)
 
 
-## 按形态 CB 设置方形判定框（宽高/偏移均乘 scale）。
+## 按形态 CB + 全局类型形状配置设置碰撞框（支持矩形/三角/圆/多边形 + 中心偏移）。
+## 形状/尺寸/中心点缺省回落本形态 cb；最终尺寸 = cb 基础值 × (形态 scale × boss_scale_mult × boss_collision_mult)。
 func _apply_form_cb(fd: Dictionary) -> void:
 	var cb: Vector4 = fd.get("cb", Vector4(80, 90, 0, 4))
-	var sc: float = float(fd.get("scale", 1.0))
-	var sz := Vector2(cb.x, cb.y) * sc
-	var off := Vector2(cb.z * sc, cb.w * sc - 4.0)
-	var cs := get_node_or_null("CollisionShape2D")
-	if cs != null:
-		var sh := RectangleShape2D.new()
-		sh.size = sz
-		cs.shape = sh
-		cs.position = off
-	var hs := get_node_or_null("Hitbox/CollisionShape2D")
-	if hs != null:
-		var hsh := RectangleShape2D.new()
-		hsh.size = sz
-		hs.shape = hsh
-		hs.position = off
+	var sc: float = float(fd.get("scale", 1.0)) * _boss_scale_mult * _boss_collision_mult
+	var shape := int(ScaleConfig.get_boss_shape(_eid, ScaleConfig.SHAPE_RECT))
+	var w := float(ScaleConfig.get_boss_w(_eid, cb.x))
+	var h := float(ScaleConfig.get_boss_h(_eid, cb.y))
+	var ox := float(ScaleConfig.get_boss_ox(_eid, cb.z))
+	var oy := float(ScaleConfig.get_boss_oy(_eid, cb.w))
+	var poly := ScaleConfig.get_boss_poly(_eid)
+	_apply_shape_to_colliders(shape, w, h, ox, oy, poly, sc)
 
 
 ## Boss 阴影（按形态尺寸）。
